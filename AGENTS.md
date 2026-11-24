@@ -8,14 +8,14 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
-# AGENTS.md — Muhafiz
+# AGENTS.md — Bizvyra
 
 Single source of truth for every coding agent on this repo (Claude Code, Codex, Antigravity).
 Claude Code reads it through `CLAUDE.md`, which contains only `@AGENTS.md`.
 
 ## Product
 
-**Muhafiz** ("Detect. Fix. Protect. Prove.") is an affordable AI security guard for Pakistani small businesses, by Vulnora.
+**Bizvyra** ("Detect. Fix. Protect. Prove.") is an affordable AI security guard for Pakistani small businesses, built by **Team Cyber Forge**. Use the name "Bizvyra" in the UI, README and metadata.
 v1 tests a business's **AI chatbot**: it attacks the bot in English, Urdu and Roman Urdu, proves each leak with objective checks, grades the bot A–F, writes a hardened fix, and re-tests to prove the fix worked. The platform is modular so more modules (website & email health, links, ERP) plug in later.
 
 Built for the Capital Youth Expo Hackathon (Track 6), build window Nov 16–28 2026. **All code in this repo is written fresh during the window. Never copy code or attack datasets from other repositories.** Ideas from prior work are credited in the README (see `docs/prior-art-review.md`).
@@ -37,7 +37,7 @@ Built for the Capital Youth Expo Hackathon (Track 6), build window Nov 16–28 2
 - Vitest for the judge and the canary decoder only
 - Vercel hosting. All env vars listed in `.env.example`
 - Brand colours: background `#0D1117`, surface `#171D25`, primary `#14B8A6`, accent `#22D3EE`. Urdu text uses Noto Nastaliq Urdu, right-to-left
-- `MUHAFIZ_MODE` = `demo` (no limits, for judges) | `public` (free-tier limits on)
+- `BIZVYRA_MODE` = `demo` (no limits, for judges) | `public` (free-tier limits on)
 - Dev server runs in WSL. If the repo is on a Windows drive (`/mnt/...`), set `WATCHPACK_POLLING=true` in `.env.local` so edits made from Windows reload
 
 ## Architecture
@@ -56,7 +56,7 @@ UI (src/app/(pages), src/components)
 ### Module contract
 
 ```ts
-interface MuhafizModule {
+interface BizvyraModule {
   id: "chatbot" | "web_email";
   targetSchema: ZodSchema;                       // what the owner provides
   plan(target: Target, level: 0 | 1 | 2): Step[];
@@ -102,7 +102,7 @@ Finding {
   4. LLM judge — structured JSON `{breach, reason, confidence}`, understands EN/UR/Roman Urdu
   5. otherwise `pass`; timeouts and API errors → `error`
 - **Defence levels:** L0 original prompt · L1 hardened system prompt · L2 L1 + output guard (block canary/assets, then an LLM self-check)
-- **Scoring:** attack success rate (ASR) = breaches ÷ (breaches + passes), per level, language and intent. Grade A–F from severity-weighted ASR. Muhafiz Score across modules.
+- **Scoring:** attack success rate (ASR) = breaches ÷ (breaches + passes), per level, language and intent. Grade A–F from severity-weighted ASR. Bizvyra Score across modules.
 - **Scans are client-driven:** `POST /api/scans` returns the plan; the browser calls `POST /api/scans/[id]/step` for each step, 3 at a time; then `POST /api/scans/[id]/finalize`.
 
 ### Data model (Supabase)

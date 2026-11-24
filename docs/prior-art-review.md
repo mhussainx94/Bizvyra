@@ -1,6 +1,6 @@
-# Muhafiz AI: prior-art code review
+# Bizvyra: prior-art code review
 
-How Garak, Prompt Fuzzer and Rebuff work, which patterns Muhafiz reuses (written fresh in TypeScript, credited in the README), and where Muhafiz improves on them.
+How Garak, Prompt Fuzzer and Rebuff work, which patterns Bizvyra reuses (written fresh in TypeScript, credited in the README), and where Bizvyra improves on them.
 
 Reviewed: NVIDIA/garak (commit of 23 Nov 2026, Apache-2.0), prompt-security/ps-fuzz (19 Aug 2026, MIT), protectai/rebuff (25 Jan 2024, Apache-2.0).
 
@@ -15,18 +15,18 @@ Reviewed: NVIDIA/garak (commit of 23 Nov 2026, Apache-2.0), prompt-security/ps-f
 - **Latent injection**: the attack is hidden inside other content (a résumé, a report) using marker placeholders.
 - **Languages**: a translation layer can machine-translate probes into many languages, **including Urdu script (`ur`)**. The low-resource-language buff uses DeepL with Estonian, Indonesian, Latvian, Slovak and Slovenian.
 
-**What Muhafiz takes (re-implemented)**
+**What Bizvyra takes (re-implemented)**
 
 - The probe/detector/transform split, as **intent × language × encoding**.
 - n-gram overlap scoring for system-prompt leaks (a backup to the canary).
 - OWASP tags and a severity tier on every attack.
 
-**Where Muhafiz improves**
+**Where Bizvyra improves**
 
 - Garak can only **machine-translate** into Urdu script. No Roman Urdu, and no natively written attacks in the way Pakistanis actually type.
 - It's a developer command-line tool that produces logs. It has no fix, no re-test, and no owner-friendly report.
 
-**Pitch caution:** don't claim "no tool tests Urdu." Say: *"Existing tools machine-translate English attacks. Muhafiz uses natively written Urdu and Roman Urdu attacks, the way real customers type."*
+**Pitch caution:** don't claim "no tool tests Urdu." Say: *"Existing tools machine-translate English attacks. Bizvyra uses natively written Urdu and Roman Urdu attacks, the way real customers type."*
 
 ## 2. Prompt Fuzzer (ps-fuzz): system-prompt hardening fuzzer
 
@@ -44,14 +44,14 @@ Reviewed: NVIDIA/garak (commit of 23 Nov 2026, Apache-2.0), prompt-security/ps-f
 - The "linguistic evasion" test only checks whether the bot answers "capital of China" (in Chinese) or "capital of Germany" (in German). That tests going off-topic, not harm to the business.
 - The LLM answer checker succeeds only if the judge replies exactly `"a"`, which is fragile.
 
-**What Muhafiz takes (re-implemented)**
+**What Bizvyra takes (re-implemented)**
 
 - Streaming per-attack progress (our live attack feed).
 - The four result states: breach / resilient / error / skipped.
 - Tailored attacks generated from the target's own prompt (Phase 2, a stretch goal).
 - Weak/strong prompt comparison (our defence levels L0, L1, L2).
 
-**Where Muhafiz improves**
+**Where Bizvyra improves**
 
 - A judge that works in any language: canary token, protected assets and n-gram overlap first, then a structured-JSON LLM judge. No English keyword lists.
 - Attacks aim at **business harm** (leaked codes, unapproved refunds, customer data), not trivia questions.
@@ -71,17 +71,17 @@ Reviewed: NVIDIA/garak (commit of 23 Nov 2026, Apache-2.0), prompt-security/ps-f
 - The heuristic phrase list is English-only.
 - Last commit was January 2024, so it is no longer actively maintained.
 
-**What Muhafiz takes (re-implemented)**
+**What Bizvyra takes (re-implemented)**
 
 - A random canary per target, placed inside the system prompt.
 - The idea of generating combinations of injection phrases, for the L2 input guard.
 
-**Where Muhafiz improves**
+**Where Bizvyra improves**
 
 - **Canary detection that survives encoding**: normalise the reply (strip spaces and punctuation, lowercase), and also check the reversed text and decoded base64/hex chunks.
 - Injection phrase combinations in **Urdu and Roman Urdu** too (e.g. "pichli hidayat bhool jao", "upar wali baatein ignore karo"); you write these natively.
 
-## 4. Changes to Muhafiz's design
+## 4. Changes to Bizvyra's design
 
 ### Attack model (Garak-style, written fresh)
 
@@ -111,8 +111,8 @@ Each attack record carries: `intent`, `technique`, `lang`, `owasp`, `severity`, 
 
 ## 5. README credits section (draft)
 
-> **Prior work & what we improved.** Muhafiz AI's design was informed by studying open-source LLM security tools. No code or attack datasets were copied; all logic and all attack prompts were written for this project.
-> - **Garak** (NVIDIA, Apache-2.0): probe/detector/transform architecture and n-gram system-prompt leak scoring. *Muhafiz adds native Roman Urdu and Urdu attacks, owner-facing reports and automatic hardening.*
-> - **Prompt Fuzzer** (Prompt Security, MIT): streaming per-attack progress, breach/resilient/error states, attacks tailored to the target prompt. *Muhafiz replaces English-keyword refusal detection with a judge that works in any language and targets business harm.*
-> - **Rebuff** (Protect AI, Apache-2.0): canary-token leak detection. *Muhafiz detects canaries even when they're leaked letter by letter, reversed or encoded.*
+> **Prior work & what we improved.** Bizvyra's design was informed by studying open-source LLM security tools. No code or attack datasets were copied; all logic and all attack prompts were written for this project.
+> - **Garak** (NVIDIA, Apache-2.0): probe/detector/transform architecture and n-gram system-prompt leak scoring. *Bizvyra adds native Roman Urdu and Urdu attacks, owner-facing reports and automatic hardening.*
+> - **Prompt Fuzzer** (Prompt Security, MIT): streaming per-attack progress, breach/resilient/error states, attacks tailored to the target prompt. *Bizvyra replaces English-keyword refusal detection with a judge that works in any language and targets business harm.*
+> - **Rebuff** (Protect AI, Apache-2.0): canary-token leak detection. *Bizvyra detects canaries even when they're leaked letter by letter, reversed or encoded.*
 > - **LLMFuzzAgent** (Corca, 2023) and **Gandalf** (Lakera): adaptive attacker agent and defence levels.
