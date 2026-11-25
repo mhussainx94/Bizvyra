@@ -1,0 +1,4 @@
+$ grep -rniE "supabase\.(co|com|in)|github.com/supabase" (excluding node_modules/.next/.git/.ai)
+grep exit=1 (1 = no matches)
+79:- Database schema: `supabase/migrations/0001_init.sql`.
+102:| @supabase/supabase-js | Server-side database client | MIT |

@@ -1,0 +1,105 @@
+## C2 folders
+src/core/registry                index.ts 
+src/core/orchestrator            index.ts 
+src/core/scoring                 index.ts 
+src/core/findings                index.ts 
+src/core/fix                     index.ts 
+src/core/reports                 index.ts 
+src/core/security                index.ts owner.ts ratelimit.ts ssrf.test.ts ssrf.ts 
+src/core/llm                     adapter.test.ts adapter.ts index.ts 
+src/core/db                      client.ts index.ts 
+src/modules/chatbot/attacks      index.ts library.json library.test.ts 
+src/modules/chatbot/judge        index.ts 
+src/modules/chatbot/harden       index.ts 
+src/modules/chatbot/demo-bot     chat-route.test.ts index.ts 
+src/modules/web_email            index.ts 
+src/mocks                        chatbot-demo.ts index.ts mocks.test.ts 
+supabase/migrations              0001_init.sql 
+eval                             index.ts 
+
+## placeholder comments
+==> src/core/registry/index.ts <==
+// Module registry (register/get BizvyraModule by id). Filled by T002.
+
+==> src/core/orchestrator/index.ts <==
+// Scan orchestrator (plan, run step, finalize). Filled by T002.
+
+==> src/core/scoring/index.ts <==
+// Scoring: ASR per level, language and intent; grade A-F; Bizvyra Score. Filled by T002.
+
+==> src/core/findings/index.ts <==
+// Finding model helpers (redaction, truncation, persistence mapping). Filled by T002.
+
+==> src/core/fix/index.ts <==
+// Fix + verify loop (generate fix, re-test at the next defence level). Filled by T003.
+
+==> src/core/reports/index.ts <==
+// Report builder and shareable report links. Filled by T003.
+
+==> src/modules/chatbot/judge/index.ts <==
+// Judge pipeline: canary, protected assets, n-gram overlap, LLM judge. Filled by T002.
+
+==> src/modules/chatbot/harden/index.ts <==
+// Hardener: L1 hardened prompt and L2 output guard. Filled by T003.
+
+==> src/modules/web_email/index.ts <==
+// web_email module (stretch, after the Thursday checkpoint). Registers nothing yet.
+
+==> eval/index.ts <==
+// Offline evaluation harness (L0/L1/L2 attack success rates). Filled by a later task.
+
+## C4 tables / RLS / FKs / indexes
+9:create table public.targets (
+20:create index targets_owner_token_hash_idx on public.targets (owner_token_hash);
+22:create table public.scans (
+24:  target_id   uuid not null references public.targets (id) on delete cascade,
+35:create index scans_target_id_idx on public.scans (target_id);
+38:create table public.findings (
+40:  scan_id            uuid not null references public.scans (id) on delete cascade,
+59:  unique (scan_id, check_id)
+61:create index findings_scan_id_idx on public.findings (scan_id);
+63:create table public.fixes (
+65:  target_id  uuid not null references public.targets (id) on delete cascade,
+71:create index fixes_target_id_idx on public.fixes (target_id);
+74:create table public.reports (
+76:  share_slug text not null unique check (share_slug ~ '^[A-Za-z0-9_-]{8,64}$'),
+82:create table public.leads (
+87:  target_id  uuid null references public.targets (id) on delete set null,
+91:create index leads_target_id_idx on public.leads (target_id);
+94:create table public.verifications (
+96:  target_id   uuid not null references public.targets (id) on delete cascade,
+102:create index verifications_target_id_idx on public.verifications (target_id);
+105:create table public.usage (
+109:  primary key (key, day)
+112:alter table public.targets       enable row level security;
+113:alter table public.scans         enable row level security;
+114:alter table public.findings      enable row level security;
+115:alter table public.fixes         enable row level security;
+116:alter table public.reports       enable row level security;
+117:alter table public.leads         enable row level security;
+118:alter table public.verifications enable row level security;
+119:alter table public.usage         enable row level security;
+policies: 0
+
+## C7 needsReview
+attacks 20 needsReview 7 A03,A07,A10,A11,A14,A16,A19
+intents: leak_discount_codes=4 steal_system_prompt=4 approve_refund=4 ignore_instructions=4 brand_abuse=4
+techniques: naive=3 persona=4 nested_roleplay=3 encoding=2 context_ignoring=3 fake_completion=3 escape_chars=2
+
+## C11 env reads (all inside functions)
+src/core/db/client.ts:13:  const url = process.env.SUPABASE_URL?.trim();
+src/core/db/client.ts:14:  const key = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+src/core/llm/adapter.ts:51:  const env = process.env;
+
+## C12 .env.example keys
+BIZVYRA_MODE= LLM_PROVIDER= LLM_API_KEY= LLM_BASE_URL= MODEL_FAST= MODEL_STRONG= SUPABASE_URL= SUPABASE_SERVICE_ROLE_KEY= OWNER_TOKEN_SECRET= WATCHPACK_POLLING= 
+
+## Restrictions: UI files untouched
+(empty = untouched)
+
+## Restrictions: outbound URLs in src (non-test)
+src/core/llm/adapter.ts:36:https://generativelanguage.googleapis.com
+
+## Restrictions: supabase URL only in .env.example
+README.md:111:| [Supabase](https://supabase.com) | Postgres database |
+(empty = none)

@@ -1,0 +1,43 @@
+$ (with no .env* file in repo root) NEXT_TELEMETRY_DISABLED=1 npm run build
+# .env* files present: 0
+# relevant env vars in shell: 0
+
+> bizvyra@0.1.0 build
+> next build
+
+▲ Next.js 16.4.6 (Turbopack)
+✓ Running next.config.ts took 405ms
+- Cache Components enabled
+- Partial Prefetching enabled
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 4.4s
+  Running TypeScript ...
+  Finished TypeScript in 8.5s ...
+  Collecting page data using 7 workers ...
+  Generating static pages using 7 workers (0/8) ...
+  Generating static pages using 7 workers (2/8) 
+  Generating static pages using 7 workers (4/8) 
+  Generating static pages using 7 workers (6/8) 
+✓ Generating static pages using 7 workers (8/8) in 665ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /api/demo-bot/chat
+├ ƒ /api/leads
+├ ƒ /api/reports/[slug]
+├ ƒ /api/scans
+├ ƒ /api/scans/[id]/finalize
+├ ƒ /api/scans/[id]/step
+├ ƒ /api/targets
+└ ƒ /api/targets/[id]/fix
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+# exit=0
+# duration=29.254517815s
+restored, hash match: yes

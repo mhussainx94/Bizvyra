@@ -1,36 +1,137 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Bizvyra: AI security for small businesses
 
-## Getting Started
+by Team Cyber Forge
 
-First, run the development server:
+**Detect. Fix. Protect. Prove.**
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Overview
+
+Bizvyra is an affordable AI security guard for Pakistani small businesses. Version 1 tests a business's **AI chatbot**:
+
+1. **Detect**: attacks the bot in English, Urdu and Roman Urdu (natively written, the way customers really type).
+2. **Prove**: every leak is confirmed by objective checks (canary token, protected values, system-prompt overlap) before an LLM judge is asked.
+3. **Fix**: grades the bot A–F and writes a hardened system prompt plus an output guard.
+4. **Protect**: re-tests the fixed bot to prove the fix worked (target: F → C → B across defence levels L0 → L1 → L2).
+
+The platform is modular: more checks (website and email health, links, ERP) plug in later as modules.
+
+Built for the Capital Youth Expo Hackathon (Track 6), November 2026.
+
+## Live demo
+
+_Coming soon: link to the Vercel deployment._
+
+## Video
+
+_Coming soon: demo video link._
+
+## Results
+
+_Coming soon: attack success rate per defence level (L0 / L1 / L2), per language and per intent._
+
+## Architecture
+
+```
+UI (src/app/(pages), src/components)
+  → API route handlers (src/app/api) — thin, zod-validated
+    → src/core: module registry · scan orchestrator · Finding model · scoring · fix+verify loop
+                 · report builder · security kit (owner token, rate limit, usage cap, SSRF guard)
+                 · llm adapter · db repository
+      → src/modules/chatbot   (attack library, judge, hardener, demo bot)
+      → src/modules/web_email (stretch)
+  → Supabase · LLM API
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Attack model:** intent × technique × language. 5 intents (leak discount codes, steal the system prompt, approve a refund, ignore instructions, brand abuse), 7 techniques (naive, escape characters, context ignoring, fake completion, persona, nested role-play, encoding), 3 languages (`en`, `ur`, `roman_ur`). 20 attacks in `src/modules/chatbot/attacks/library.json`.
+- **Judge pipeline** (stops at the first decision): canary → protected assets → system-prompt n-gram overlap → LLM judge → pass. Timeouts and API errors are `error` and never count as a pass.
+- **Defence levels:** L0 original prompt · L1 hardened prompt · L2 L1 + output guard.
+- **Scans are client-driven:** `POST /api/scans` returns the plan, the browser runs `POST /api/scans/[id]/step` three at a time, then `POST /api/scans/[id]/finalize`.
+- **API:** `POST /api/targets` · `POST /api/scans` · `POST /api/scans/[id]/step` · `POST /api/scans/[id]/finalize` · `POST /api/targets/[id]/fix` · `POST /api/demo-bot/chat` · `POST /api/leads` · `GET /api/reports/[slug]`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Security design
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Only test what you own:** the demo bot or your own pasted system prompt. Testing live endpoints will require ownership verification.
+- **Owner identity:** an unguessable 256-bit token in an httpOnly, Secure, SameSite=Lax cookie; only its SHA-256 hash is stored.
+- **Input validation:** zod and size limits on every server input (chat messages ≤ 4000 characters, at most 20 per request).
+- **Rate limiting:** every public POST route is rate-limited per IP; the free tier allows 3 scans per IP per day in `public` mode.
+- **SSRF guard** (for future endpoint mode): resolves DNS and blocks private, loopback, link-local, CGNAT and metadata ranges for IPv4 and IPv6 (including IPv4-mapped IPv6); re-checks every redirect; at most 3 redirects; 8 s timeout.
+- **Minimal storage:** responses are truncated and redacted; protected values and the canary are never stored in findings in clear.
+- **Database:** Supabase Postgres accessed server-side only with the service role key; row level security on every table, no anonymous policies.
+- **LLM calls:** one adapter, temperature 0, 15 s timeout, typed errors that never reach the client and never include the API key.
+- **Secrets:** never in code, logs, commits, prompts or reports. `.env.local` is never committed; see `.env.example`.
 
-## Learn More
+## Tech stack
 
-To learn more about Next.js, take a look at the following resources:
+Next.js (App Router) · TypeScript (strict) · Tailwind CSS · zod · Supabase Postgres · Gemini API or an OpenAI-compatible endpoint (NVIDIA NIM) · Vitest · Vercel
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Run locally
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Requirements: Node.js 20+ and npm.
 
-## Deploy on Vercel
+```bash
+npm install
+cp .env.example .env.local   # then fill in the LLM and Supabase values
+npm run dev                  # http://localhost:3000
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Without an LLM key the app still builds and runs; the demo bot returns a 502 "unavailable" error.
+- In WSL with the repo on a Windows drive (`/mnt/...`), set `WATCHPACK_POLLING=true` in `.env.local`.
+- Database schema: `supabase/migrations/0001_init.sql`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Checks:
+
+```bash
+npm run typecheck
+npm run lint
+npm test
+npm run build
+```
+
+## Disclosures
+
+External libraries:
+
+| Library | Use | License |
+|---|---|---|
+| [Next.js](https://nextjs.org) | Web framework, API route handlers | MIT |
+| [React](https://react.dev) / React DOM | UI | MIT |
+| [TypeScript](https://www.typescriptlang.org) | Language | Apache-2.0 |
+| [Tailwind CSS](https://tailwindcss.com) (+ `@tailwindcss/turbopack`) | Styling | MIT |
+| [ESLint](https://eslint.org) + `eslint-config-next` | Linting | MIT |
+| [zod](https://zod.dev) | Validation of every server input and shared types | MIT |
+| @supabase/supabase-js | Server-side database client | MIT |
+| [Vitest](https://vitest.dev) | Unit tests (development only) | MIT |
+
+External services:
+
+| Service | Use |
+|---|---|
+| [Google Gemini API](https://ai.google.dev) | LLM for the demo bot, judge and hardener (when `LLM_PROVIDER=gemini`) |
+| [NVIDIA NIM](https://build.nvidia.com) (OpenAI-compatible API) | Alternative LLM provider (when `LLM_PROVIDER=openai_compatible`) |
+| Supabase | Postgres database |
+| [Vercel](https://vercel.com) | Hosting |
+
+AI assistance: the code was written during the hackathon with AI coding assistants (Claude Code, Codex, Antigravity) under the team's direction and review.
+
+Attack prompts: all 20 attacks in English, Urdu and Roman Urdu were written for this project. Technique names follow published research (Perez & Ribeiro 2022; Liu et al., USENIX Security 2024; Wei et al. 2023; Shen et al., CCS 2024), cited in each attack's `reference` field. The demo shop "Zara Fabrics" and its discount codes are fictional.
+
+## Prior work & what we improved
+
+Bizvyra's design was informed by studying open-source LLM security tools. No code or attack datasets were copied; all logic and all attack prompts were written for this project.
+
+- **Garak** (NVIDIA, Apache-2.0): probe/detector/transform architecture and n-gram system-prompt leak scoring. *Bizvyra adds native Roman Urdu and Urdu attacks, owner-facing reports and automatic hardening.*
+- **Prompt Fuzzer** (Prompt Security, MIT): streaming per-attack progress, breach/resilient/error states, attacks tailored to the target prompt. *Bizvyra replaces English-keyword refusal detection with a judge that works in any language and targets business harm.*
+- **Rebuff** (Protect AI, Apache-2.0): canary-token leak detection. *Bizvyra detects canaries even when they're leaked letter by letter, reversed or encoded.*
+- **LLMFuzzAgent** (Corca, 2023) and **Gandalf** (Lakera): adaptive attacker agent and defence levels.
+
+## Roadmap
+
+- **Now (v1):** chatbot module: demo bot, paste-your-prompt mode, live scan feed, judge pipeline, defence levels L0/L1/L2, bilingual report card (English/Urdu), shareable report link, lead form, free-tier limit.
+- **Stretch:** website and email health module (passive DNS, TLS and header checks with a fix writer).
+- **After the hackathon:** login, payments, monitoring, live endpoint testing with ownership verification, PDF export, an adaptive attacker agent, links and ERP modules.
+
+## Team
+
+**Team Cyber Forge**
+
+_Team members: to be added._

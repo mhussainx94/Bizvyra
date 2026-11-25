@@ -1,0 +1,21 @@
+{
+  "task": "T001",
+  "run_id": "T001-1-cd67",
+  "taken": "2026-11-24T20:36:21Z",
+  "head": "48928ec19363aa959b430d09c60a41a5a4578293",
+  "dirty": [
+    {
+      "path": ".ai/STATE.md",
+      "sha256": "d21c4f5dace18b7a19480dc18518803aee883f8c5266b332b72ff3a3c9ba8160"
+    },
+    {
+      "path": ".ai/ledger.jsonl",
+      "sha256": "e7aebf83d53dad48c2c761b0935d95c90f70882bee57827d9536e66107ad61e1"
+    },
+    {
+      "path": ".ai/tasks/T001.md",
+      "sha256": "5b40aee5c2300ed44fce0a0fac21ef938f0f3c85b602352ee2ec39bf00245a3c"
+    }
+  ],
+  "contract_sha256": "5b40aee5c2300ed44fce0a0fac21ef938f0f3c85b602352ee2ec39bf00245a3c"
+}
