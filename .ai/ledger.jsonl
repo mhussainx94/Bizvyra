@@ -2,3 +2,6 @@
 {"ts":"2026-11-24T20:36:20Z","task":"T001","from":"ASSIGNED","to":"AWAITING_APPROVAL","run_id":null,"actor":"acc","note":"level 3 requires approval"}
 {"ts":"2026-11-24T20:36:21Z","task":"T001","from":"AWAITING_APPROVAL","to":"AWAITING_APPROVAL","run_id":null,"actor":"human","note":"approved","event":"approve"}
 {"ts":"2026-11-24T20:36:21Z","task":"T001","from":"AWAITING_APPROVAL","to":"IN_PROGRESS","run_id":"T001-1-cd67","actor":"human","note":"started attempt 1"}
+{"ts":"2026-11-25T16:37:35Z","task":"T001","from":"IN_PROGRESS","to":"REVIEW","run_id":"T001-1-cd67","actor":"claude-code","note":"T001-1 report written, all criteria PASS"}
+{"ts":"2026-11-25T16:37:36Z","task":"T001","from":"REVIEW","to":"VERIFYING","run_id":"T001-1-cd67","actor":"verifier","note":"verifying attempt 1"}
+{"ts":"2026-11-25T16:40:25Z","task":"T001","from":"VERIFYING","to":"FAILED","run_id":"T001-1-cd67","actor":"verifier","note":"failed checks: scope, secrets"}
