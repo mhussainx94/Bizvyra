@@ -85,7 +85,8 @@ export type Step = z.infer<typeof StepSchema>;
 
 /* ----------------------------------------------------------------- Finding */
 
-export const FindingSchema = z.object({
+/** Strict: unknown keys are rejected because findings come back from the browser (finalize, fix). */
+export const FindingSchema = z.strictObject({
   id: IdSchema,
   scanId: IdSchema,
   module: ModuleIdSchema,
@@ -112,10 +113,11 @@ export type Finding = z.infer<typeof FindingSchema>;
 
 /* --------------------------------------------------------------------- Fix */
 
-export const ChatbotFixContentSchema = z.object({
+/** Strict: the browser sends the fix back with every L1/L2 plan and step request. */
+export const ChatbotFixContentSchema = z.strictObject({
   kind: z.literal("chatbot_prompt"),
   systemPrompt: z.string().min(1).max(LIMITS.systemPromptChars * 2),
-  outputGuard: z.object({
+  outputGuard: z.strictObject({
     enabled: z.boolean(),
     blockProtected: z.boolean(),
     selfCheck: z.boolean(),
@@ -160,7 +162,8 @@ export type ScanSummary = z.infer<typeof ScanSummarySchema>;
 
 export const ScanSchema = z.object({
   id: IdSchema,
-  targetId: IdSchema,
+  /** Null in the stateless core loop (api-contract v2): targets are not stored. */
+  targetId: IdSchema.nullable(),
   module: ModuleIdSchema,
   kind: ScanKindSchema,
   level: LevelSchema,

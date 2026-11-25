@@ -1,22 +1,20 @@
 import { describe, expect, it } from "vitest";
 import { POST as createLead } from "@/app/api/leads/route";
 import { GET as getReport } from "@/app/api/reports/[slug]/route";
-import { POST as finalizeScan } from "@/app/api/scans/[id]/finalize/route";
-import { POST as runStep } from "@/app/api/scans/[id]/step/route";
+import { POST as createFix } from "@/app/api/fix/route";
+import { POST as finalizeScan } from "@/app/api/scans/finalize/route";
 import { POST as createScan } from "@/app/api/scans/route";
-import { POST as createFix } from "@/app/api/targets/[id]/fix/route";
 import { POST as createTarget } from "@/app/api/targets/route";
 import { hashOwnerToken, OWNER_COOKIE } from "@/core/security/owner";
 import {
-  CreateFixResponseSchema,
+  ApiErrorSchema,
   CreateLeadResponseSchema,
   CreateScanResponseSchema,
   CreateTargetResponseSchema,
   FinalizeScanResponseSchema,
   GetReportResponseSchema,
-  RunStepResponseSchema,
 } from "@/lib/types";
-import { MOCK_SCAN_IDS, MOCK_SHARE_SLUG, MOCK_TARGET_ID } from "@/mocks";
+import { MOCK_SCAN_IDS, MOCK_SHARE_SLUG, MOCK_TARGET_ID, mockFindings, mockFix, mockScan } from "@/mocks";
 
 let ip = 0;
 function post(path: string, body: unknown, headers: Record<string, string> = {}): Request {
@@ -67,49 +65,83 @@ describe("POST /api/targets", () => {
   });
 });
 
-describe("scan routes", () => {
-  it("POST /api/scans returns a 30-step plan", async () => {
-    const res = await createScan(post("/api/scans", { targetId: MOCK_TARGET_ID, kind: "baseline", level: 0 }));
+const PLAN = { target: { mode: "demo" }, level: 0, kind: "baseline", size: "quick" };
+
+describe("POST /api/scans (plan)", () => {
+  it("returns a running scan, 30 quick steps and concurrency 3", async () => {
+    const res = await createScan(post("/api/scans", PLAN));
     expect(res.status).toBe(201);
     const json = CreateScanResponseSchema.parse(await res.json());
     expect(json.steps).toHaveLength(30);
-    expect(json.scan.id).toBe(MOCK_SCAN_IDS[0]);
     expect(json.concurrency).toBe(3);
+    expect(json.scan).toMatchObject({ status: "running", score: null, grade: null, summary: null, finishedAt: null, level: 0, kind: "baseline", targetId: null });
+    expect(json.steps.every((s) => s.level === 0)).toBe(true);
   });
 
-  it("POST /api/scans rejects invalid input with 400", async () => {
-    for (const body of [{ targetId: "nope", kind: "baseline", level: 0 }, { targetId: MOCK_TARGET_ID, kind: "baseline", level: 3 }, {}]) {
+  it("full returns 60 steps; prompt-mode targets and level 1 with a fix are accepted", async () => {
+    const full = CreateScanResponseSchema.parse(await (await createScan(post("/api/scans", { ...PLAN, size: "full" }))).json());
+    expect(full.steps).toHaveLength(60);
+    const target = { mode: "prompt", name: "Ali Mobiles", systemPrompt: "You are a phone shop bot.", protectedAssets: ["SUPP-9921"] };
+    const l1 = await createScan(post("/api/scans", { ...PLAN, target, level: 1, kind: "retest", fix: mockFix(1) }));
+    expect(l1.status).toBe(201);
+    expect(CreateScanResponseSchema.parse(await l1.json()).steps.every((s) => s.level === 1)).toBe(true);
+  });
+
+  it("rejects invalid input with 400", async () => {
+    for (const body of [
+      {},
+      { ...PLAN, level: 3 },
+      { ...PLAN, size: "huge" },
+      { ...PLAN, level: 1 },
+      { ...PLAN, fix: mockFix(1) },
+      { ...PLAN, level: 2, fix: { ...mockFix(2), extra: 1 } },
+      { ...PLAN, target: { mode: "endpoint", url: "https://x.test" } },
+      { ...PLAN, target: { mode: "prompt", name: "x", systemPrompt: "y", protectedAssets: Array(21).fill("abcd") } },
+      { ...PLAN, target: { mode: "prompt", name: "x", systemPrompt: "y", protectedAssets: ["a".repeat(101)] } },
+      { ...PLAN, targetId: MOCK_TARGET_ID },
+    ]) {
       expect((await createScan(post("/api/scans", body))).status).toBe(400);
     }
   });
+});
 
-  it("POST /api/scans/[id]/step returns a finding, 400 on invalid input, 404 when unknown", async () => {
-    const ok = await runStep(post("/x", { index: 0 }), params({ id: MOCK_SCAN_IDS[0] }));
-    expect(ok.status).toBe(200);
-    RunStepResponseSchema.parse(await ok.json());
-    expect((await runStep(post("/x", { index: -1 }), params({ id: MOCK_SCAN_IDS[0] }))).status).toBe(400);
-    expect((await runStep(post("/x", { index: 0 }), params({ id: "not-a-uuid" }))).status).toBe(400);
-    expect((await runStep(post("/x", { index: 99 }), params({ id: MOCK_SCAN_IDS[0] }))).status).toBe(404);
-    expect((await runStep(post("/x", { index: 0 }), params({ id: MOCK_TARGET_ID }))).status).toBe(404);
-  });
+describe("POST /api/scans/finalize", () => {
+  const scan = { id: MOCK_SCAN_IDS[0], level: 0, kind: "baseline", createdAt: "2026-11-25T09:00:00.000Z" };
 
-  it("POST /api/scans/[id]/finalize returns the graded scan and a share slug", async () => {
-    const res = await finalizeScan(new Request("http://localhost/x", { method: "POST" }), params({ id: MOCK_SCAN_IDS[2] }));
+  it("scores the findings: status done, grade, score, summary, finishedAt", async () => {
+    const res = await finalizeScan(post("/x", { scan, findings: mockFindings(0) }));
     expect(res.status).toBe(200);
     const json = FinalizeScanResponseSchema.parse(await res.json());
-    expect(json.scan.grade).toBe("B");
-    expect(json.shareSlug).toBe(MOCK_SHARE_SLUG);
-    expect((await finalizeScan(post("/x", { extra: 1 }), params({ id: MOCK_SCAN_IDS[0] }))).status).toBe(400);
+    expect(json.scan).toMatchObject({ id: MOCK_SCAN_IDS[0], status: "done", grade: "F", level: 0, kind: "baseline", createdAt: scan.createdAt });
+    expect(json.scan.score).toBe(mockScan(0).score);
+    expect(json.scan.summary).toEqual(mockScan(0).summary);
+    expect(json.scan.finishedAt).not.toBeNull();
+  });
+
+  it("rejects invalid input with 400", async () => {
+    const findings = mockFindings(0);
+    for (const body of [
+      { scan, findings: [] },
+      { scan, findings: [...findings, ...findings, ...findings] },
+      { scan: { ...scan, id: MOCK_SCAN_IDS[1] }, findings },
+      { scan: { ...scan, status: "done" }, findings },
+      { scan, findings: [{ ...findings[0], extra: 1 }] },
+      { scan, findings: [{ ...findings[0], status: "resilient" }] },
+    ]) {
+      expect((await finalizeScan(post("/x", body))).status).toBe(400);
+    }
   });
 });
 
-describe("fix, leads and reports", () => {
-  it("POST /api/targets/[id]/fix returns an L1 or L2 fix, 400 on invalid input", async () => {
-    const res = await createFix(post("/x", { level: 2 }), params({ id: MOCK_TARGET_ID }));
-    expect(res.status).toBe(201);
-    const json = CreateFixResponseSchema.parse(await res.json());
-    expect(json.fix.content.outputGuard.enabled).toBe(true);
-    expect((await createFix(post("/x", { level: 0 }), params({ id: MOCK_TARGET_ID }))).status).toBe(400);
+describe("POST /api/fix, /api/leads, /api/reports", () => {
+  it("POST /api/fix validates input, then returns 501 until T003", async () => {
+    const res = await createFix(post("/api/fix", { target: { mode: "demo" }, findings: mockFindings(0), level: 1 }));
+    expect(res.status).toBe(501);
+    const json = ApiErrorSchema.parse(await res.json());
+    expect(json.error.code).toBe("not_implemented");
+    expect(json.error.message).toMatch(/T003/);
+    expect((await createFix(post("/api/fix", { target: { mode: "demo" }, findings: mockFindings(0), level: 0 }))).status).toBe(400);
+    expect((await createFix(post("/api/fix", { target: { mode: "demo" }, findings: [], level: 1 }))).status).toBe(400);
   });
 
   it("POST /api/leads accepts a lead, 400 on invalid input", async () => {
@@ -131,5 +163,9 @@ describe("fix, leads and reports", () => {
   it("rejects oversized bodies with 413", async () => {
     const res = await createLead(post("/api/leads", { name: "A", business: "B", contact: "abc", message: "x".repeat(40_000) }));
     expect(res.status).toBe(413);
+    const bigPrompt = { ...PLAN, target: { mode: "prompt", name: "x", systemPrompt: "x".repeat(200_000), protectedAssets: [] } };
+    expect((await createScan(post("/api/scans", bigPrompt))).status).toBe(413);
+    const bigFindings = { scan: { id: MOCK_SCAN_IDS[0], level: 0, kind: "baseline", createdAt: "2026-11-25T09:00:00.000Z" }, findings: [], pad: "x".repeat(1_700_000) };
+    expect((await finalizeScan(post("/x", bigFindings))).status).toBe(413);
   });
 });

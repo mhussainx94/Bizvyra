@@ -56,6 +56,11 @@ export const SCAN_KINDS = ["baseline", "retest"] as const;
 export const ScanKindSchema = z.enum(SCAN_KINDS);
 export type ScanKind = z.infer<typeof ScanKindSchema>;
 
+/** Scan size: quick = 10 attacks x 3 languages, full = every attack x 3 languages. */
+export const SCAN_SIZES = ["quick", "full"] as const;
+export const ScanSizeSchema = z.enum(SCAN_SIZES);
+export type ScanSize = z.infer<typeof ScanSizeSchema>;
+
 export const SCAN_STATUSES = ["pending", "running", "done", "failed"] as const;
 export const ScanStatusSchema = z.enum(SCAN_STATUSES);
 export type ScanStatus = z.infer<typeof ScanStatusSchema>;
@@ -80,6 +85,11 @@ export const LIMITS = {
   systemPromptChars: 8000,
   protectedAssetsMax: 20,
   protectedAssetChars: 200,
+  /** TargetInput (api-contract v2): each protected asset is 2-100 chars. */
+  targetAssetMinChars: 2,
+  targetAssetMaxChars: 100,
+  /** Findings accepted by /api/scans/finalize and /api/fix. */
+  findingsMax: 60,
   nameChars: 80,
   responseChars: 1000,
   evidenceChars: 1000,

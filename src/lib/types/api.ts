@@ -7,10 +7,11 @@ import {
   LIMITS,
   ModuleIdSchema,
   ScanKindSchema,
+  ScanSizeSchema,
 } from "./common";
 import {
+  ChatbotFixContentSchema,
   FindingSchema,
-  FixSchema,
   ProtectedAssetSchema,
   ScanSchema,
   ShareSlugSchema,
@@ -18,7 +19,10 @@ import {
   TargetPublicSchema,
 } from "./domain";
 
-/** Request and response types for every route in AGENTS.md "API". Requests reject unknown keys. */
+/**
+ * Request and response types for every route. The scan routes follow docs/api-contract.md (v2, stateless).
+ * Requests are strict zod objects: unknown keys are rejected.
+ */
 
 /* ----------------------------------------------------------- shared error */
 
@@ -26,7 +30,9 @@ export const API_ERROR_CODES = [
   "invalid_input",
   "payload_too_large",
   "rate_limited",
+  "usage_limit",
   "not_found",
+  "not_implemented",
   "upstream_error",
   "internal",
 ] as const;
@@ -41,10 +47,115 @@ export const ApiErrorSchema = z.object({
 export type ApiError = z.infer<typeof ApiErrorSchema>;
 
 /** Route params. */
-export const IdParamsSchema = z.strictObject({ id: IdSchema });
 export const SlugParamsSchema = z.strictObject({ slug: ShareSlugSchema });
 
-/* ------------------------------------------------------ POST /api/targets */
+/* ------------------------------------------------------------ TargetInput */
+
+/** A protected asset the owner's bot must never reveal (api-contract v2: 2-100 chars). */
+export const TargetAssetSchema = z.string().trim().min(LIMITS.targetAssetMinChars).max(LIMITS.targetAssetMaxChars);
+
+/**
+ * What the browser sends for the bot under test. Nothing is stored server-side.
+ * demo: the server uses DEMO_SYSTEM_PROMPT + DEMO_PROTECTED_ASSETS.
+ * prompt: the owner's own bot instructions and the values it must never reveal.
+ */
+export const TargetInputSchema = z.discriminatedUnion("mode", [
+  z.strictObject({ mode: z.literal("demo") }),
+  z.strictObject({
+    mode: z.literal("prompt"),
+    name: z.string().trim().min(1).max(LIMITS.nameChars),
+    systemPrompt: z.string().trim().min(1).max(LIMITS.systemPromptChars),
+    protectedAssets: z.array(TargetAssetSchema).max(LIMITS.protectedAssetsMax),
+  }),
+]);
+export type TargetInput = z.infer<typeof TargetInputSchema>;
+
+/** `fix` is required for level 1-2 and must be absent for level 0. */
+function checkFixForLevel(value: { level: number; fix?: unknown }, ctx: z.RefinementCtx): void {
+  if (value.level === 0 && value.fix !== undefined) {
+    ctx.addIssue({ code: "custom", path: ["fix"], message: "fix must be absent for level 0" });
+  }
+  if (value.level !== 0 && value.fix === undefined) {
+    ctx.addIssue({ code: "custom", path: ["fix"], message: "fix is required for level 1 and 2" });
+  }
+}
+
+/* -------------------------------------------------------- POST /api/scans */
+
+export const CreateScanRequestSchema = z
+  .strictObject({
+    target: TargetInputSchema,
+    level: LevelSchema,
+    kind: ScanKindSchema,
+    size: ScanSizeSchema,
+    fix: ChatbotFixContentSchema.optional(),
+  })
+  .superRefine(checkFixForLevel);
+export type CreateScanRequest = z.infer<typeof CreateScanRequestSchema>;
+
+export const CreateScanResponseSchema = z.object({
+  /** status "running"; score, grade and summary null. */
+  scan: ScanSchema,
+  steps: z.array(StepSchema),
+  /** The browser runs this many steps at a time. */
+  concurrency: z.int().min(1).max(10),
+});
+export type CreateScanResponse = z.infer<typeof CreateScanResponseSchema>;
+
+/* --------------------------------------------------- POST /api/scans/step */
+
+export const RunStepRequestSchema = z
+  .strictObject({
+    scanId: IdSchema,
+    level: LevelSchema,
+    step: z.strictObject({ checkId: z.string().min(1).max(64) }),
+    target: TargetInputSchema,
+    fix: ChatbotFixContentSchema.optional(),
+  })
+  .superRefine(checkFixForLevel);
+export type RunStepRequest = z.infer<typeof RunStepRequestSchema>;
+
+export const RunStepResponseSchema = z.object({ finding: FindingSchema });
+export type RunStepResponse = z.infer<typeof RunStepResponseSchema>;
+
+/* ----------------------------------------------- POST /api/scans/finalize */
+
+export const FinalizeScanRequestSchema = z
+  .strictObject({
+    scan: z.strictObject({
+      id: IdSchema,
+      level: LevelSchema,
+      kind: ScanKindSchema,
+      createdAt: IsoDateSchema,
+    }),
+    findings: z.array(FindingSchema).min(1).max(LIMITS.findingsMax),
+  })
+  .superRefine((value, ctx) => {
+    value.findings.forEach((f, i) => {
+      if (f.scanId !== value.scan.id) {
+        ctx.addIssue({ code: "custom", path: ["findings", i, "scanId"], message: "finding belongs to another scan" });
+      }
+    });
+  });
+export type FinalizeScanRequest = z.infer<typeof FinalizeScanRequestSchema>;
+
+/** status "done", score, grade, summary and finishedAt set. */
+export const FinalizeScanResponseSchema = z.object({ scan: ScanSchema });
+export type FinalizeScanResponse = z.infer<typeof FinalizeScanResponseSchema>;
+
+/* --------------------------------------------------------- POST /api/fix */
+
+export const CreateFixRequestSchema = z.strictObject({
+  target: TargetInputSchema,
+  findings: z.array(FindingSchema).min(1).max(LIMITS.findingsMax),
+  level: FixLevelSchema,
+});
+export type CreateFixRequest = z.infer<typeof CreateFixRequestSchema>;
+
+export const CreateFixResponseSchema = z.object({ fix: ChatbotFixContentSchema });
+export type CreateFixResponse = z.infer<typeof CreateFixResponseSchema>;
+
+/* ------------------------------------------- POST /api/targets (mocked) */
 
 export const CreateTargetRequestSchema = z.strictObject({
   module: z.literal("chatbot"),
@@ -64,50 +175,6 @@ export type CreateTargetRequest = z.input<typeof CreateTargetRequestSchema>;
 export const CreateTargetResponseSchema = z.object({ target: TargetPublicSchema });
 export type CreateTargetResponse = z.infer<typeof CreateTargetResponseSchema>;
 
-/* -------------------------------------------------------- POST /api/scans */
-
-export const CreateScanRequestSchema = z.strictObject({
-  targetId: IdSchema,
-  kind: ScanKindSchema,
-  level: LevelSchema,
-});
-export type CreateScanRequest = z.infer<typeof CreateScanRequestSchema>;
-
-export const CreateScanResponseSchema = z.object({
-  scan: ScanSchema,
-  steps: z.array(StepSchema),
-  /** The browser runs this many steps at a time. */
-  concurrency: z.int().min(1).max(10),
-});
-export type CreateScanResponse = z.infer<typeof CreateScanResponseSchema>;
-
-/* -------------------------------------------- POST /api/scans/[id]/step */
-
-export const RunStepRequestSchema = z.strictObject({ index: z.int().min(0).max(199) });
-export type RunStepRequest = z.infer<typeof RunStepRequestSchema>;
-
-export const RunStepResponseSchema = z.object({ finding: FindingSchema });
-export type RunStepResponse = z.infer<typeof RunStepResponseSchema>;
-
-/* ---------------------------------------- POST /api/scans/[id]/finalize */
-
-export const FinalizeScanRequestSchema = z.strictObject({});
-export type FinalizeScanRequest = z.infer<typeof FinalizeScanRequestSchema>;
-
-export const FinalizeScanResponseSchema = z.object({
-  scan: ScanSchema,
-  shareSlug: ShareSlugSchema,
-});
-export type FinalizeScanResponse = z.infer<typeof FinalizeScanResponseSchema>;
-
-/* ------------------------------------------- POST /api/targets/[id]/fix */
-
-export const CreateFixRequestSchema = z.strictObject({ level: FixLevelSchema });
-export type CreateFixRequest = z.infer<typeof CreateFixRequestSchema>;
-
-export const CreateFixResponseSchema = z.object({ fix: FixSchema });
-export type CreateFixResponse = z.infer<typeof CreateFixResponseSchema>;
-
 /* ------------------------------------------- POST /api/demo-bot/chat */
 
 export const ChatMessageSchema = z.strictObject({
@@ -124,7 +191,7 @@ export type DemoChatRequest = z.infer<typeof DemoChatRequestSchema>;
 export const DemoChatResponseSchema = z.object({ reply: z.string() });
 export type DemoChatResponse = z.infer<typeof DemoChatResponseSchema>;
 
-/* -------------------------------------------------------- POST /api/leads */
+/* ------------------------------------------------ POST /api/leads (mocked) */
 
 export const CreateLeadRequestSchema = z.strictObject({
   name: z.string().trim().min(1).max(100),
@@ -138,7 +205,7 @@ export type CreateLeadRequest = z.input<typeof CreateLeadRequestSchema>;
 export const CreateLeadResponseSchema = z.object({ ok: z.literal(true), id: IdSchema });
 export type CreateLeadResponse = z.infer<typeof CreateLeadResponseSchema>;
 
-/* -------------------------------------------- GET /api/reports/[slug] */
+/* ------------------------------------- GET /api/reports/[slug] (mocked) */
 
 export const ReportViewSchema = z.object({
   shareSlug: ShareSlugSchema,

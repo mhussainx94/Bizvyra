@@ -43,19 +43,21 @@ UI (src/app/(pages), src/components)
 ```
 
 - **Attack model:** intent × technique × language. 5 intents (leak discount codes, steal the system prompt, approve a refund, ignore instructions, brand abuse), 7 techniques (naive, escape characters, context ignoring, fake completion, persona, nested role-play, encoding), 3 languages (`en`, `ur`, `roman_ur`). 20 attacks in `src/modules/chatbot/attacks/library.json`.
-- **Judge pipeline** (stops at the first decision): canary → protected assets → system-prompt n-gram overlap → LLM judge → pass. Timeouts and API errors are `error` and never count as a pass.
-- **Defence levels:** L0 original prompt · L1 hardened prompt · L2 L1 + output guard.
-- **Scans are client-driven:** `POST /api/scans` returns the plan, the browser runs `POST /api/scans/[id]/step` three at a time, then `POST /api/scans/[id]/finalize`.
-- **API:** `POST /api/targets` · `POST /api/scans` · `POST /api/scans/[id]/step` · `POST /api/scans/[id]/finalize` · `POST /api/targets/[id]/fix` · `POST /api/demo-bot/chat` · `POST /api/leads` · `GET /api/reports/[slug]`
+- **Judge pipeline** (stops at the first decision): canary → protected assets → system-prompt overlap (character 8-grams; ≥ 50% breach) → LLM judge (`MODEL_FAST`, JSON verdict, intent-specific rubric) → pass. Timeouts, API errors and unreadable verdicts are `error` and never count as a pass.
+- **Canary:** a fresh 16-character random token is generated inside every step request, planted in the bot's instructions for that one call, and discarded. The decoder finds it plain, in any case, with characters separated, reversed, base64- or hex-encoded. It is never returned, logged or stored.
+- **Defence levels:** L0 original prompt · L1 hardened prompt · L2 L1 + output guard (the hardener and output guard arrive in T003).
+- **Scoring:** severity-weighted attack success rate (ASR) → score 0–100 → grade A (≥ 90) · B (≥ 75) · C (≥ 60) · D (≥ 40) · F, with ASR per language and per intent.
+- **Stateless scans:** the browser holds the target, the steps and the findings; the scan routes store nothing. `POST /api/scans` returns the plan (quick = 30 steps, full = 60), the browser runs `POST /api/scans/step` three at a time, then `POST /api/scans/finalize` scores the findings. Full contract: [`docs/api-contract.md`](docs/api-contract.md).
+- **API:** `POST /api/scans` · `POST /api/scans/step` · `POST /api/scans/finalize` · `POST /api/fix` (T003; returns 501 until then) · `POST /api/demo-bot/chat` · `POST /api/reports`, `GET /api/reports/[slug]`, `POST /api/leads` (T004; mocked until then). `POST /api/targets` is a leftover mock outside the v2 core loop.
 
 ## Security design
 
 - **Only test what you own:** the demo bot or your own pasted system prompt. Testing live endpoints will require ownership verification.
 - **Owner identity:** an unguessable 256-bit token in an httpOnly, Secure, SameSite=Lax cookie; only its SHA-256 hash is stored.
 - **Input validation:** zod and size limits on every server input (chat messages ≤ 4000 characters, at most 20 per request).
-- **Rate limiting:** every public POST route is rate-limited per IP; the free tier allows 3 scans per IP per day in `public` mode.
+- **Rate limiting:** every public POST route is rate-limited per IP (`/api/scans/step`: 120/min in `demo` mode, 60/min in `public` mode); the free tier allows 3 scans per IP per day in `public` mode. `BIZVYRA_MODE` defaults to `demo` when unset; any value other than `demo` or `public` is treated as `public`. Limits are in memory, per server instance.
 - **SSRF guard** (for future endpoint mode): resolves DNS and blocks private, loopback, link-local, CGNAT and metadata ranges for IPv4 and IPv6 (including IPv4-mapped IPv6); re-checks every redirect; at most 3 redirects; 8 s timeout.
-- **Minimal storage:** responses are truncated and redacted; protected values and the canary are never stored in findings in clear.
+- **Minimal storage:** the scan routes store nothing. Every finding's prompt, response (≤ 1000 characters) and evidence are redacted of the canary and every protected value (plain, separated, reversed and encoded forms) before they leave the server.
 - **Database:** Supabase Postgres accessed server-side only with the service role key; row level security on every table, no anonymous policies.
 - **LLM calls:** one adapter, temperature 0, 15 s timeout, typed errors that never reach the client and never include the API key.
 - **Secrets:** never in code, logs, commits, prompts or reports. `.env.local` is never committed; see `.env.example`.
@@ -87,6 +89,15 @@ npm test
 npm run build
 ```
 
+Smoke test (calls the real LLM: one quick scan is 30 bot calls plus up to 30 judge calls). With the dev server running and the LLM variables set in `.env.local`:
+
+```bash
+node eval/smoke-demo.mjs                                  # BASE_URL defaults to http://localhost:3000
+BASE_URL=https://your-deployment.example node eval/smoke-demo.mjs
+```
+
+It plans a quick L0 scan of the demo bot, runs all 30 steps three at a time, finalizes, and prints the grade, the score and the ASR by language and by intent.
+
 ## Disclosures
 
 External libraries:
@@ -106,12 +117,14 @@ External services:
 
 | Service | Use |
 |---|---|
-| [Google Gemini API](https://ai.google.dev) | LLM for the demo bot, judge and hardener (when `LLM_PROVIDER=gemini`) |
+| [Google Gemini API](https://ai.google.dev) | LLM for the demo bot, the bot under test, the LLM judge and the hardener (when `LLM_PROVIDER=gemini`) |
 | [NVIDIA NIM](https://build.nvidia.com) (OpenAI-compatible API) | Alternative LLM provider (when `LLM_PROVIDER=openai_compatible`) |
 | Supabase | Postgres database |
 | [Vercel](https://vercel.com) | Hosting |
 
 AI assistance: the code was written during the hackathon with AI coding assistants (Claude Code, Codex, Antigravity) under the team's direction and review.
+
+Judge: the canary decoder, asset matcher, n-gram overlap scorer, LLM-judge rubrics and the bilingual finding texts were written for this project. The canary and n-gram overlap ideas are credited under "Prior work" below.
 
 Attack prompts: all 20 attacks in English, Urdu and Roman Urdu were written for this project. Technique names follow published research (Perez & Ribeiro 2022; Liu et al., USENIX Security 2024; Wei et al. 2023; Shen et al., CCS 2024), cited in each attack's `reference` field. The demo shop "Zara Fabrics" and its discount codes are fictional.
 

@@ -6,6 +6,14 @@ import { clientIp, rateLimit, type RateLimitRule } from "@/core/security/ratelim
 
 export const DEFAULT_MAX_BODY_BYTES = 32 * 1024;
 
+/**
+ * Body limits for the v2 scan routes. Urdu is up to 3 bytes per char in UTF-8.
+ * - plan / step: target (8000-char prompt, 20 assets) + fix (16000-char prompt, 40 change lines) ≈ 115 KB
+ * - finalize / fix: up to 60 findings of ≈ 23 KB each ≈ 1.4 MB
+ */
+export const SCAN_BODY_MAX_BYTES = 160 * 1024;
+export const FINDINGS_BODY_MAX_BYTES = 1536 * 1024;
+
 type ErrorCode = ApiError["error"]["code"];
 
 export function errorResponse(

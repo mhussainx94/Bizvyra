@@ -48,11 +48,9 @@ export function rateLimit(key: string, rule: RateLimitRule, now: number = Date.n
   return { ok: true, remaining: rule.limit - bucket.count };
 }
 
-/** Limits per route group. */
+/** Limits per route group. /api/scans/step depends on BIZVYRA_MODE: see stepRateLimit() in ./usage. */
 export const RATE_LIMITS = {
   demoChat: { limit: 20, windowMs: 60_000 },
-  /** Steps: a 30-step scan runs 3 at a time, so allow a full scan plus a retest per minute. */
-  scanStep: { limit: 120, windowMs: 60_000 },
   default: { limit: 30, windowMs: 60_000 },
 } as const satisfies Record<string, RateLimitRule>;
 

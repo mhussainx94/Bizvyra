@@ -1,23 +1,47 @@
 import { describe, expect, it } from "vitest";
-import { FindingSchema, FixSchema, ReportViewSchema, ScanSchema, StepSchema } from "@/lib/types";
+import { scoreFindings } from "@/core/scoring";
+import {
+  ChatbotFixContentSchema,
+  CreateScanResponseSchema,
+  FinalizeScanResponseSchema,
+  FindingSchema,
+  ReportViewSchema,
+  RunStepResponseSchema,
+  ScanSchema,
+} from "@/lib/types";
 import { DEMO_PROTECTED_ASSETS } from "@/modules/chatbot/demo-bot";
-import { MOCK_SHARE_SLUG, mockFindings, mockFix, mockGetReport, mockScan, mockSteps, MOCK_TARGET_ID } from ".";
+import { planChatbotScan } from "@/modules/chatbot/plan";
+import { MOCK_SHARE_SLUG, mockFinalize, mockFindings, mockFix, mockGetReport, mockPlan, mockScan, mockStep } from ".";
 
 const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+const LEVELS = [0, 1, 2] as const;
 
-describe("mocks", () => {
-  it("baseline is grade F, L1 grade C, L2 grade B, and all scans match the Scan schema", () => {
-    expect(mockScan(0).grade).toBe("F");
-    expect(mockScan(1).grade).toBe("C");
-    expect(mockScan(2).grade).toBe("B");
-    for (const level of [0, 1, 2] as const) expect(() => ScanSchema.parse(mockScan(level))).not.toThrow();
+describe("mocks (api-contract v2 shapes)", () => {
+  it("baseline is grade F, L1 grade C, L2 grade B, computed by the real scoring", () => {
+    expect(LEVELS.map((l) => mockScan(l).grade)).toEqual(["F", "C", "B"]);
+    for (const level of LEVELS) {
+      const scan = ScanSchema.parse(mockScan(level));
+      const real = scoreFindings(mockFindings(level));
+      expect(scan.score).toBe(real.score);
+      expect(scan.summary).toEqual(real.summary);
+      expect(scan.targetId).toBeNull();
+    }
+  });
+
+  it("plan, step and finalize mocks parse with the v2 response schemas", () => {
+    for (const level of LEVELS) {
+      const plan = CreateScanResponseSchema.parse(mockPlan(level));
+      expect(plan.steps).toEqual(planChatbotScan("quick", level));
+      expect(plan.scan.status).toBe("running");
+      expect(plan.scan.grade).toBeNull();
+      for (const step of plan.steps) RunStepResponseSchema.parse(mockStep(level, step.checkId));
+      expect(mockStep(level, "A99:en")).toBeNull();
+      expect(FinalizeScanResponseSchema.parse(mockFinalize(level)).scan.status).toBe("done");
+    }
   });
 
   it("each scan has 30 schema-valid findings with EN and UR titles and impacts", () => {
-    for (const level of [0, 1, 2] as const) {
-      const steps = mockSteps(level);
-      expect(steps).toHaveLength(30);
-      steps.forEach((s) => StepSchema.parse(s));
+    for (const level of LEVELS) {
       const findings = mockFindings(level);
       expect(findings).toHaveLength(30);
       for (const f of findings) {
@@ -30,15 +54,14 @@ describe("mocks", () => {
   });
 
   it("breach counts fall from L0 to L2", () => {
-    const breaches = ([0, 1, 2] as const).map((l) => mockScan(l).summary?.breaches ?? -1);
-    expect(breaches).toEqual([18, 8, 3]);
+    expect(LEVELS.map((l) => mockScan(l).summary?.breaches)).toEqual([20, 7, 5]);
   });
 
   it("never contains a protected asset or a canary in clear", () => {
     const everything = JSON.stringify({
-      findings: [0, 1, 2].flatMap((l) => mockFindings(l as 0 | 1 | 2)),
-      scans: [0, 1, 2].map((l) => mockScan(l as 0 | 1 | 2)),
-      fixes: [mockFix(MOCK_TARGET_ID, 1), mockFix(MOCK_TARGET_ID, 2)],
+      findings: LEVELS.flatMap((l) => mockFindings(l)),
+      scans: LEVELS.map((l) => mockScan(l)),
+      fixes: [mockFix(1), mockFix(2)],
       report: mockGetReport(MOCK_SHARE_SLUG),
     });
     const flat = norm(everything);
@@ -47,8 +70,8 @@ describe("mocks", () => {
   });
 
   it("fix and report mocks match their schemas", () => {
-    FixSchema.parse(mockFix(MOCK_TARGET_ID, 1));
-    FixSchema.parse(mockFix(MOCK_TARGET_ID, 2));
+    expect(ChatbotFixContentSchema.parse(mockFix(1)).outputGuard.enabled).toBe(false);
+    expect(ChatbotFixContentSchema.parse(mockFix(2)).outputGuard.enabled).toBe(true);
     ReportViewSchema.parse(mockGetReport(MOCK_SHARE_SLUG));
     expect(mockGetReport("unknown-slug-123")).toBeNull();
   });

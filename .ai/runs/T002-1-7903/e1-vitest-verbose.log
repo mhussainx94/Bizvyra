@@ -1,0 +1,215 @@
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vitest.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+ RUN  v4.1.12 /mnt/w/dev/hackathon/bizvyra
+
+ ✓ src/core/llm/adapter.test.ts > llm adapter > returns ok:false (config) when the API key is missing, without calling fetch 3ms
+ ✓ src/core/llm/adapter.test.ts > llm adapter > returns ok:false (config) when the provider is unknown 1ms
+ ✓ src/core/llm/adapter.test.ts > llm adapter > returns ok:false (timeout) after 15 s and never throws 8ms
+ ✓ src/core/llm/adapter.test.ts > llm adapter > sends the Gemini REST request body (temperature 0, key in header, system instruction) 30ms
+ ✓ src/core/llm/adapter.test.ts > llm adapter > sends the OpenAI-compatible request body (NIM) with MODEL_STRONG 1ms
+ ✓ src/core/llm/adapter.test.ts > llm adapter > maps HTTP and network failures to typed errors that never contain the key 2ms
+ ✓ src/modules/chatbot/demo-bot/chat-route.test.ts > demo bot > uses the L0 prompt from docs/spike-kit.md verbatim and the 3 demo assets 9ms
+ ✓ src/modules/chatbot/demo-bot/chat-route.test.ts > demo bot > valid input: calls the adapter with the demo prompt and MODEL_FAST tier, returns { reply } 35ms
+ ✓ src/modules/chatbot/demo-bot/chat-route.test.ts > demo bot > invalid input (empty messages) returns 400 without calling the adapter 2ms
+ ✓ src/modules/chatbot/demo-bot/chat-route.test.ts > demo bot > invalid input (21 messages) returns 400 without calling the adapter 2ms
+ ✓ src/modules/chatbot/demo-bot/chat-route.test.ts > demo bot > invalid input (bad role) returns 400 without calling the adapter 2ms
+ ✓ src/modules/chatbot/demo-bot/chat-route.test.ts > demo bot > invalid input (content over 4000 chars) returns 400 without calling the adapter 1ms
+ ✓ src/modules/chatbot/demo-bot/chat-route.test.ts > demo bot > invalid input (empty content) returns 400 without calling the adapter 1ms
+ ✓ src/modules/chatbot/demo-bot/chat-route.test.ts > demo bot > invalid input (unknown key) returns 400 without calling the adapter 1ms
+ ✓ src/modules/chatbot/demo-bot/chat-route.test.ts > demo bot > invalid input (missing messages) returns 400 without calling the adapter 1ms
+ ✓ src/modules/chatbot/demo-bot/chat-route.test.ts > demo bot > invalid input (not JSON) returns 400 without calling the adapter 1ms
+ ✓ src/modules/chatbot/demo-bot/chat-route.test.ts > demo bot > accepts exactly 20 messages of 4000 chars 2ms
+ ✓ src/modules/chatbot/demo-bot/chat-route.test.ts > demo bot > adapter failure returns 502 with a generic message 1ms
+ ✓ src/modules/chatbot/demo-bot/chat-route.test.ts > demo bot > is rate-limited per IP (429 after 20 requests a minute) 4ms
+ ✓ src/mocks/mocks.test.ts > mocks (api-contract v2 shapes) > baseline is grade F, L1 grade C, L2 grade B, computed by the real scoring 26ms
+ ✓ src/mocks/mocks.test.ts > mocks (api-contract v2 shapes) > plan, step and finalize mocks parse with the v2 response schemas 30ms
+ ✓ src/mocks/mocks.test.ts > mocks (api-contract v2 shapes) > each scan has 30 schema-valid findings with EN and UR titles and impacts 11ms
+ ✓ src/mocks/mocks.test.ts > mocks (api-contract v2 shapes) > breach counts fall from L0 to L2 1ms
+ ✓ src/mocks/mocks.test.ts > mocks (api-contract v2 shapes) > never contains a protected asset or a canary in clear 10ms
+ ✓ src/mocks/mocks.test.ts > mocks (api-contract v2 shapes) > fix and report mocks match their schemas 10ms
+ ✓ src/modules/chatbot/judge/redact.test.ts > redaction > masks plain and leaves nothing detectable 32ms
+ ✓ src/modules/chatbot/judge/redact.test.ts > redaction > masks case and separators and leaves nothing detectable 1ms
+ ✓ src/modules/chatbot/judge/redact.test.ts > redaction > masks reversed and leaves nothing detectable 1ms
+ ✓ src/modules/chatbot/judge/redact.test.ts > redaction > masks Urdu digits and leaves nothing detectable 1765ms
+ ✓ src/modules/chatbot/judge/redact.test.ts > redaction > masks base64 and leaves nothing detectable 1ms
+ ✓ src/modules/chatbot/judge/redact.test.ts > redaction > masks hex and leaves nothing detectable 1ms
+ ✓ src/modules/chatbot/judge/redact.test.ts > redaction > uses distinct labels and keeps the rest of the text 1ms
+ ✓ src/modules/chatbot/judge/redact.test.ts > redaction > falls back to replacing the whole text when a form cannot be masked 1ms
+ ✓ src/modules/chatbot/judge/redact.test.ts > redaction > short assets are only masked as whole tokens 1ms
+ ✓ src/core/security/usage.test.ts > BIZVYRA_MODE > defaults to demo when unset or empty; public only when set (unknown values fail closed) 3ms
+ ✓ src/core/security/usage.test.ts > BIZVYRA_MODE > step limits: demo 120/min, public 60/min 1ms
+ ✓ src/core/security/usage.test.ts > POST /api/scans/step rate limit per IP > demo mode (unset): 120 per minute, then 429; another IP is unaffected 83ms
+ ✓ src/core/security/usage.test.ts > POST /api/scans/step rate limit per IP > public mode: 60 per minute, then 429 with retry-after 18ms
+ ✓ src/core/security/usage.test.ts > POST /api/scans daily cap > public mode: 3 scans per IP per day, then 429 usage_limit; other IPs unaffected 16ms
+ ✓ src/core/security/usage.test.ts > POST /api/scans daily cap > invalid requests do not use up the daily cap 3ms
+ ✓ src/core/security/usage.test.ts > POST /api/scans daily cap > demo mode: no daily cap 3ms
+ ✓ src/core/security/usage.test.ts > POST /api/scans daily cap > the cap resets on the next Pakistan calendar day 1ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > canary breach: plants a fresh canary, detects it in the reply, never returns it 155ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects 127.0.0.0/8 loopback (127.0.0.1) 16ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects 127.0.0.0/8 loopback (high) (127.255.255.254) 4ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects 10.0.0.0/8 private (10.20.30.40) 1ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects 172.16.0.0/12 private (low) (172.16.0.1) 2ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects 172.16.0.0/12 private (high) (172.31.255.255) 1ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects 192.168.0.0/16 private (192.168.1.10) 1ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects 169.254.0.0/16 link-local / metadata (169.254.169.254) 1ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects 100.64.0.0/10 CGNAT (low) (100.64.0.1) 1ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects 100.64.0.0/10 CGNAT (high) (100.127.255.254) 1ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects 0.0.0.0/8 (0.0.0.0) 1ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects ::1 loopback (::1) 1ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects :: unspecified (::) 1ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects fc00::/7 unique local (fc00::1) 1ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects fc00::/7 AWS metadata IPv6 (fd00:ec2::254) 1ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects fe80::/10 link-local (fe80::1) 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects fe80::/10 link-local with zone (fe80::1%eth0) 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects IPv4-mapped loopback (::ffff:127.0.0.1) 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects IPv4-mapped loopback (hex) (::ffff:7f00:1) 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects IPv4-mapped private (::ffff:10.0.0.1) 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects IPv4-mapped metadata (::ffff:169.254.169.254) 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects NAT64 embedding private (64:ff9b::a00:1) 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects 6to4 embedding loopback (2002:7f00:1::1) 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects when any one of several resolved addresses is private 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > allows a public IP 1ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > allows public IPs on range boundaries and public IPv6 1ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: URL handling > rejects non-http(s) scheme ftp://example.com/file 3ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: URL handling > rejects non-http(s) scheme file:///etc/passwd 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: URL handling > rejects non-http(s) scheme gopher://example.com/ 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: URL handling > rejects non-http(s) scheme javascript:alert(1) 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: URL handling > rejects non-http(s) scheme data:text/plain,hi 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: URL handling > rejects http://127.0.0.1/ (ip literal) without DNS 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: URL handling > rejects http://[::1]:3000/ (ipv6 literal) without DNS 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: URL handling > rejects http://[::ffff:127.0.0.1]/ (mapped literal) without DNS 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: URL handling > rejects http://2130706433/ (decimal-encoded loopback) without DNS 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: URL handling > rejects http://0x7f.1/ (hex-encoded loopback) without DNS 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: URL handling > rejects http://169.254.169.254/latest/meta-data/ (metadata literal) without DNS 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: URL handling > rejects localhost-style names, credentials, bad URLs and DNS failures 4ms
+ ✓ src/core/security/ssrf.test.ts > safeFetch > re-checks every redirect and blocks a redirect to a private address 51ms
+ ✓ src/core/security/ssrf.test.ts > safeFetch > stops after 3 redirects and uses manual redirect mode 2ms
+ ✓ src/core/security/ssrf.test.ts > safeFetch > returns the response for a public URL 9ms
+ ✓ src/modules/chatbot/judge/canary.test.ts > canary generation and planting > generates a fresh 16-char alphanumeric token each time 12ms
+ ✓ src/modules/chatbot/judge/canary.test.ts > canary generation and planting > plants a clearly labelled confidential reference line after the instructions 1ms
+ ✓ src/modules/chatbot/judge/canary.test.ts > canary decoder: positive forms > detects plain 2ms
+ ✓ src/modules/chatbot/judge/canary.test.ts > canary decoder: positive forms > detects lower case 0ms
+ ✓ src/modules/chatbot/judge/canary.test.ts > canary decoder: positive forms > detects mixed case 0ms
+ ✓ src/modules/chatbot/judge/canary.test.ts > canary decoder: positive forms > detects spaces between characters 0ms
+ ✓ src/modules/chatbot/judge/canary.test.ts > canary decoder: positive forms > detects dashes between characters 0ms
+ ✓ src/modules/chatbot/judge/canary.test.ts > canary decoder: positive forms > detects dots between characters 0ms
+ ✓ src/modules/chatbot/judge/canary.test.ts > canary decoder: positive forms > detects newlines between characters 0ms
+ ✓ src/modules/chatbot/judge/canary.test.ts > canary decoder: positive forms > detects Urdu text around it 1ms
+ ✓ src/modules/chatbot/judge/canary.test.ts > canary decoder: positive forms > detects reversed 0ms
+ ✓ src/modules/chatbot/judge/canary.test.ts > canary decoder: positive forms > detects reversed and spaced 0ms
+ ✓ src/modules/chatbot/judge/canary.test.ts > canary decoder: positive forms > detects base64 0ms
+ ✓ src/modules/chatbot/judge/canary.test.ts > canary decoder: positive forms > detects base64 of a sentence containing it 0ms
+ ✓ src/modules/chatbot/judge/canary.test.ts > canary decoder: positive forms > detects base64 glued to a word 0ms
+ ✓ src/modules/chatbot/judge/canary.test.ts > canary decoder: positive forms > detects url-safe base64 without padding 0ms
+ ✓ src/modules/chatbot/judge/canary.test.ts > canary decoder: positive forms > detects hex 0ms
+ ✓ src/modules/chatbot/judge/canary.test.ts > canary decoder: positive forms > detects hex upper case with spaces 0ms
+ ✓ src/modules/chatbot/judge/canary.test.ts > canary decoder: positive forms > detects hex with 0x prefixes 0ms
+ ✓ src/modules/chatbot/judge/canary.test.ts > canary decoder: positive forms > detects hex embedded in a sentence 0ms
+ ✓ src/modules/chatbot/judge/canary.test.ts > canary decoder: positive forms > detects line-wrapped base64 0ms
+ ✓ src/modules/chatbot/judge/canary.test.ts > canary decoder: negatives (no false positives) > does not flag a reply without the canary 0ms
+ ✓ src/modules/chatbot/judge/canary.test.ts > canary decoder: negatives (no false positives) > does not flag one character different 0ms
+ ✓ src/modules/chatbot/judge/canary.test.ts > canary decoder: negatives (no false positives) > does not flag only a prefix of the canary 0ms
+ ✓ src/modules/chatbot/judge/canary.test.ts > canary decoder: negatives (no false positives) > does not flag a similar string with characters swapped 0ms
+ ✓ src/modules/chatbot/judge/canary.test.ts > canary decoder: negatives (no false positives) > does not flag base64 of a different token 0ms
+ ✓ src/modules/chatbot/judge/canary.test.ts > canary decoder: negatives (no false positives) > does not flag hex of a different token 0ms
+ ✓ src/modules/chatbot/judge/canary.test.ts > canary decoder: negatives (no false positives) > does not flag the canary line label without the value 0ms
+ ✓ src/modules/chatbot/judge/canary.test.ts > canary decoder: negatives (no false positives) > does not flag random replies against random canaries 4ms
+ ✓ src/core/http/routes.test.ts > POST /api/targets > creates a demo target and sets an httpOnly, secure, sameSite=lax owner cookie 22ms
+ ✓ src/core/http/routes.test.ts > POST /api/targets > reuses an existing valid owner token 3ms
+ ✓ src/core/http/routes.test.ts > POST /api/targets > rejects invalid input with 400 (0) 2ms
+ ✓ src/core/http/routes.test.ts > POST /api/targets > rejects invalid input with 400 (1) 1ms
+ ✓ src/core/http/routes.test.ts > POST /api/targets > rejects invalid input with 400 (2) 1ms
+ ✓ src/core/http/routes.test.ts > POST /api/targets > rejects invalid input with 400 (3) 1ms
+ ✓ src/core/http/routes.test.ts > POST /api/targets > rejects invalid input with 400 (4) 1ms
+ ✓ src/core/http/routes.test.ts > POST /api/scans (plan) > returns a running scan, 30 quick steps and concurrency 3 14ms
+ ✓ src/core/http/routes.test.ts > POST /api/scans (plan) > full returns 60 steps; prompt-mode targets and level 1 with a fix are accepted 6ms
+ ✓ src/core/http/routes.test.ts > POST /api/scans (plan) > rejects invalid input with 400 9ms
+ ✓ src/core/http/routes.test.ts > POST /api/scans/finalize > scores the findings: status done, grade, score, summary, finishedAt 12ms
+ ✓ src/core/http/routes.test.ts > POST /api/scans/finalize > rejects invalid input with 400 10ms
+ ✓ src/core/http/routes.test.ts > POST /api/fix, /api/leads, /api/reports > POST /api/fix validates input, then returns 501 until T003 9ms
+ ✓ src/core/http/routes.test.ts > POST /api/fix, /api/leads, /api/reports > POST /api/leads accepts a lead, 400 on invalid input 3ms
+ ✓ src/core/http/routes.test.ts > POST /api/fix, /api/leads, /api/reports > GET /api/reports/[slug] returns the mock report, 400 on a bad slug, 404 when unknown 11ms
+ ✓ src/core/http/routes.test.ts > POST /api/fix, /api/leads, /api/reports > rejects oversized bodies with 413 14ms
+ ✓ src/modules/chatbot/judge/overlap.test.ts > system-prompt overlap scorer > uses the contract thresholds 2ms
+ ✓ src/modules/chatbot/judge/overlap.test.ts > system-prompt overlap scorer > full leak, even re-formatted as a bullet list, scores ≥ 0.5 4ms
+ ✓ src/modules/chatbot/judge/overlap.test.ts > system-prompt overlap scorer > partial leak of the internal section lands between the thresholds 3ms
+ ✓ src/modules/chatbot/judge/overlap.test.ts > system-prompt overlap scorer > a paraphrase scores below the breach threshold 1ms
+ ✓ src/modules/chatbot/judge/overlap.test.ts > system-prompt overlap scorer > an unrelated reply scores below the pass threshold 1ms
+ ✓ src/modules/chatbot/judge/overlap.test.ts > system-prompt overlap scorer > returns 0 for instructions shorter than one 8-gram 0ms
+ ✓ src/modules/chatbot/plan.test.ts > chatbot plan (through the module registry) > quick = 30 steps: 10 attacks x 3 languages, all 5 intents covered (2 each) 19ms
+ ✓ src/modules/chatbot/plan.test.ts > chatbot plan (through the module registry) > full = 60 steps: every attack in the library x 3 languages 1ms
+ ✓ src/modules/chatbot/plan.test.ts > chatbot plan (through the module registry) > quick: checkIds are unique, indexes are 0..n-1, level is copied 4ms
+ ✓ src/modules/chatbot/plan.test.ts > chatbot plan (through the module registry) > full: checkIds are unique, indexes are 0..n-1, level is copied 6ms
+ ✓ src/modules/chatbot/plan.test.ts > chatbot plan (through the module registry) > quick: consecutive steps never share a language or an intent 3ms
+ ✓ src/modules/chatbot/plan.test.ts > chatbot plan (through the module registry) > full: consecutive steps never share a language or an intent 4ms
+ ✓ src/modules/chatbot/plan.test.ts > chatbot plan (through the module registry) > is deterministic: same input, same steps 2ms
+ ✓ src/modules/chatbot/plan.test.ts > chatbot plan (through the module registry) > quick spreads techniques: all 7 techniques appear among the 10 attacks 0ms
+ ✓ src/modules/chatbot/plan.test.ts > chatbot plan (through the module registry) > parseCheckId rejects unknown or malformed ids 1ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > asset breach: demo asset in the reply is detected and redacted 21ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > LLM-judged pass: falls through to the judge (MODEL_FAST, JSON) and returns a pass 2337ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > adapter error: the bot call fails → HTTP 200 with status error, judgedBy none 21ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > an adapter that throws still yields HTTP 200 with status error 19ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > LLM judge failure after a reply → status error, judgedBy none 21ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > redaction: prompt-mode assets are masked in response and evidence; response ≤ 1000 chars 70ms
+ ✓ src/modules/chatbot/judge/llm.test.ts > LLM judge > has a rubric for all 5 intents 4ms
+ ✓ src/modules/chatbot/judge/llm.test.ts > LLM judge > breach: calls MODEL_FAST in JSON mode with the intent rubric and returns the verdict 4ms
+ ✓ src/modules/chatbot/judge/llm.test.ts > LLM judge > pass: a fenced JSON verdict with breach false 1ms
+ ✓ src/modules/chatbot/judge/llm.test.ts > LLM judge > malformed output (not JSON) → error 1ms
+ ✓ src/modules/chatbot/judge/llm.test.ts > LLM judge > malformed output (wrong types) → error 1ms
+ ✓ src/modules/chatbot/judge/llm.test.ts > LLM judge > malformed output (missing field) → error 0ms
+ ✓ src/modules/chatbot/judge/llm.test.ts > LLM judge > malformed output (confidence out of range) → error 1ms
+ ✓ src/modules/chatbot/judge/llm.test.ts > LLM judge > malformed output (truncated) → error 0ms
+ ✓ src/modules/chatbot/judge/llm.test.ts > LLM judge > adapter failure → error 0ms
+ ✓ src/modules/chatbot/judge/llm.test.ts > judge pipeline > canary wins first, then assets, then overlap; the LLM is not called for them 5ms
+ ✓ src/modules/chatbot/judge/llm.test.ts > judge pipeline > falls through to the LLM; malformed output and adapter failure are errors with judgedBy none 1ms
+ ✓ src/modules/chatbot/judge/llm.test.ts > judge pipeline > evidence never contains the canary or an asset value 1ms
+ ✓ src/modules/chatbot/judge/assets.test.ts > asset matcher > matches a plain asset 6ms
+ ✓ src/modules/chatbot/judge/assets.test.ts > asset matcher > matches spaced and separated forms 1ms
+ ✓ src/modules/chatbot/judge/assets.test.ts > asset matcher > matches mixed case and counts distinct assets 0ms
+ ✓ src/modules/chatbot/judge/assets.test.ts > asset matcher > matches Urdu digits and Urdu text around an asset 0ms
+ ✓ src/modules/chatbot/judge/assets.test.ts > asset matcher > matches reversed, base64- and hex-encoded assets 1ms
+ ✓ src/modules/chatbot/judge/assets.test.ts > asset matcher > negatives: refusals, near misses and the shop name do not match 1ms
+ ✓ src/modules/chatbot/judge/assets.test.ts > asset matcher > ignores assets shorter than 4 normalised characters 0ms
+ ✓ src/core/scoring/scoring.test.ts > scoring > score 100 → grade A 4ms
+ ✓ src/core/scoring/scoring.test.ts > scoring > score 90 → grade A 1ms
+ ✓ src/core/scoring/scoring.test.ts > scoring > score 89 → grade B 0ms
+ ✓ src/core/scoring/scoring.test.ts > scoring > score 75 → grade B 1ms
+ ✓ src/core/scoring/scoring.test.ts > scoring > score 74 → grade C 1ms
+ ✓ src/core/scoring/scoring.test.ts > scoring > score 60 → grade C 1ms
+ ✓ src/core/scoring/scoring.test.ts > scoring > score 59 → grade D 1ms
+ ✓ src/core/scoring/scoring.test.ts > scoring > score 40 → grade D 0ms
+ ✓ src/core/scoring/scoring.test.ts > scoring > score 39 → grade F 1ms
+ ✓ src/core/scoring/scoring.test.ts > scoring > score 0 → grade F 1ms
+ ✓ src/core/scoring/scoring.test.ts > scoring > weights ASR by severity: Σ sev × breach ÷ Σ sev × (breach + pass) 4ms
+ ✓ src/core/scoring/scoring.test.ts > scoring > errors and skipped never count as pass 2ms
+ ✓ src/core/scoring/scoring.test.ts > scoring > an all-error scan has null score and grade 1ms
+ ✓ src/core/scoring/scoring.test.ts > scoring > mixed languages and intents: buckets overall, by language and by intent with unweighted ASR 1ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > L1 uses fix.systemPrompt; L2 is skipped until T003 without calling the bot 1315ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > invalid input (missing target) → 400 without calling the bot 1ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > invalid input (unknown checkId) → 400 without calling the bot 2ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > invalid input (malformed checkId) → 400 without calling the bot 1ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > invalid input (bad scanId) → 400 without calling the bot 0ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > invalid input (level 1 without fix) → 400 without calling the bot 0ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > invalid input (level 0 with fix) → 400 without calling the bot 0ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > invalid input (level 3) → 400 without calling the bot 1ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > invalid input (unknown key) → 400 without calling the bot 0ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > invalid input (unknown key in step) → 400 without calling the bot 0ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > invalid input (prompt target with a 1-char asset) → 400 without calling the bot 1ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > invalid input (prompt target missing assets) → 400 without calling the bot 0ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > invalid input (not JSON) → 400 without calling the bot 0ms
+ ✓ src/modules/chatbot/finding-text.test.ts > bilingual finding text table > covers all 5 intents with EN and UR breach title, pass title and business impact 3ms
+ ✓ src/modules/chatbot/finding-text.test.ts > bilingual finding text table > Urdu titles are Urdu script only (no English words) 0ms
+ ✓ src/modules/chatbot/finding-text.test.ts > bilingual finding text table > fits the Finding schema length limits for every intent and status 1ms
+ ✓ src/modules/chatbot/attacks/library.test.ts > attack library > validates against the zod schema 1ms
+ ✓ src/modules/chatbot/attacks/library.test.ts > attack library > has 20 attacks with unique ids 1ms
+ ✓ src/modules/chatbot/attacks/library.test.ts > attack library > covers all 5 intents and all 7 techniques 1ms
+ ✓ src/modules/chatbot/attacks/library.test.ts > attack library > has en, ur (Urdu script) and roman_ur (Latin script) prompts for every attack 1ms
+
+ Test Files  16 passed (16)
+      Tests  202 passed (202)
+   Start at  22:25:28
+   Duration  8.73s (transform 10.18s, setup 0ms, import 23.00s, tests 6.50s, environment 2ms)
+
+# exit 0

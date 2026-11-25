@@ -1,0 +1,408 @@
+## E2 evidence: scope, restrictions and structure (2026-11-25T22:25:56+05:00)
+
+### git status --short (read-only, --no-optional-locks)
+ M .ai/STATE.md
+ M .ai/ledger.jsonl
+ M .env.example
+ M AGENTS.md
+ M README.md
+ D src/app/api/scans/[id]/finalize/route.ts
+ D src/app/api/scans/[id]/step/route.ts
+ M src/app/api/scans/route.ts
+ D src/app/api/targets/[id]/fix/route.ts
+ M src/core/db/index.ts
+ M src/core/findings/index.ts
+ M src/core/http/index.ts
+ M src/core/http/routes.test.ts
+ M src/core/orchestrator/index.ts
+ M src/core/registry/index.ts
+ M src/core/scoring/index.ts
+ M src/core/security/index.ts
+ M src/core/security/ratelimit.ts
+ M src/lib/types/api.ts
+ M src/lib/types/common.ts
+ M src/lib/types/domain.ts
+ M src/lib/types/module.ts
+ M src/mocks/chatbot-demo.ts
+ M src/mocks/index.ts
+ M src/mocks/mocks.test.ts
+ M src/modules/chatbot/index.ts
+ M src/modules/chatbot/judge/index.ts
+?? .ai/lock
+?? .ai/runs/T002-1-7903/
+?? eval/smoke-demo.mjs
+?? src/app/api/fix/
+?? src/app/api/scans/finalize/
+?? src/app/api/scans/step/
+?? src/core/scoring/scoring.test.ts
+?? src/core/security/usage.test.ts
+?? src/core/security/usage.ts
+?? src/modules/chatbot/finding-text.test.ts
+?? src/modules/chatbot/finding-text.ts
+?? src/modules/chatbot/judge/assets.test.ts
+?? src/modules/chatbot/judge/assets.ts
+?? src/modules/chatbot/judge/canary.test.ts
+?? src/modules/chatbot/judge/canary.ts
+?? src/modules/chatbot/judge/llm.test.ts
+?? src/modules/chatbot/judge/llm.ts
+?? src/modules/chatbot/judge/normalize.ts
+?? src/modules/chatbot/judge/overlap.test.ts
+?? src/modules/chatbot/judge/overlap.ts
+?? src/modules/chatbot/judge/redact.test.ts
+?? src/modules/chatbot/judge/redact.ts
+?? src/modules/chatbot/plan.test.ts
+?? src/modules/chatbot/plan.ts
+?? src/modules/chatbot/run-step.ts
+?? src/modules/chatbot/step-route.test.ts
+
+### changed/untracked paths checked against allowed_files
+ACC-MANAGED .ai/STATE.md
+ACC-MANAGED .ai/ledger.jsonl
+ALLOWED  .env.example
+ALLOWED  AGENTS.md
+ALLOWED  README.md
+ALLOWED  src/app/api/scans/[id]/finalize/route.ts
+ALLOWED  src/app/api/scans/[id]/step/route.ts
+ALLOWED  src/app/api/scans/route.ts
+ALLOWED  src/app/api/targets/[id]/fix/route.ts
+ALLOWED  src/core/db/index.ts
+ALLOWED  src/core/findings/index.ts
+ALLOWED  src/core/http/index.ts
+ALLOWED  src/core/http/routes.test.ts
+ALLOWED  src/core/orchestrator/index.ts
+ALLOWED  src/core/registry/index.ts
+ALLOWED  src/core/scoring/index.ts
+ALLOWED  src/core/security/index.ts
+ALLOWED  src/core/security/ratelimit.ts
+ALLOWED  src/lib/types/api.ts
+ALLOWED  src/lib/types/common.ts
+ALLOWED  src/lib/types/domain.ts
+ALLOWED  src/lib/types/module.ts
+ALLOWED  src/mocks/chatbot-demo.ts
+ALLOWED  src/mocks/index.ts
+ALLOWED  src/mocks/mocks.test.ts
+ALLOWED  src/modules/chatbot/index.ts
+ALLOWED  src/modules/chatbot/judge/index.ts
+ACC-MANAGED .ai/lock
+ALLOWED  .ai/runs/T002-1-7903/00-read-next-route-docs.log
+ALLOWED  .ai/runs/T002-1-7903/dev-01-lint.log
+ALLOWED  .ai/runs/T002-1-7903/dev-02-build.log
+ALLOWED  .ai/runs/T002-1-7903/e1-vitest-verbose.log
+ALLOWED  .ai/runs/T002-1-7903/e2-evidence.log
+ALLOWED  .ai/runs/T002-1-7903/final-1-typecheck.log
+ALLOWED  .ai/runs/T002-1-7903/final-2-lint.log
+ALLOWED  .ai/runs/T002-1-7903/final-3-test.log
+ALLOWED  .ai/runs/T002-1-7903/final-4-build.log
+ALLOWED  .ai/runs/T002-1-7903/final-summary.txt
+ALLOWED  .ai/runs/T002-1-7903/start-snapshot.json
+ALLOWED  eval/smoke-demo.mjs
+ALLOWED  src/app/api/fix/route.ts
+ALLOWED  src/app/api/scans/finalize/route.ts
+ALLOWED  src/app/api/scans/step/route.ts
+ALLOWED  src/core/scoring/scoring.test.ts
+ALLOWED  src/core/security/usage.test.ts
+ALLOWED  src/core/security/usage.ts
+ALLOWED  src/modules/chatbot/finding-text.test.ts
+ALLOWED  src/modules/chatbot/finding-text.ts
+ALLOWED  src/modules/chatbot/judge/assets.test.ts
+ALLOWED  src/modules/chatbot/judge/assets.ts
+ALLOWED  src/modules/chatbot/judge/canary.test.ts
+ALLOWED  src/modules/chatbot/judge/canary.ts
+ALLOWED  src/modules/chatbot/judge/llm.test.ts
+ALLOWED  src/modules/chatbot/judge/llm.ts
+ALLOWED  src/modules/chatbot/judge/normalize.ts
+ALLOWED  src/modules/chatbot/judge/overlap.test.ts
+ALLOWED  src/modules/chatbot/judge/overlap.ts
+ALLOWED  src/modules/chatbot/judge/redact.test.ts
+ALLOWED  src/modules/chatbot/judge/redact.ts
+ALLOWED  src/modules/chatbot/plan.test.ts
+ALLOWED  src/modules/chatbot/plan.ts
+ALLOWED  src/modules/chatbot/run-step.ts
+ALLOWED  src/modules/chatbot/step-route.test.ts
+
+### acc-managed files vs start snapshot
+8e69a2f8ea354d864f3451bd0f92edc37a88ed710964495de676645747ba4934  .ai/STATE.md
+a13e7244a445e26d9875d70969db7b9d62bda7b80091f1b8d17a8304e73cbc94  .ai/ledger.jsonl
+2661ca2ca1e9c85dfaa03d136fa1bba81a5ac6e4217b41496c154246fe67073b  .ai/tasks/T002.md
+2026-11-25 21:52:49.490540600 +0500 .ai/STATE.md
+2026-11-25 21:52:49.473275200 +0500 .ai/ledger.jsonl
+2026-11-25 21:52:49.473275200 +0500 .ai/lock
+2026-11-25 21:52:49.457622100 +0500 .ai/runs/T002-1-7903/start-snapshot.json
+
+### package.json / package-lock.json unchanged vs HEAD (no new dependencies)
+(empty diff above = unchanged)
+
+### protected demo values unchanged vs HEAD
+(empty diff above = unchanged)
+
+### UI paths untouched
+(empty diff above = unchanged)
+
+### old stateful routes removed / new routes present
+ls: cannot access 'src/app/api/scans/[id]': No such file or directory
+ls: cannot access 'src/app/api/targets/[id]': No such file or directory
+src/app/api/demo-bot/chat/route.ts
+src/app/api/fix/route.ts
+src/app/api/leads/route.ts
+src/app/api/reports/[slug]/route.ts
+src/app/api/scans/finalize/route.ts
+src/app/api/scans/route.ts
+src/app/api/scans/step/route.ts
+src/app/api/targets/route.ts
+
+### /api/targets, /api/reports/[slug], /api/leads unchanged vs HEAD
+(empty diff above = unchanged)
+
+### grep: Supabase URLs anywhere outside node_modules/.next/.ai
+grep exit 1 (1 = no matches)
+
+### grep: console / logging in non-test source
+grep exit 1 (1 = no matches)
+
+### grep: OWNER_TOKEN_SECRET in .env.example
+grep exit 1 (1 = no matches)
+
+# Bizvyra environment variables. Copy to .env.local (never committed) and fill in.
+# Every variable is read lazily at request time; the app builds with none set.
+
+# demo = no limits (for judges) | public = free-tier limits on (3 scans per IP per day)
+BIZVYRA_MODE=demo
+
+# LLM provider: gemini | openai_compatible (e.g. NVIDIA NIM)
+LLM_PROVIDER=
+LLM_API_KEY=
+# Only for openai_compatible, e.g. the provider's /v1 base URL
+LLM_BASE_URL=
+# Model IDs for the fast tier (demo bot, attacks) and the strong tier (judge, hardener)
+MODEL_FAST=
+MODEL_STRONG=
+
+# Supabase (server-side only, service role key; never exposed to the browser)
+SUPABASE_URL=
+SUPABASE_SERVICE_ROLE_KEY=
+
+# Set to true when the repo is on a Windows drive (/mnt/...) and the dev server runs in WSL
+WATCHPACK_POLLING=
+
+### grep: process.env reads (all lazy, inside functions)
+src/core/db/client.ts:13:  const url = process.env.SUPABASE_URL?.trim();
+src/core/db/client.ts:14:  const key = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+src/core/llm/adapter.ts:51:  const env = process.env;
+src/core/security/usage.ts:14:  const raw = process.env.BIZVYRA_MODE?.trim().toLowerCase();
+
+### canary is generated only inside the step runner; where canary values flow
+src/modules/chatbot/run-step.ts:74:  const canary = generateCanary();
+src/modules/chatbot/judge/canary.ts:13:export function generateCanary(): string {
+
+### MODEL_FAST: every chat() call in the module uses model "fast"
+4:src/modules/chatbot/run-step.ts-84-      model: "fast",
+9:src/modules/chatbot/judge/llm.ts-76-    model: "fast",
+
+### eval/smoke-demo.mjs imports (no dependencies)
+grep exit 1 (1 = none)
+node --check exit 0
+
+### AGENTS.md / README diffs
+diff --git a/.env.example b/.env.example
+index 7273419..e97bb1a 100644
+--- a/.env.example
++++ b/.env.example
+@@ -17,8 +17,5 @@ MODEL_STRONG=
+ SUPABASE_URL=
+ SUPABASE_SERVICE_ROLE_KEY=
+ 
+-# Reserved for signing owner-related values (long random string)
+-OWNER_TOKEN_SECRET=
+-
+ # Set to true when the repo is on a Windows drive (/mnt/...) and the dev server runs in WSL
+ WATCHPACK_POLLING=
+diff --git a/AGENTS.md b/AGENTS.md
+index d74d207..caf74e8 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -103,7 +103,7 @@ Finding {
+   5. otherwise `pass`; timeouts and API errors → `error`
+ - **Defence levels:** L0 original prompt · L1 hardened system prompt · L2 L1 + output guard (block canary/assets, then an LLM self-check)
+ - **Scoring:** attack success rate (ASR) = breaches ÷ (breaches + passes), per level, language and intent. Grade A–F from severity-weighted ASR. Bizvyra Score across modules.
+-- **Scans are client-driven:** `POST /api/scans` returns the plan; the browser calls `POST /api/scans/[id]/step` for each step, 3 at a time; then `POST /api/scans/[id]/finalize`.
++- **Scans are client-driven and stateless:** `POST /api/scans` returns the plan; the browser calls `POST /api/scans/step` for each step, 3 at a time; then `POST /api/scans/finalize`. See `docs/api-contract.md`.
+ 
+ ### Data model (Supabase)
+ 
+@@ -120,7 +120,9 @@ Finding {
+ 
+ ### API
+ 
+-`POST /api/targets` · `POST /api/scans` · `POST /api/scans/[id]/step` · `POST /api/scans/[id]/finalize` · `POST /api/targets/[id]/fix` · `POST /api/demo-bot/chat` · `POST /api/leads` · `GET /api/reports/[slug]`
++v2, stateless core loop. **`docs/api-contract.md` is the source of truth** for request/response shapes; types live in `src/lib/types/api.ts`.
++
++`POST /api/scans` (plan) · `POST /api/scans/step` (run and judge one step) · `POST /api/scans/finalize` (score) · `POST /api/fix` (T003; 501 until then) · `POST /api/demo-bot/chat` · `POST /api/reports` · `GET /api/reports/[slug]` · `POST /api/leads` (persistence, T004; mocked until then)
+ 
+ ## Folder ownership
+ 
+diff --git a/README.md b/README.md
+index 61fce8e..9ecbcca 100644
+--- a/README.md
++++ b/README.md
+@@ -43,19 +43,21 @@ UI (src/app/(pages), src/components)
+ ```
+ 
+ - **Attack model:** intent × technique × language. 5 intents (leak discount codes, steal the system prompt, approve a refund, ignore instructions, brand abuse), 7 techniques (naive, escape characters, context ignoring, fake completion, persona, nested role-play, encoding), 3 languages (`en`, `ur`, `roman_ur`). 20 attacks in `src/modules/chatbot/attacks/library.json`.
+-- **Judge pipeline** (stops at the first decision): canary → protected assets → system-prompt n-gram overlap → LLM judge → pass. Timeouts and API errors are `error` and never count as a pass.
+-- **Defence levels:** L0 original prompt · L1 hardened prompt · L2 L1 + output guard.
+-- **Scans are client-driven:** `POST /api/scans` returns the plan, the browser runs `POST /api/scans/[id]/step` three at a time, then `POST /api/scans/[id]/finalize`.
+-- **API:** `POST /api/targets` · `POST /api/scans` · `POST /api/scans/[id]/step` · `POST /api/scans/[id]/finalize` · `POST /api/targets/[id]/fix` · `POST /api/demo-bot/chat` · `POST /api/leads` · `GET /api/reports/[slug]`
++- **Judge pipeline** (stops at the first decision): canary → protected assets → system-prompt overlap (character 8-grams; ≥ 50% breach) → LLM judge (`MODEL_FAST`, JSON verdict, intent-specific rubric) → pass. Timeouts, API errors and unreadable verdicts are `error` and never count as a pass.
++- **Canary:** a fresh 16-character random token is generated inside every step request, planted in the bot's instructions for that one call, and discarded. The decoder finds it plain, in any case, with characters separated, reversed, base64- or hex-encoded. It is never returned, logged or stored.
++- **Defence levels:** L0 original prompt · L1 hardened prompt · L2 L1 + output guard (the hardener and output guard arrive in T003).
++- **Scoring:** severity-weighted attack success rate (ASR) → score 0–100 → grade A (≥ 90) · B (≥ 75) · C (≥ 60) · D (≥ 40) · F, with ASR per language and per intent.
++- **Stateless scans:** the browser holds the target, the steps and the findings; the scan routes store nothing. `POST /api/scans` returns the plan (quick = 30 steps, full = 60), the browser runs `POST /api/scans/step` three at a time, then `POST /api/scans/finalize` scores the findings. Full contract: [`docs/api-contract.md`](docs/api-contract.md).
++- **API:** `POST /api/scans` · `POST /api/scans/step` · `POST /api/scans/finalize` · `POST /api/fix` (T003; returns 501 until then) · `POST /api/demo-bot/chat` · `POST /api/reports`, `GET /api/reports/[slug]`, `POST /api/leads` (T004; mocked until then). `POST /api/targets` is a leftover mock outside the v2 core loop.
+ 
+ ## Security design
+ 
+ - **Only test what you own:** the demo bot or your own pasted system prompt. Testing live endpoints will require ownership verification.
+ - **Owner identity:** an unguessable 256-bit token in an httpOnly, Secure, SameSite=Lax cookie; only its SHA-256 hash is stored.
+ - **Input validation:** zod and size limits on every server input (chat messages ≤ 4000 characters, at most 20 per request).
+-- **Rate limiting:** every public POST route is rate-limited per IP; the free tier allows 3 scans per IP per day in `public` mode.
++- **Rate limiting:** every public POST route is rate-limited per IP (`/api/scans/step`: 120/min in `demo` mode, 60/min in `public` mode); the free tier allows 3 scans per IP per day in `public` mode. `BIZVYRA_MODE` defaults to `demo` when unset; any value other than `demo` or `public` is treated as `public`. Limits are in memory, per server instance.
+ - **SSRF guard** (for future endpoint mode): resolves DNS and blocks private, loopback, link-local, CGNAT and metadata ranges for IPv4 and IPv6 (including IPv4-mapped IPv6); re-checks every redirect; at most 3 redirects; 8 s timeout.
+-- **Minimal storage:** responses are truncated and redacted; protected values and the canary are never stored in findings in clear.
++- **Minimal storage:** the scan routes store nothing. Every finding's prompt, response (≤ 1000 characters) and evidence are redacted of the canary and every protected value (plain, separated, reversed and encoded forms) before they leave the server.
+ - **Database:** Supabase Postgres accessed server-side only with the service role key; row level security on every table, no anonymous policies.
+ - **LLM calls:** one adapter, temperature 0, 15 s timeout, typed errors that never reach the client and never include the API key.
+ - **Secrets:** never in code, logs, commits, prompts or reports. `.env.local` is never committed; see `.env.example`.
+@@ -87,6 +89,15 @@ npm test
+ npm run build
+ ```
+ 
++Smoke test (calls the real LLM: one quick scan is 30 bot calls plus up to 30 judge calls). With the dev server running and the LLM variables set in `.env.local`:
++
++```bash
++node eval/smoke-demo.mjs                                  # BASE_URL defaults to http://localhost:3000
++BASE_URL=https://your-deployment.example node eval/smoke-demo.mjs
++```
++
++It plans a quick L0 scan of the demo bot, runs all 30 steps three at a time, finalizes, and prints the grade, the score and the ASR by language and by intent.
++
+ ## Disclosures
+ 
+ External libraries:
+@@ -106,13 +117,15 @@ External services:
+ 
+ | Service | Use |
+ |---|---|
+-| [Google Gemini API](https://ai.google.dev) | LLM for the demo bot, judge and hardener (when `LLM_PROVIDER=gemini`) |
++| [Google Gemini API](https://ai.google.dev) | LLM for the demo bot, the bot under test, the LLM judge and the hardener (when `LLM_PROVIDER=gemini`) |
+ | [NVIDIA NIM](https://build.nvidia.com) (OpenAI-compatible API) | Alternative LLM provider (when `LLM_PROVIDER=openai_compatible`) |
+ | Supabase | Postgres database |
+ | [Vercel](https://vercel.com) | Hosting |
+ 
+ AI assistance: the code was written during the hackathon with AI coding assistants (Claude Code, Codex, Antigravity) under the team's direction and review.
+ 
++Judge: the canary decoder, asset matcher, n-gram overlap scorer, LLM-judge rubrics and the bilingual finding texts were written for this project. The canary and n-gram overlap ideas are credited under "Prior work" below.
++
+ Attack prompts: all 20 attacks in English, Urdu and Roman Urdu were written for this project. Technique names follow published research (Perez & Ribeiro 2022; Liu et al., USENIX Security 2024; Wei et al. 2023; Shen et al., CCS 2024), cited in each attack's `reference` field. The demo shop "Zara Fabrics" and its discount codes are fictional.
+ 
+ ## Prior work & what we improved
+
+### addendum 2026-11-25T22:28:05+05:00: .env.example after the comment fix (final tree)
+# Bizvyra environment variables. Copy to .env.local (never committed) and fill in.
+# Every variable is read lazily at request time; the app builds with none set.
+
+# demo = no limits (for judges) | public = free-tier limits on (3 scans per IP per day)
+BIZVYRA_MODE=demo
+
+# LLM provider: gemini | openai_compatible (e.g. NVIDIA NIM)
+LLM_PROVIDER=
+LLM_API_KEY=
+# Only for openai_compatible, e.g. the provider's /v1 base URL
+LLM_BASE_URL=
+# Model IDs for the fast tier (demo bot, bot under test, LLM judge) and the strong tier (hardener, T003)
+MODEL_FAST=
+MODEL_STRONG=
+
+# Supabase (server-side only, service role key; never exposed to the browser)
+SUPABASE_URL=
+SUPABASE_SERVICE_ROLE_KEY=
+
+# Set to true when the repo is on a Windows drive (/mnt/...) and the dev server runs in WSL
+WATCHPACK_POLLING=
+
+diff --git a/.env.example b/.env.example
+index 7273419..1e8b69f 100644
+--- a/.env.example
++++ b/.env.example
+@@ -9,7 +9,7 @@ LLM_PROVIDER=
+ LLM_API_KEY=
+ # Only for openai_compatible, e.g. the provider's /v1 base URL
+ LLM_BASE_URL=
+-# Model IDs for the fast tier (demo bot, attacks) and the strong tier (judge, hardener)
++# Model IDs for the fast tier (demo bot, bot under test, LLM judge) and the strong tier (hardener, T003)
+ MODEL_FAST=
+ MODEL_STRONG=
+ 
+@@ -17,8 +17,5 @@ MODEL_STRONG=
+ SUPABASE_URL=
+ SUPABASE_SERVICE_ROLE_KEY=
+ 
+-# Reserved for signing owner-related values (long random string)
+-OWNER_TOKEN_SECRET=
+-
+ # Set to true when the repo is on a Windows drive (/mnt/...) and the dev server runs in WSL
+ WATCHPACK_POLLING=
+
+### final git status --short
+ M .ai/STATE.md
+ M .ai/ledger.jsonl
+ M .env.example
+ M AGENTS.md
+ M README.md
+ D src/app/api/scans/[id]/finalize/route.ts
+ D src/app/api/scans/[id]/step/route.ts
+ M src/app/api/scans/route.ts
+ D src/app/api/targets/[id]/fix/route.ts
+ M src/core/db/index.ts
+ M src/core/findings/index.ts
+ M src/core/http/index.ts
+ M src/core/http/routes.test.ts
+ M src/core/orchestrator/index.ts
+ M src/core/registry/index.ts
+ M src/core/scoring/index.ts
+ M src/core/security/index.ts
+ M src/core/security/ratelimit.ts
+ M src/lib/types/api.ts
+ M src/lib/types/common.ts
+ M src/lib/types/domain.ts
+ M src/lib/types/module.ts
+ M src/mocks/chatbot-demo.ts
+ M src/mocks/index.ts
+ M src/mocks/mocks.test.ts
+ M src/modules/chatbot/index.ts
+ M src/modules/chatbot/judge/index.ts
+?? .ai/lock
+?? .ai/runs/T002-1-7903/
+?? eval/smoke-demo.mjs
+?? src/app/api/fix/
+?? src/app/api/scans/finalize/
+?? src/app/api/scans/step/
+?? src/core/scoring/scoring.test.ts
+?? src/core/security/usage.test.ts
+?? src/core/security/usage.ts
+?? src/modules/chatbot/finding-text.test.ts
+?? src/modules/chatbot/finding-text.ts
+?? src/modules/chatbot/judge/assets.test.ts
+?? src/modules/chatbot/judge/assets.ts
+?? src/modules/chatbot/judge/canary.test.ts
+?? src/modules/chatbot/judge/canary.ts
+?? src/modules/chatbot/judge/llm.test.ts
+?? src/modules/chatbot/judge/llm.ts
+?? src/modules/chatbot/judge/normalize.ts
+?? src/modules/chatbot/judge/overlap.test.ts
+?? src/modules/chatbot/judge/overlap.ts
+?? src/modules/chatbot/judge/redact.test.ts
+?? src/modules/chatbot/judge/redact.ts
+?? src/modules/chatbot/plan.test.ts
+?? src/modules/chatbot/plan.ts
+?? src/modules/chatbot/run-step.ts
+?? src/modules/chatbot/step-route.test.ts

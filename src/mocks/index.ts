@@ -1,32 +1,21 @@
 /**
- * Typed mock responses for every API route (T001). Replaced route by route by T002/T003.
+ * Typed mock responses in the v2 shapes of docs/api-contract.md, so the UI can work without an API key.
+ * The scan routes are real since T002; /api/targets, /api/leads and /api/reports/[slug] still use these mocks.
  * Shared folder: append only.
  */
 import { randomUUID } from "node:crypto";
 import type {
   CreateLeadResponse,
-  CreateScanRequest,
   CreateScanResponse,
   CreateTargetRequest,
   FinalizeScanResponse,
-  Finding,
-  Fix,
-  FixLevel,
   Level,
   ReportView,
+  RunStepResponse,
   TargetPublic,
 } from "@/lib/types";
 import { DEMO_PROTECTED_ASSETS } from "@/modules/chatbot/demo-bot";
-import {
-  MOCK_SCAN_IDS,
-  MOCK_SHARE_SLUG,
-  MOCK_TARGET_ID,
-  MOCK_TARGET_NAME,
-  mockFindings,
-  mockFix,
-  mockScan,
-  mockSteps,
-} from "./chatbot-demo";
+import { MOCK_SHARE_SLUG, MOCK_TARGET_ID, MOCK_TARGET_NAME, mockFindings, mockScan, mockSteps } from "./chatbot-demo";
 
 export * from "./chatbot-demo";
 
@@ -44,49 +33,25 @@ export function mockCreateTarget(input: CreateTargetRequest, now: Date = new Dat
   };
 }
 
-/** The plan for a new scan: the mock scan for the requested level, not yet run. */
-export function mockCreateScan(input: CreateScanRequest, now: Date = new Date()): CreateScanResponse {
-  const scan = mockScan(input.level, input.targetId);
+/** POST /api/scans response for the mock scan of this level: the plan, not yet run. */
+export function mockPlan(level: Level): CreateScanResponse {
+  const scan = mockScan(level);
   return {
-    scan: {
-      ...scan,
-      kind: input.kind,
-      status: "running",
-      score: null,
-      grade: null,
-      summary: null,
-      createdAt: now.toISOString(),
-      finishedAt: null,
-    },
-    steps: mockSteps(input.level),
+    scan: { ...scan, status: "running", score: null, grade: null, summary: null, finishedAt: null },
+    steps: mockSteps(level),
     concurrency: MOCK_STEP_CONCURRENCY,
   };
 }
 
-function levelOfScan(scanId: string): Level | null {
-  for (const level of [0, 1, 2] as const) {
-    if (MOCK_SCAN_IDS[level] === scanId) return level;
-  }
-  return null;
+/** POST /api/scans/step response for one step of the mock scan of this level, or null when unknown. */
+export function mockStep(level: Level, checkId: string): RunStepResponse | null {
+  const finding = mockFindings(level).find((f) => f.checkId === checkId);
+  return finding ? { finding } : null;
 }
 
-export type MockStepResult = { ok: true; finding: Finding } | { ok: false; reason: "scan_not_found" | "step_not_found" };
-
-export function mockRunStep(scanId: string, index: number): MockStepResult {
-  const level = levelOfScan(scanId);
-  if (level === null) return { ok: false, reason: "scan_not_found" };
-  const finding = mockFindings(level)[index];
-  return finding ? { ok: true, finding } : { ok: false, reason: "step_not_found" };
-}
-
-export function mockFinalizeScan(scanId: string): FinalizeScanResponse | null {
-  const level = levelOfScan(scanId);
-  if (level === null) return null;
-  return { scan: mockScan(level), shareSlug: MOCK_SHARE_SLUG };
-}
-
-export function mockCreateFix(targetId: string, level: FixLevel): Fix {
-  return mockFix(targetId, level);
+/** POST /api/scans/finalize response for the mock scan of this level. */
+export function mockFinalize(level: Level): FinalizeScanResponse {
+  return { scan: mockScan(level) };
 }
 
 export function mockCreateLead(): CreateLeadResponse {
@@ -96,13 +61,15 @@ export function mockCreateLead(): CreateLeadResponse {
 export function mockGetReport(slug: string): ReportView | null {
   if (slug !== MOCK_SHARE_SLUG) return null;
   const levels = [0, 1, 2] as const;
+  const scans = levels.map((l) => mockScan(l));
+  const scores = scans.map((s) => s.score ?? 0);
   return {
     shareSlug: MOCK_SHARE_SLUG,
     createdAt: "2026-11-25T09:07:30.000Z",
     expiresAt: "2027-02-23T09:07:30.000Z",
     target: { name: MOCK_TARGET_NAME, module: "chatbot" },
-    bizvyraScore: 86,
-    scans: levels.map((l) => mockScan(l)),
+    bizvyraScore: scores[scores.length - 1],
+    scans,
     findings: levels.flatMap((l) => mockFindings(l)),
   };
 }

@@ -1,0 +1,19 @@
+$ npm test
+# started 2026-11-25T22:27:16+05:00
+
+> bizvyra@0.1.0 test
+> vitest run
+
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vitest.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+ RUN  v4.1.12 /mnt/w/dev/hackathon/bizvyra
+
+
+ Test Files  16 passed (16)
+      Tests  202 passed (202)
+   Start at  22:27:19
+   Duration  8.65s (transform 10.47s, setup 0ms, import 23.26s, tests 6.21s, environment 3ms)
+
+# exit 0, duration 11.542781788 s, finished 2026-11-25T22:27:28+05:00

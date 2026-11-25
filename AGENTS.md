@@ -103,7 +103,7 @@ Finding {
   5. otherwise `pass`; timeouts and API errors → `error`
 - **Defence levels:** L0 original prompt · L1 hardened system prompt · L2 L1 + output guard (block canary/assets, then an LLM self-check)
 - **Scoring:** attack success rate (ASR) = breaches ÷ (breaches + passes), per level, language and intent. Grade A–F from severity-weighted ASR. Bizvyra Score across modules.
-- **Scans are client-driven:** `POST /api/scans` returns the plan; the browser calls `POST /api/scans/[id]/step` for each step, 3 at a time; then `POST /api/scans/[id]/finalize`.
+- **Scans are client-driven and stateless:** `POST /api/scans` returns the plan; the browser calls `POST /api/scans/step` for each step, 3 at a time; then `POST /api/scans/finalize`. See `docs/api-contract.md`.
 
 ### Data model (Supabase)
 
@@ -120,7 +120,9 @@ Finding {
 
 ### API
 
-`POST /api/targets` · `POST /api/scans` · `POST /api/scans/[id]/step` · `POST /api/scans/[id]/finalize` · `POST /api/targets/[id]/fix` · `POST /api/demo-bot/chat` · `POST /api/leads` · `GET /api/reports/[slug]`
+v2, stateless core loop. **`docs/api-contract.md` is the source of truth** for request/response shapes; types live in `src/lib/types/api.ts`.
+
+`POST /api/scans` (plan) · `POST /api/scans/step` (run and judge one step) · `POST /api/scans/finalize` (score) · `POST /api/fix` (T003; 501 until then) · `POST /api/demo-bot/chat` · `POST /api/reports` · `GET /api/reports/[slug]` · `POST /api/leads` (persistence, T004; mocked until then)
 
 ## Folder ownership
 
