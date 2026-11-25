@@ -1,0 +1,203 @@
+{
+  "task": "T001",
+  "attempt": 2,
+  "run_id": "T001-2-8edd",
+  "report": ".ai/reports/T001-2.md",
+  "started": "2026-11-25T16:50:38Z",
+  "finished": "2026-11-25T16:51:45Z",
+  "verdict": "VERIFIED",
+  "failed_checks": [],
+  "owner_reason": null,
+  "commands": [
+    {
+      "command": "npm run typecheck",
+      "exit_code": 0,
+      "timed_out": false
+    },
+    {
+      "command": "npm run lint",
+      "exit_code": 0,
+      "timed_out": false
+    },
+    {
+      "command": "npm test",
+      "exit_code": 0,
+      "timed_out": false
+    },
+    {
+      "command": "NEXT_TELEMETRY_DISABLED=1 npm run build",
+      "exit_code": 0,
+      "timed_out": false
+    }
+  ],
+  "changed_paths": [
+    ".ai/STATE.md",
+    ".ai/ledger.jsonl",
+    ".ai/reports/T001-2.md",
+    ".ai/runs/T001-2-8edd/1-typecheck.log",
+    ".ai/runs/T001-2-8edd/2-lint.log",
+    ".ai/runs/T001-2-8edd/3-test.log",
+    ".ai/runs/T001-2-8edd/4-build.log",
+    ".ai/runs/T001-2-8edd/5-evidence.log",
+    ".ai/runs/T001-2-8edd/5-evidence.sh",
+    ".ai/runs/T001-2-8edd/6-vitest-verbose.log",
+    ".ai/runs/T001-2-8edd/7-attempt1-logs-unchanged.log",
+    ".ai/runs/T001-2-8edd/8-final-checks.log",
+    ".ai/runs/T001-2-8edd/start-snapshot.json",
+    ".ai/runs/T001-2-8edd/summary.txt"
+  ],
+  "checks": {
+    "verdicts": {
+      "status": "PASS",
+      "passed": true,
+      "verdicts": {
+        "C1": "PASS",
+        "C2": "PASS",
+        "C3": "PASS",
+        "C4": "PASS",
+        "C5": "PASS",
+        "C6": "PASS",
+        "C7": "PASS",
+        "C8": "PASS",
+        "C9": "PASS",
+        "C10": "PASS",
+        "C11": "PASS",
+        "C12": "PASS",
+        "C13": "PASS",
+        "C14": "PASS"
+      },
+      "failed": [],
+      "not_verified": [],
+      "not_verified_accepted": false
+    },
+    "test_commands": {
+      "status": "PASS",
+      "passed": true,
+      "timeout_seconds": 900,
+      "commands": [
+        {
+          "n": 1,
+          "command": "npm run typecheck",
+          "exit_code": 0,
+          "timed_out": false,
+          "seconds": 9.344,
+          "log": ".ai/verify/T001-2-8edd/cmd-1.log",
+          "passed": true
+        },
+        {
+          "n": 2,
+          "command": "npm run lint",
+          "exit_code": 0,
+          "timed_out": false,
+          "seconds": 25.289,
+          "log": ".ai/verify/T001-2-8edd/cmd-2.log",
+          "passed": true
+        },
+        {
+          "n": 3,
+          "command": "npm test",
+          "exit_code": 0,
+          "timed_out": false,
+          "seconds": 5.791,
+          "log": ".ai/verify/T001-2-8edd/cmd-3.log",
+          "passed": true
+        },
+        {
+          "n": 4,
+          "command": "NEXT_TELEMETRY_DISABLED=1 npm run build",
+          "exit_code": 0,
+          "timed_out": false,
+          "seconds": 25.439,
+          "log": ".ai/verify/T001-2-8edd/cmd-4.log",
+          "passed": true
+        }
+      ]
+    },
+    "scope": {
+      "allowed_files": [
+        "src/core/**",
+        "src/modules/**",
+        "src/app/api/**",
+        "src/lib/**",
+        "src/mocks/**",
+        "supabase/**",
+        "eval/**",
+        "vitest.config.ts",
+        "package.json",
+        "package-lock.json",
+        "tsconfig.json",
+        "next-env.d.ts",
+        ".gitignore",
+        ".env.example",
+        "README.md",
+        ".ai/reports/**",
+        ".ai/runs/**"
+      ],
+      "not_checkable_globs": [],
+      "limitations": [
+        "git-ignored files are not covered: changes to them are invisible to this check and to the secret scan"
+      ],
+      "snapshot": ".ai/runs/T001-2-8edd/start-snapshot.json",
+      "status": "PASS",
+      "passed": true,
+      "head_at_start": "0714a971a90878f63637b97152805fa28350b15c",
+      "head_now": "0714a971a90878f63637b97152805fa28350b15c",
+      "changed": [
+        ".ai/STATE.md",
+        ".ai/ledger.jsonl",
+        ".ai/reports/T001-2.md",
+        ".ai/runs/T001-2-8edd/1-typecheck.log",
+        ".ai/runs/T001-2-8edd/2-lint.log",
+        ".ai/runs/T001-2-8edd/3-test.log",
+        ".ai/runs/T001-2-8edd/4-build.log",
+        ".ai/runs/T001-2-8edd/5-evidence.log",
+        ".ai/runs/T001-2-8edd/5-evidence.sh",
+        ".ai/runs/T001-2-8edd/6-vitest-verbose.log",
+        ".ai/runs/T001-2-8edd/7-attempt1-logs-unchanged.log",
+        ".ai/runs/T001-2-8edd/8-final-checks.log",
+        ".ai/runs/T001-2-8edd/start-snapshot.json",
+        ".ai/runs/T001-2-8edd/summary.txt"
+      ],
+      "out_of_scope": []
+    },
+    "secrets": {
+      "status": "PASS",
+      "passed": true,
+      "findings": [],
+      "scanned": [
+        ".ai/STATE.md",
+        ".ai/ledger.jsonl",
+        ".ai/reports/T001-2.md",
+        ".ai/runs/T001-2-8edd/1-typecheck.log",
+        ".ai/runs/T001-2-8edd/2-lint.log",
+        ".ai/runs/T001-2-8edd/3-test.log",
+        ".ai/runs/T001-2-8edd/4-build.log",
+        ".ai/runs/T001-2-8edd/5-evidence.log",
+        ".ai/runs/T001-2-8edd/5-evidence.sh",
+        ".ai/runs/T001-2-8edd/6-vitest-verbose.log",
+        ".ai/runs/T001-2-8edd/7-attempt1-logs-unchanged.log",
+        ".ai/runs/T001-2-8edd/8-final-checks.log",
+        ".ai/runs/T001-2-8edd/start-snapshot.json",
+        ".ai/runs/T001-2-8edd/summary.txt"
+      ],
+      "skipped": [],
+      "rules": [
+        "aws-access-key",
+        "private-key",
+        "jwt",
+        "sk-token",
+        "github-token",
+        "supabase-service-role-key",
+        "credential-assignment"
+      ]
+    },
+    "contract": {
+      "contract": ".ai/tasks/T001.md",
+      "snapshot": ".ai/runs/T001-2-8edd/start-snapshot.json",
+      "status": "PASS",
+      "passed": true,
+      "sha256_at_start": "2463c2c4f7e6236f10c67552f57ac6839e838c41ba5470fcfa07f11d020f9128",
+      "sha256_now": "2463c2c4f7e6236f10c67552f57ac6839e838c41ba5470fcfa07f11d020f9128"
+    }
+  }
+}

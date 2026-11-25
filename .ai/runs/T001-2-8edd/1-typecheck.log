@@ -1,0 +1,7 @@
+$ npm run typecheck
+# started 2026-11-25T16:45:18Z cwd=/mnt/w/dev/hackathon/bizvyra
+
+> bizvyra@0.1.0 typecheck
+> tsc --noEmit
+
+# exit_code=0 duration=10.5s finished 2026-11-25T16:45:28Z

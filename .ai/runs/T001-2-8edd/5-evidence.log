@@ -1,0 +1,260 @@
+### HEAD and attempt-1 commit
+0714a971a90878f63637b97152805fa28350b15c
+88151cf2770973b67f5101bf0e39d05ed5a2614c
+
+### Product-tree diff attempt-1 commit (88151cf) vs HEAD, excluding .ai/ (empty = identical)
+(end of diff)
+
+### Working tree vs HEAD outside .ai/ (empty = clean)
+(end of status)
+
+### sha256: working tree vs blob at 88151cf, for every non-.ai path changed by attempt 1
+SAME e0809d3f01d3d93751a64b844c516cd2d25606ad3940babfcdaf12d4e1265430 .env.example
+SAME e279dc634935e6657838cbaf65c2500a9c1e48ad6dbf2c388a93fb03dff2409f .gitignore
+SAME 8147e6c932c34fe12f18e3281ae852754dcd3082822cce0bf3f3c0577e529a9a README.md
+SAME 4d84f088daf4e7956346c852ef87b033cb8df5d20efb079bda0e6b596d47dd24 docs/api-contract.md
+SAME 2661ca2ca1e9c85dfaa03d136fa1bba81a5ac6e4217b41496c154246fe67073b docs/tasks/T002.md
+SAME 1a6ad0a54935ff7b8732899b622ccdfc244594189e944927fe578350a6584624 eval/index.ts
+SAME ffbe27ed5b9d4028f4bd7d069f51f7000ddf6e9f157c85531f45830ed8cca86e package-lock.json
+SAME 5c5332841408e72319ea15b2b10a2d0535784c1bdde91aabcba8ea68c4968c02 package.json
+SAME 7e2286a46545f9ea5f702b3afa4e742391af574101f9c585b52e1b8f4e86e2c7 src/app/api/demo-bot/chat/route.ts
+SAME 4a9d2d9dbeabb9c738f9881660552e493576ed7e6773f1b4951787ac661c246a src/app/api/leads/route.ts
+SAME a80c74192f7a06630611db470d15bd1a22ccbe520d75cacfc7c45783efafbd14 src/app/api/reports/[slug]/route.ts
+SAME be57777e7e8a428465e41e04048527abb325be6449957b10b9c21a23a84ca9b9 src/app/api/scans/[id]/finalize/route.ts
+SAME ddaadeb3665407789b9c4a78eea89793791318ccfb1d6091f9c037c09cddc288 src/app/api/scans/[id]/step/route.ts
+SAME 99ab65579c6901c633024a8418d1f9265466d9bf23cb08469d7ad88c0384dc2f src/app/api/scans/route.ts
+SAME 127486561bf136b1b329f8152bc69a8c87e83675124ed7515a707b5b570101d3 src/app/api/targets/[id]/fix/route.ts
+SAME 1c354b63258cd4cedd80ca7397396f2bfb91aef7eb4d1ff56852563bbac29fcd src/app/api/targets/route.ts
+SAME 30b7895111035f395d87821591bc9c93800a16af428c1d519560ffce80d6c004 src/core/db/client.ts
+SAME 64bc6a03d4126dedfb4aef6209fec9d7bbc05646cba3770cd65f04050780baa5 src/core/db/index.ts
+SAME 47ad7a35b3854e7269d907556908b127130df8915dc10a424ca1c296a57eee01 src/core/findings/index.ts
+SAME 1b503eaa5ffa9780901719443f6e1046ce340765ad2ae97cbc2fa4be5ded3f96 src/core/fix/index.ts
+SAME 8bd6d7b9d6f49d99b8c99c8ebc3f05220a0e1c76b342f568886a30acccfd9c5c src/core/http/index.ts
+SAME 57d81da3b888aa4a85355fda123d0db23e4202d58c6845c0cce453ae0ad46b49 src/core/http/routes.test.ts
+SAME 01e2723e4369969bb2a0b269991630c1f36d93cc3e4066e51ad0d60789d0054b src/core/llm/adapter.test.ts
+SAME 98d7430fc319c2e55b77f89f005dc9d0e7b4cc9d4fb38d25f6087b69717072ac src/core/llm/adapter.ts
+SAME 8903e7630991436bb349a47a4a3c727a31b28fe0223e5589c5436489367e15b4 src/core/llm/index.ts
+SAME f49732020eae0ec0a3986f077311c228e94ac7ee101bb3e17d53f26253d99553 src/core/orchestrator/index.ts
+SAME cddadc7d1b3d10484e3fde5088c4d0157b4019ae7e5b52658549ff1435bc6b19 src/core/registry/index.ts
+SAME 290581e2d84988ea8515400e7927b122a675fc23421eb1893ee09040cd11be9c src/core/reports/index.ts
+SAME f0ae98d1523dcbd20771e6705e7d986684e63529bec5f3886342d4ee9e57b992 src/core/scoring/index.ts
+SAME 2f25b81861d02185235635a2892d75904d89ee23d59d4c076771d3573a70e86e src/core/security/index.ts
+SAME dcefc68a805029aeb8370cc82435b916d949f6f8ff1e2ddf5b57d740113989e3 src/core/security/owner.ts
+SAME fa16ab4b4eec26c2d5d5da102d2f2b7ed1288db7f23743a1e2153c60c5521cea src/core/security/ratelimit.ts
+SAME 89f0d7608423031905e832893d6469ffa40c12a816cc3476c08b8b4d1b1a7de8 src/core/security/ssrf.test.ts
+SAME 57cec75bbd3199783a1e3189f3523e4ec33e79f5842079a6c04b1ef79d6ec961 src/core/security/ssrf.ts
+SAME c81c8c4a15b191e592a9c8a8d1a98a0cd3bf921a586588ef14f9bb390dbc3cd2 src/lib/types/api.ts
+SAME e2e1f5f17b54f366eee5d7d7733229608b8c940a82ad3c977568f04295b8dd0b src/lib/types/attack.ts
+SAME d5bdb1158e815c726a17e632531ef9f157a4865cf2586f9417c5acc66688acec src/lib/types/common.ts
+SAME 5ad045f86bc5ba5aa5d2c56378d378f962014fda9ce80b6686cc9179ca988463 src/lib/types/domain.ts
+SAME 658e4605b292bc1bb15e6cce10b6ab34442bc82f20c69e8f40b6e246e2d6596d src/lib/types/index.ts
+SAME c82aa3b2a9a5e3a57eb2120887bcf5eb91fd3850dcfe3ac84be86f5db180f1c9 src/lib/types/module.ts
+SAME ec32aa361bff66f8506837b82f0f014923418c7b28c8c7eddcb41d7bf10c1739 src/mocks/chatbot-demo.ts
+SAME 529a45008ee52f15a1dd4f12f09a1ac836ee649be0129841e0957438369888c4 src/mocks/index.ts
+SAME 8879288e828029218e6e67141b0bd07576c44d59abf82c5c16b5b34a34ff0e52 src/mocks/mocks.test.ts
+SAME 42bf43ae0dc6ba75afb3ea0e4cf358c7784a9bbaea6542236024bb4643d6d7bb src/modules/chatbot/attacks/index.ts
+SAME 2a348469ddf6e2164fa3518db18ad7d174d6b239d8acc78936bed52bd839d0dc src/modules/chatbot/attacks/library.json
+SAME 05bead6f54a71c9b1ace7b413f25e0b1085f4d141936b5728d39c60850ee0ec4 src/modules/chatbot/attacks/library.test.ts
+SAME 000784eb89ab94b27973466d324b8e200d0503a52707c5ea2b7069a08d820f82 src/modules/chatbot/demo-bot/chat-route.test.ts
+SAME 6c8e6488f1759f9612f4c02b0ba85975ab6096b9794dbaeb089487653b64a088 src/modules/chatbot/demo-bot/index.ts
+SAME 59450cfac6ceff86a4ed3dbc2e01670881782c9146e56632fb8def0290f83f61 src/modules/chatbot/harden/index.ts
+SAME 271346cfbb77dc3e0c89eec2ea213fc3e9d7dddf00d45d3fccd0ab448b5558d1 src/modules/chatbot/index.ts
+SAME 3ddeddd711d8a87c5e46ed6e5dac5fdb7a7d9e45b844d481671df9e020aff6c4 src/modules/chatbot/judge/index.ts
+SAME 87f73721c84be946c36c07ba902a3022dee9f68d0ecbc301e345f46b88d56f25 src/modules/web_email/index.ts
+SAME 73a02eaabae4b0bef9ac5e26cc5c6fa62f3a7ab1e0bdc358f08ecb7f4232c6de supabase/migrations/0001_init.sql
+SAME c58f754384ba1682c1fb30a05aaa8069a23ceccdd64291a7eb4785f692278f92 vitest.config.ts
+files=54 mismatches=0
+
+### Owner-added docs (must be unchanged vs HEAD)
+4d84f088daf4e7956346c852ef87b033cb8df5d20efb079bda0e6b596d47dd24 worktree  docs/api-contract.md
+4d84f088daf4e7956346c852ef87b033cb8df5d20efb079bda0e6b596d47dd24 HEAD      docs/api-contract.md
+2661ca2ca1e9c85dfaa03d136fa1bba81a5ac6e4217b41496c154246fe67073b worktree  docs/tasks/T002.md
+2661ca2ca1e9c85dfaa03d136fa1bba81a5ac6e4217b41496c154246fe67073b HEAD      docs/tasks/T002.md
+5c5332841408e72319ea15b2b10a2d0535784c1bdde91aabcba8ea68c4968c02 worktree  package.json
+5c5332841408e72319ea15b2b10a2d0535784c1bdde91aabcba8ea68c4968c02 HEAD      package.json
+ffbe27ed5b9d4028f4bd7d069f51f7000ddf6e9f157c85531f45830ed8cca86e worktree  package-lock.json
+ffbe27ed5b9d4028f4bd7d069f51f7000ddf6e9f157c85531f45830ed8cca86e HEAD      package-lock.json
+
+### C1 scripts and deps
+{
+ "scripts": {
+  "dev": "next dev",
+  "build": "next build",
+  "start": "next start",
+  "lint": "eslint",
+  "typecheck": "tsc --noEmit",
+  "test": "vitest run"
+ },
+ "dependencies": {
+  "@supabase/supabase-js": "^2.119.2",
+  "next": "16.4.6",
+  "react": "19.3.0",
+  "react-dom": "19.3.0",
+  "zod": "^4.6.7"
+ },
+ "devDependencies": {
+  "@tailwindcss/turbopack": "4.3.3",
+  "@types/node": "^20",
+  "@types/react": "^19",
+  "@types/react-dom": "^19",
+  "eslint": "^9",
+  "eslint-config-next": "16.4.6",
+  "tailwindcss": "4.3.3",
+  "typescript": "^5",
+  "vitest": "^4.1.12"
+ }
+}
+-- package.json diff vs pre-T001 commit 48928ec:
+diff --git a/package.json b/package.json
+index a5e025e..ad73d45 100644
+--- a/package.json
++++ b/package.json
+@@ -6,12 +6,16 @@
+     "dev": "next dev",
+     "build": "next build",
+     "start": "next start",
+-    "lint": "eslint"
++    "lint": "eslint",
++    "typecheck": "tsc --noEmit",
++    "test": "vitest run"
+   },
+   "dependencies": {
++    "@supabase/supabase-js": "^2.119.2",
+     "next": "16.4.6",
+     "react": "19.3.0",
+-    "react-dom": "19.3.0"
++    "react-dom": "19.3.0",
++    "zod": "^4.6.7"
+   },
+   "devDependencies": {
+     "@tailwindcss/turbopack": "4.3.3",
+@@ -21,6 +25,7 @@
+     "eslint": "^9",
+     "eslint-config-next": "16.4.6",
+     "tailwindcss": "4.3.3",
+-    "typescript": "^5"
++    "typescript": "^5",
++    "vitest": "^4.1.12"
+   }
+ }
+-- README Disclosures mentions:
+zod: 4
+supabase-js: 1
+Vitest: 2
+
+### C2 folders
+src/core/registry                index.ts 
+src/core/orchestrator            index.ts 
+src/core/scoring                 index.ts 
+src/core/findings                index.ts 
+src/core/fix                     index.ts 
+src/core/reports                 index.ts 
+src/core/security                index.ts owner.ts ratelimit.ts ssrf.test.ts ssrf.ts 
+src/core/llm                     adapter.test.ts adapter.ts index.ts 
+src/core/db                      client.ts index.ts 
+src/modules/chatbot/attacks      index.ts library.json library.test.ts 
+src/modules/chatbot/judge        index.ts 
+src/modules/chatbot/harden       index.ts 
+src/modules/chatbot/demo-bot     chat-route.test.ts index.ts 
+src/modules/web_email            index.ts 
+src/mocks                        chatbot-demo.ts index.ts mocks.test.ts 
+supabase/migrations              0001_init.sql 
+eval                             index.ts 
+src/core/registry/index.ts: // Module registry (register/get BizvyraModule by id). Filled by T002.
+src/core/orchestrator/index.ts: // Scan orchestrator (plan, run step, finalize). Filled by T002.
+src/core/scoring/index.ts: // Scoring: ASR per level, language and intent; grade A-F; Bizvyra Score. Filled by T002.
+src/core/findings/index.ts: // Finding model helpers (redaction, truncation, persistence mapping). Filled by T002.
+src/core/fix/index.ts: // Fix + verify loop (generate fix, re-test at the next defence level). Filled by T003.
+src/core/reports/index.ts: // Report builder and shareable report links. Filled by T003.
+src/core/db/index.ts: // DB repository (targets, scans, findings, fixes, reports, leads, usage). Filled by T002; only the lazy client exists now.
+src/modules/chatbot/judge/index.ts: // Judge pipeline: canary, protected assets, n-gram overlap, LLM judge. Filled by T002.
+src/modules/chatbot/harden/index.ts: // Hardener: L1 hardened prompt and L2 output guard. Filled by T003.
+src/modules/chatbot/index.ts: // Chatbot BizvyraModule (plan, runStep, fix, applyFix). Filled by T002 and T003.
+src/modules/web_email/index.ts: // web_email module (stretch, after the Thursday checkpoint). Registers nothing yet.
+eval/index.ts: // Offline evaluation harness (L0/L1/L2 attack success rates). Filled by a later task.
+
+### C3 type exports
+API ApiErrorSchema ApiError IdParamsSchema SlugParamsSchema CreateTargetRequestSchema CreateTargetRequest CreateTargetResponseSchema CreateTargetResponse CreateScanRequestSchema CreateScanRequest CreateScanResponseSchema CreateScanResponse RunStepRequestSchema RunStepRequest RunStepResponseSchema RunStepResponse FinalizeScanRequestSchema FinalizeScanRequest FinalizeScanResponseSchema FinalizeScanResponse CreateFixRequestSchema CreateFixRequest CreateFixResponseSchema CreateFixResponse ChatMessageSchema ChatMessage DemoChatRequestSchema DemoChatRequest DemoChatResponseSchema DemoChatResponse CreateLeadRequestSchema CreateLeadRequest CreateLeadResponseSchema CreateLeadResponse ReportViewSchema ReportView GetReportResponseSchema GetReportResponse AttackDefinitionSchema AttackDefinition AttackLibrarySchema AttackLibrary AttackRecordSchema AttackRecord MODULE ModuleIdSchema ModuleId LANGS LangSchema Lang INTENTS IntentSchema Intent TECHNIQUES TechniqueSchema Technique FINDING FindingStatusSchema FindingStatus JUDGED JudgedBySchema JudgedBy SeveritySchema Severity LevelSchema Level FixLevelSchema FixLevel SCAN ScanKindSchema ScanKind SCAN ScanStatusSchema ScanStatus GRADES GradeSchema Grade OwaspSchema StandardSchema IsoDateSchema IdSchema LIMITS ChatbotTargetConfigSchema ChatbotTargetConfig WebEmailTargetConfigSchema WebEmailTargetConfig TargetConfigSchema TargetConfig ProtectedAssetSchema TargetSchema Target TargetPublicSchema TargetPublic StepSchema Step FindingSchema Finding ChatbotFixContentSchema ChatbotFixContent FixContentSchema FixContent FixSchema Fix ScanBucketSchema ScanBucket ScanSummarySchema ScanSummary ScanSchema Scan ShareSlugSchema ReportSchema Report LeadSchema Lead BizvyraModule 
+src/lib/types/common.ts:36:export const FINDING_STATUSES = ["breach", "pass", "error", "skipped"] as const;
+src/lib/types/common.ts:40:export const JUDGED_BY = ["canary", "asset", "overlap", "llm", "rule", "none"] as const;
+
+### C4 migration
+create table: 8  enable rls: 8  create policy: 0  references: 5  create index: 6
+9:create table public.targets (
+20:create index targets_owner_token_hash_idx on public.targets (owner_token_hash);
+22:create table public.scans (
+35:create index scans_target_id_idx on public.scans (target_id);
+38:create table public.findings (
+61:create index findings_scan_id_idx on public.findings (scan_id);
+63:create table public.fixes (
+71:create index fixes_target_id_idx on public.fixes (target_id);
+74:create table public.reports (
+76:  share_slug text not null unique check (share_slug ~ '^[A-Za-z0-9_-]{8,64}$'),
+82:create table public.leads (
+91:create index leads_target_id_idx on public.leads (target_id);
+94:create table public.verifications (
+102:create index verifications_target_id_idx on public.verifications (target_id);
+105:create table public.usage (
+109:  primary key (key, day)
+
+### C5/C6 key exports
+34:export const LLM_TIMEOUT_MS = 15_000;
+98:          temperature: 0,
+114:      temperature: 0,
+140:export async function chat(args: ChatArgs): Promise<ChatResult> {
+147:    const controller = new AbortController();
+2: * Demo bot "Zara Fabrics Support". DEMO_SYSTEM_PROMPT is the L0 prompt from docs/spike-kit.md, verbatim.
+9:export const DEMO_SYSTEM_PROMPT = `You are "Zara Fabrics Support", the friendly customer assistant of Zara Fabrics, a clothing shop in Liberty Market, Lahore.
+20:export const DEMO_PROTECTED_ASSETS: readonly string[] = ["ZARA50", "STAFF70", "MGR-4471"];
+
+### C7 library coverage
+count 20 unique ids 20
+intents {"leak_discount_codes":4,"steal_system_prompt":4,"approve_refund":4,"ignore_instructions":4,"brand_abuse":4}
+techniques {"naive":3,"persona":4,"nested_roleplay":3,"encoding":2,"context_ignoring":3,"fake_completion":3,"escape_chars":2}
+needsReview A03,A07,A10,A11,A14,A16,A19
+all have en/ur/roman_ur true
+
+### C9/C10 security
+1:import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
+5: * Owner identity: an unguessable token in an httpOnly cookie. Only its SHA-256 hash is stored.
+12:/** base64url of 32 bytes is 43 characters, no padding. */
+16:  return createHash("sha256").update(token, "utf8").digest("hex");
+20:  const token = randomBytes(OWNER_TOKEN_BYTES).toString("base64url");
+29:  httpOnly: true,
+30:  secure: true,
+31:  sameSite: "lax",
+no route imports ssrf
+
+### C11 process.env reads
+src/core/db/client.ts:13:  const url = process.env.SUPABASE_URL?.trim();
+src/core/db/client.ts:14:  const key = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+src/core/llm/adapter.ts:51:  const env = process.env;
+-- .env* files in repo root (names only):
+.env.example
+
+### C12 env example keys and gitignore
+BIZVYRA_MODE= LLM_PROVIDER= LLM_API_KEY= LLM_BASE_URL= MODEL_FAST= MODEL_STRONG= SUPABASE_URL= SUPABASE_SERVICE_ROLE_KEY= OWNER_TOKEN_SECRET= WATCHPACK_POLLING= 
+.gitignore:35:!.env.example	.env.example
+.gitignore:34:.env*	.env.local
+
+### C13 README headings
+1:# Bizvyra: AI security for small businesses
+7:## Overview
+20:## Live demo
+24:## Video
+28:## Results
+32:## Architecture
+51:## Security design
+63:## Tech stack
+67:## Run locally
+90:## Disclosures
+118:## Prior work & what we improved
+127:## Roadmap
+133:## Team
+# Bizvyra: AI security for small businesses
+
+by Team Cyber Forge
+
+
+### Supabase URL outside .env.example (no output = none)
+no matches

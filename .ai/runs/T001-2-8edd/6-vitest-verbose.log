@@ -1,0 +1,97 @@
+$ npx vitest run --reporter=verbose
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vitest.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+ RUN  v4.1.12 /mnt/w/dev/hackathon/bizvyra
+
+ ✓ src/core/llm/adapter.test.ts > llm adapter > returns ok:false (config) when the API key is missing, without calling fetch 4ms
+ ✓ src/core/llm/adapter.test.ts > llm adapter > returns ok:false (config) when the provider is unknown 1ms
+ ✓ src/core/llm/adapter.test.ts > llm adapter > returns ok:false (timeout) after 15 s and never throws 5ms
+ ✓ src/core/llm/adapter.test.ts > llm adapter > sends the Gemini REST request body (temperature 0, key in header, system instruction) 37ms
+ ✓ src/core/llm/adapter.test.ts > llm adapter > sends the OpenAI-compatible request body (NIM) with MODEL_STRONG 1ms
+ ✓ src/core/llm/adapter.test.ts > llm adapter > maps HTTP and network failures to typed errors that never contain the key 2ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects 127.0.0.0/8 loopback (127.0.0.1) 7ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects 127.0.0.0/8 loopback (high) (127.255.255.254) 2ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects 10.0.0.0/8 private (10.20.30.40) 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects 172.16.0.0/12 private (low) (172.16.0.1) 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects 172.16.0.0/12 private (high) (172.31.255.255) 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects 192.168.0.0/16 private (192.168.1.10) 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects 169.254.0.0/16 link-local / metadata (169.254.169.254) 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects 100.64.0.0/10 CGNAT (low) (100.64.0.1) 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects 100.64.0.0/10 CGNAT (high) (100.127.255.254) 1ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects 0.0.0.0/8 (0.0.0.0) 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects ::1 loopback (::1) 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects :: unspecified (::) 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects fc00::/7 unique local (fc00::1) 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects fc00::/7 AWS metadata IPv6 (fd00:ec2::254) 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects fe80::/10 link-local (fe80::1) 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects fe80::/10 link-local with zone (fe80::1%eth0) 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects IPv4-mapped loopback (::ffff:127.0.0.1) 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects IPv4-mapped loopback (hex) (::ffff:7f00:1) 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects IPv4-mapped private (::ffff:10.0.0.1) 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects IPv4-mapped metadata (::ffff:169.254.169.254) 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects NAT64 embedding private (64:ff9b::a00:1) 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects 6to4 embedding loopback (2002:7f00:1::1) 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > rejects when any one of several resolved addresses is private 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > allows a public IP 2ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: blocked ranges (via mocked DNS) > allows public IPs on range boundaries and public IPv6 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: URL handling > rejects non-http(s) scheme ftp://example.com/file 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: URL handling > rejects non-http(s) scheme file:///etc/passwd 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: URL handling > rejects non-http(s) scheme gopher://example.com/ 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: URL handling > rejects non-http(s) scheme javascript:alert(1) 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: URL handling > rejects non-http(s) scheme data:text/plain,hi 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: URL handling > rejects http://127.0.0.1/ (ip literal) without DNS 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: URL handling > rejects http://[::1]:3000/ (ipv6 literal) without DNS 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: URL handling > rejects http://[::ffff:127.0.0.1]/ (mapped literal) without DNS 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: URL handling > rejects http://2130706433/ (decimal-encoded loopback) without DNS 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: URL handling > rejects http://0x7f.1/ (hex-encoded loopback) without DNS 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: URL handling > rejects http://169.254.169.254/latest/meta-data/ (metadata literal) without DNS 0ms
+ ✓ src/core/security/ssrf.test.ts > ssrf guard: URL handling > rejects localhost-style names, credentials, bad URLs and DNS failures 1ms
+ ✓ src/core/security/ssrf.test.ts > safeFetch > re-checks every redirect and blocks a redirect to a private address 23ms
+ ✓ src/core/security/ssrf.test.ts > safeFetch > stops after 3 redirects and uses manual redirect mode 1ms
+ ✓ src/core/security/ssrf.test.ts > safeFetch > returns the response for a public URL 1ms
+ ✓ src/modules/chatbot/attacks/library.test.ts > attack library > validates against the zod schema 2ms
+ ✓ src/modules/chatbot/attacks/library.test.ts > attack library > has 20 attacks with unique ids 1ms
+ ✓ src/modules/chatbot/attacks/library.test.ts > attack library > covers all 5 intents and all 7 techniques 1ms
+ ✓ src/modules/chatbot/attacks/library.test.ts > attack library > has en, ur (Urdu script) and roman_ur (Latin script) prompts for every attack 2ms
+ ✓ src/mocks/mocks.test.ts > mocks > baseline is grade F, L1 grade C, L2 grade B, and all scans match the Scan schema 11ms
+ ✓ src/mocks/mocks.test.ts > mocks > each scan has 30 schema-valid findings with EN and UR titles and impacts 9ms
+ ✓ src/mocks/mocks.test.ts > mocks > breach counts fall from L0 to L2 1ms
+ ✓ src/mocks/mocks.test.ts > mocks > never contains a protected asset or a canary in clear 6ms
+ ✓ src/mocks/mocks.test.ts > mocks > fix and report mocks match their schemas 4ms
+ ✓ src/modules/chatbot/demo-bot/chat-route.test.ts > demo bot > uses the L0 prompt from docs/spike-kit.md verbatim and the 3 demo assets 4ms
+ ✓ src/modules/chatbot/demo-bot/chat-route.test.ts > demo bot > valid input: calls the adapter with the demo prompt and MODEL_FAST tier, returns { reply } 27ms
+ ✓ src/modules/chatbot/demo-bot/chat-route.test.ts > demo bot > invalid input (empty messages) returns 400 without calling the adapter 1ms
+ ✓ src/modules/chatbot/demo-bot/chat-route.test.ts > demo bot > invalid input (21 messages) returns 400 without calling the adapter 1ms
+ ✓ src/modules/chatbot/demo-bot/chat-route.test.ts > demo bot > invalid input (bad role) returns 400 without calling the adapter 1ms
+ ✓ src/modules/chatbot/demo-bot/chat-route.test.ts > demo bot > invalid input (content over 4000 chars) returns 400 without calling the adapter 1ms
+ ✓ src/modules/chatbot/demo-bot/chat-route.test.ts > demo bot > invalid input (empty content) returns 400 without calling the adapter 1ms
+ ✓ src/modules/chatbot/demo-bot/chat-route.test.ts > demo bot > invalid input (unknown key) returns 400 without calling the adapter 1ms
+ ✓ src/modules/chatbot/demo-bot/chat-route.test.ts > demo bot > invalid input (missing messages) returns 400 without calling the adapter 1ms
+ ✓ src/modules/chatbot/demo-bot/chat-route.test.ts > demo bot > invalid input (not JSON) returns 400 without calling the adapter 1ms
+ ✓ src/modules/chatbot/demo-bot/chat-route.test.ts > demo bot > accepts exactly 20 messages of 4000 chars 2ms
+ ✓ src/modules/chatbot/demo-bot/chat-route.test.ts > demo bot > adapter failure returns 502 with a generic message 1ms
+ ✓ src/modules/chatbot/demo-bot/chat-route.test.ts > demo bot > is rate-limited per IP (429 after 20 requests a minute) 3ms
+ ✓ src/core/http/routes.test.ts > POST /api/targets > creates a demo target and sets an httpOnly, secure, sameSite=lax owner cookie 10ms
+ ✓ src/core/http/routes.test.ts > POST /api/targets > reuses an existing valid owner token 2ms
+ ✓ src/core/http/routes.test.ts > POST /api/targets > rejects invalid input with 400 (0) 1ms
+ ✓ src/core/http/routes.test.ts > POST /api/targets > rejects invalid input with 400 (1) 1ms
+ ✓ src/core/http/routes.test.ts > POST /api/targets > rejects invalid input with 400 (2) 1ms
+ ✓ src/core/http/routes.test.ts > POST /api/targets > rejects invalid input with 400 (3) 0ms
+ ✓ src/core/http/routes.test.ts > POST /api/targets > rejects invalid input with 400 (4) 0ms
+ ✓ src/core/http/routes.test.ts > scan routes > POST /api/scans returns a 30-step plan 6ms
+ ✓ src/core/http/routes.test.ts > scan routes > POST /api/scans rejects invalid input with 400 1ms
+ ✓ src/core/http/routes.test.ts > scan routes > POST /api/scans/[id]/step returns a finding, 400 on invalid input, 404 when unknown 3ms
+ ✓ src/core/http/routes.test.ts > scan routes > POST /api/scans/[id]/finalize returns the graded scan and a share slug 2ms
+ ✓ src/core/http/routes.test.ts > fix, leads and reports > POST /api/targets/[id]/fix returns an L1 or L2 fix, 400 on invalid input 2ms
+ ✓ src/core/http/routes.test.ts > fix, leads and reports > POST /api/leads accepts a lead, 400 on invalid input 1ms
+ ✓ src/core/http/routes.test.ts > fix, leads and reports > GET /api/reports/[slug] returns the mock report, 400 on a bad slug, 404 when unknown 7ms
+ ✓ src/core/http/routes.test.ts > fix, leads and reports > rejects oversized bodies with 413 0ms
+
+ Test Files  6 passed (6)
+      Tests  83 passed (83)
+   Start at  21:47:08
+   Duration  3.52s (transform 2.45s, setup 0ms, import 6.53s, tests 224ms, environment 1ms)
+
+# exit_code=0

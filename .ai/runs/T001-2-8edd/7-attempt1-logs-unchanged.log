@@ -1,0 +1,38 @@
+### sha256 of cited attempt-1 run files: working tree vs blob at 88151cf
+SAME 6f44b81acd52c5f6d078f0fe9df66a4c142628e7af6be40ee175e83882844e3f .ai/runs/T001-1-cd67/01-npm-install-deps.log
+SAME 9c5c62cc5a37d421e75720b2d5825ba9308ca1e2f7570ab64229f9ee36d380ea .ai/runs/T001-1-cd67/02-npm-install-vitest.log
+SAME ecbe7fbf45eb95607069706a7856a6436660ebe7dcda065b9e22b7ecc847addd .ai/runs/T001-1-cd67/03-npm-view-vitest4.log
+SAME 7b163d2259dad6f201bdc6b9c1e1c7b622577d8a59b95cd2cab7c879c88ba850 .ai/runs/T001-1-cd67/04-npm-install-vitest4.log
+SAME 4f40ec68c67eccef6b3cae840a355b415fd84c88bd48d38782916d5f72579280 .ai/runs/T001-1-cd67/05-dev-typecheck.log
+SAME 3b018cd226e9709e1e5e27920926cf866ecc271877d824ebac3bb760fc2d934f .ai/runs/T001-1-cd67/06-dev-test.log
+SAME 20bc197e8b16c5b89b740d89679de71cfc482a40a7133d1881861944b03a2ca2 .ai/runs/T001-1-cd67/07-dev-lint.log
+DIFF 8afea9737eb28eae1bbe87f553a3078bcd75281be807df14ce210f60102ed732 .ai/runs/T001-1-cd67/08-dev-build.log
+SAME d41ccd8229ccf6d5e606c4a28516f329846ade34c233e556fee5b8ed6f3ab1e8 .ai/runs/T001-1-cd67/09-evidence-vitest-verbose.log
+SAME 9c4d1e07b436522fb6cd5a1910b516e585d3848fce23cb5bc7c0e007590e1745 .ai/runs/T001-1-cd67/10-evidence-structure.log
+SAME deec2aa8d1e0d144d4a5c24de2d440bc54b8bf8eed39af2cef8cb3ab4afa0fc6 .ai/runs/T001-1-cd67/11-evidence-no-supabase-url.log
+DIFF d732b4731cc28237692813be6f34aedf1ccef47b8a61d5a5fd1448de2f0857db .ai/runs/T001-1-cd67/12-evidence-build-no-env-files.log
+SAME 9580a3971336078c1bde27408899fbe04b963730740a3cdefc2d776a820fa85a .ai/runs/T001-1-cd67/13-evidence-deps.log
+SAME 57da42c6cbad8e552e3dd74e996c675e3d26c7e93140afd096cd56c0c9c8c6a5 .ai/runs/T001-1-cd67/final-1-typecheck.log
+SAME 6c20ca4b3c7a6558d52d18f2755d89a44039fb235fc9fd860b35c45fd470538a .ai/runs/T001-1-cd67/final-2-lint.log
+SAME 2c6f3e29ac7be17f424988befc4486bc35d847c217ab8bf8383de326070116ea .ai/runs/T001-1-cd67/final-3-test.log
+DIFF 02b2aa745e8e1cd5336ff39b4adebe750ab64acc65f51ca4ab73e2598ed1e6f3 .ai/runs/T001-1-cd67/final-4-build.log
+SAME f3f14180898ce70bb826ac1012c8b23fd882db9c78deddc72edb011f0e28d018 .ai/runs/T001-1-cd67/final-summary.txt
+SAME 4ecbe7e769fd65c4dd2fa17c291843515f0446af649526461f83f4b5bf14444c .ai/runs/T001-1-cd67/package-lock.json.before
+SAME 00a4d95f67e805cd965bb73109b54a47aa33975c885fea825b860f001b15da82 .ai/runs/T001-1-cd67/package.json.before
+SAME 3306f28ca3331ecbd9f74b6aae730bc6dc5c8d97a1a55cff36fc7243da96bd14 .ai/runs/T001-1-cd67/start-snapshot.json
+SAME e36edad630fc135ddb816e555b0ba3b77fa2ee87ece83c76fc96f08046def207 .ai/runs/T001-1-cd67/superseded-final-1-typecheck.log
+SAME 882404beef46c4763e6133ef3db32bfbbb99e8bada07502cd7fb203119459f0a .ai/runs/T001-1-cd67/superseded-final-2-lint.log
+SAME e7d5717c61672e9a87536fb5ea271d106673f495fcbeb1e621b0847f7b95c0d1 .ai/runs/T001-1-cd67/superseded-final-3-test.log
+DIFF 839db25912a2681272f42ac13f913ab5c59ffc262c67e7203cf0cde79943d286 .ai/runs/T001-1-cd67/superseded-final-4-build.log
+SAME 846e062fde4325d1e94d262050faabd7a1ecacccbf9b5ee84bfdf677b82fcc88 .ai/runs/T001-1-cd67/superseded-final-summary.txt
+### .ai/reports/T001-1.md
+SAME d896c0412c44f35a10509de9698946af503000c4418ec7a2e6b5aa34b9c8ad2f
+
+### DIFF explanation: core.autocrlf=input strips CR on commit; the 4 build logs contain CRs from the Next.js progress spinner.
+### git hash-object (worktree, filters applied) vs blob at 88151cf, plus CR count and mtime:
+SAME hash-object=868ad069256f2c6468925ddb9e74dbc4408828dc blob=868ad069256f2c6468925ddb9e74dbc4408828dc CR=3 mtime=2026-11-25 01:56:41.041254400 +0500 .ai/runs/T001-1-cd67/08-dev-build.log
+SAME hash-object=6a7a73e2a32ba90c42124c6bc7057d7ce4945c07 blob=6a7a73e2a32ba90c42124c6bc7057d7ce4945c07 CR=3 mtime=2026-11-25 02:01:20.136157100 +0500 .ai/runs/T001-1-cd67/12-evidence-build-no-env-files.log
+SAME hash-object=f2005cc36a00176f21789335f28b9839a6631738 blob=f2005cc36a00176f21789335f28b9839a6631738 CR=3 mtime=2026-11-25 02:00:37.359253100 +0500 .ai/runs/T001-1-cd67/final-4-build.log
+SAME hash-object=d8129c9924550f02bcb9b6494615333b2795e386 blob=d8129c9924550f02bcb9b6494615333b2795e386 CR=3 mtime=2026-11-25 01:58:33.973471300 +0500 .ai/runs/T001-1-cd67/superseded-final-4-build.log
+### git status --short .ai/runs/T001-1-cd67/ (empty = unmodified):
+(end)

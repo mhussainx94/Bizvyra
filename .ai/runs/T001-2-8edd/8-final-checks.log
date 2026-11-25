@@ -1,0 +1,23 @@
+### acc verify.scan_text over this run's files and the report (re-run after rewording report line 206, which quoted the js-tokens lockfile line)
+.ai/runs/T001-2-8edd/1-typecheck.log findings: []
+.ai/runs/T001-2-8edd/2-lint.log findings: []
+.ai/runs/T001-2-8edd/3-test.log findings: []
+.ai/runs/T001-2-8edd/4-build.log findings: []
+.ai/runs/T001-2-8edd/5-evidence.log findings: []
+.ai/runs/T001-2-8edd/5-evidence.sh findings: []
+.ai/runs/T001-2-8edd/6-vitest-verbose.log findings: []
+.ai/runs/T001-2-8edd/7-attempt1-logs-unchanged.log findings: []
+.ai/runs/T001-2-8edd/start-snapshot.json findings: []
+.ai/runs/T001-2-8edd/summary.txt findings: []
+.ai/reports/T001-2.md findings: []
+total findings: 0
+# exit_code=0
+
+### git --no-optional-locks status --short (final)
+ M .ai/STATE.md
+ M .ai/ledger.jsonl
+?? .ai/lock
+?? .ai/reports/T001-2.md
+?? .ai/runs/T001-2-8edd/
+### outside .ai/ (empty = none):
+(end)
