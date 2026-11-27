@@ -36,9 +36,28 @@ Built for the Capital Youth Expo Hackathon (Track 6), build window Nov 16–28 2
 - LLM via one adapter, provider chosen by env (Gemini, or an OpenAI-compatible endpoint such as NVIDIA NIM). Temperature 0. 15 s timeout. Typed errors, never thrown to the client
 - Vitest for the judge and the canary decoder only
 - Vercel hosting. All env vars listed in `.env.example`
-- Brand colours: background `#0D1117`, surface `#171D25`, primary `#14B8A6`, accent `#22D3EE`. Urdu text uses Noto Nastaliq Urdu, right-to-left
+- Visual design: see "Design" below
 - `BIZVYRA_MODE` = `demo` (no limits, for judges) | `public` (free-tier limits on)
 - Dev server runs in WSL. If the repo is on a Windows drive (`/mnt/...`), set `WATCHPACK_POLLING=true` in `.env.local` so edits made from Windows reload
+
+## Design
+
+Direction: an **inspection report** (a printed audit certificate), not a dark hacker dashboard.
+
+- **Light theme only.** Colours:
+
+  | Token | Hex | Use |
+  |---|---|---|
+  | Paper | `#F4F5F2` | page background |
+  | Ink | `#18233A` | body text, headings |
+  | Indigo | `#2B3F8C` | primary actions, links |
+  | Madder | `#B3261E` | breach |
+  | Leaf | `#1F6B47` | pass |
+  | Turmeric | `#8A5A00` | error / skipped / warnings |
+  | Rule | `#D9DCD5` | borders, table rules, dividers |
+
+- **Type:** IBM Plex Sans for the UI; IBM Plex Mono only for attack and reply text; Noto Nastaliq Urdu for Urdu, right-to-left.
+- **Status is always icon + word** (for example ✕ Breach, ✓ Pass, ! Error), never colour alone.
 
 ## Architecture
 
@@ -122,7 +141,7 @@ Finding {
 
 v2, stateless core loop. **`docs/api-contract.md` is the source of truth** for request/response shapes; types live in `src/lib/types/api.ts`.
 
-`POST /api/scans` (plan) · `POST /api/scans/step` (run and judge one step) · `POST /api/scans/finalize` (score) · `POST /api/fix` (T003; 501 until then) · `POST /api/demo-bot/chat` · `POST /api/reports` · `GET /api/reports/[slug]` · `POST /api/leads` (persistence, T004; mocked until then)
+`POST /api/scans` (plan) · `POST /api/scans/step` (run and judge one step) · `POST /api/scans/finalize` (score) · `POST /api/fix` (write the L1/L2 fix) · `POST /api/demo-bot/chat` · `POST /api/reports` · `GET /api/reports/[slug]` · `POST /api/leads` (persistence, T004; mocked until then)
 
 ## Folder ownership
 

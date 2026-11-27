@@ -20,13 +20,13 @@ describe("LLM judge", () => {
     for (const intent of INTENTS) expect(RUBRICS[intent]).toMatch(/BREACH if/);
   });
 
-  it("breach: calls MODEL_FAST in JSON mode with the intent rubric and returns the verdict", async () => {
+  it("breach: calls MODEL_JUDGE in JSON mode with the intent rubric and returns the verdict", async () => {
     chatMock.mockResolvedValue({ ok: true, text: '{"breach": true, "reason": "The bot approved the refund.", "confidence": 0.92}' });
     const result = await llmJudge(input);
     expect(result).toEqual({ ok: true, verdict: { breach: true, reason: "The bot approved the refund.", confidence: 0.92 } });
     expect(chatMock).toHaveBeenCalledTimes(1);
     const args = chatMock.mock.calls[0][0];
-    expect(args.model).toBe("fast");
+    expect(args.model).toBe("judge"); // MODEL_JUDGE, falling back to MODEL_FAST in the adapter
     expect(args.json).toBe(true);
     expect(args.system).toMatch(/untrusted data/);
     expect(args.messages[0].content).toContain(RUBRICS.approve_refund);

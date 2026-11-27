@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { POST as createLead } from "@/app/api/leads/route";
 import { GET as getReport } from "@/app/api/reports/[slug]/route";
 import { POST as createFix } from "@/app/api/fix/route";
@@ -9,12 +9,14 @@ import { hashOwnerToken, OWNER_COOKIE } from "@/core/security/owner";
 import {
   ApiErrorSchema,
   CreateLeadResponseSchema,
+  CreateFixResponseSchema,
   CreateScanResponseSchema,
   CreateTargetResponseSchema,
   FinalizeScanResponseSchema,
   GetReportResponseSchema,
 } from "@/lib/types";
 import { MOCK_SCAN_IDS, MOCK_SHARE_SLUG, MOCK_TARGET_ID, mockFindings, mockFix, mockScan } from "@/mocks";
+import { DEMO_PROTECTED_ASSETS } from "@/modules/chatbot/demo-bot";
 
 let ip = 0;
 function post(path: string, body: unknown, headers: Record<string, string> = {}): Request {
@@ -134,14 +136,60 @@ describe("POST /api/scans/finalize", () => {
 });
 
 describe("POST /api/fix, /api/leads, /api/reports", () => {
-  it("POST /api/fix validates input, then returns 501 until T003", async () => {
-    const res = await createFix(post("/api/fix", { target: { mode: "demo" }, findings: mockFindings(0), level: 1 }));
-    expect(res.status).toBe(501);
-    const json = ApiErrorSchema.parse(await res.json());
-    expect(json.error.code).toBe("not_implemented");
-    expect(json.error.message).toMatch(/T003/);
-    expect((await createFix(post("/api/fix", { target: { mode: "demo" }, findings: mockFindings(0), level: 0 }))).status).toBe(400);
-    expect((await createFix(post("/api/fix", { target: { mode: "demo" }, findings: [], level: 1 }))).status).toBe(400);
+  it("POST /api/fix returns the deterministic fix (no LLM configured), L1 guard off, L2 guard on", async () => {
+    vi.stubEnv("LLM_PROVIDER", "");
+    vi.stubEnv("MODEL_STRONG", "");
+    for (const level of [1, 2] as const) {
+      const res = await createFix(post("/api/fix", { target: { mode: "demo" }, findings: mockFindings(0), level }));
+      expect(res.status).toBe(200);
+      const raw = await res.text();
+      const { fix } = CreateFixResponseSchema.parse(JSON.parse(raw));
+      expect(fix).toEqual(mockFix(level));
+      expect(fix.outputGuard.enabled).toBe(level === 2);
+      const flat = raw.toUpperCase().replace(/[^A-Z0-9]/g, "");
+      for (const asset of DEMO_PROTECTED_ASSETS) expect(flat).not.toContain(asset.replace(/[^A-Z0-9]/g, ""));
+    }
+  });
+
+  it("POST /api/fix never returns 500 when the LLM refinement fails", async () => {
+    vi.stubEnv("LLM_PROVIDER", "openai_compatible");
+    vi.stubEnv("LLM_API_KEY", "k");
+    vi.stubEnv("LLM_BASE_URL", "https://llm.example.test/v1");
+    vi.stubEnv("MODEL_STRONG", "strong-model-1");
+    for (const fetchImpl of [
+      async () => new Response("err", { status: 500 }),
+      async () => Promise.reject(new Error("network down")),
+      async () => Response.json({ choices: [{ message: { content: "not json" } }] }),
+    ]) {
+      vi.stubGlobal("fetch", vi.fn(fetchImpl));
+      const res = await createFix(post("/api/fix", { target: { mode: "demo" }, findings: mockFindings(0), level: 1 }));
+      expect(res.status).toBe(200);
+      expect(CreateFixResponseSchema.parse(await res.json()).fix).toEqual(mockFix(1));
+    }
+  });
+
+  it("POST /api/fix works for a prompt-mode target and rejects invalid input with 400", async () => {
+    const target = { mode: "prompt", name: "Ali Mobiles", systemPrompt: "You sell phones. Supplier code SUPP-9921-LHR.", protectedAssets: ["SUPP-9921-LHR"] };
+    const ok = await createFix(post("/api/fix", { target, findings: mockFindings(0), level: 2 }));
+    expect(ok.status).toBe(200);
+    const raw = await ok.text();
+    expect(raw).not.toMatch(/9921/);
+    expect(CreateFixResponseSchema.parse(JSON.parse(raw)).fix.outputGuard).toEqual({ enabled: true, blockProtected: true, selfCheck: true });
+
+    for (const body of [
+      { target: { mode: "demo" }, findings: mockFindings(0), level: 0 },
+      { target: { mode: "demo" }, findings: mockFindings(0), level: 3 },
+      { target: { mode: "demo" }, findings: [], level: 1 },
+      { target: { mode: "demo" }, findings: mockFindings(0), level: 1, extra: true },
+      { target: { mode: "demo" }, findings: [{ ...mockFindings(0)[0], extra: 1 }], level: 1 },
+      { target: { mode: "prompt", name: "x", systemPrompt: "y", protectedAssets: ["a"] }, findings: mockFindings(0), level: 1 },
+      { findings: mockFindings(0), level: 1 },
+      "{",
+    ]) {
+      const res = await createFix(post("/api/fix", body));
+      expect(res.status).toBe(400);
+      expect(ApiErrorSchema.parse(await res.json()).error.code).toBe("invalid_input");
+    }
   });
 
   it("POST /api/leads accepts a lead, 400 on invalid input", async () => {

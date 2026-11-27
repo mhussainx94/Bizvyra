@@ -1,7 +1,9 @@
 /**
  * Provider-agnostic LLM adapter. One function, `chat`, used by every caller.
  * - Provider from LLM_PROVIDER: "gemini" (Gemini REST) or "openai_compatible" (LLM_BASE_URL, e.g. NVIDIA NIM).
- * - Model tier "fast" | "strong" resolved from MODEL_FAST / MODEL_STRONG.
+ * - Model tier "fast" | "strong" | "judge" resolved from MODEL_FAST / MODEL_STRONG / MODEL_JUDGE
+ *   (MODEL_JUDGE is optional and falls back to MODEL_FAST).
+ * - LLM_REASONING=off (optional) adds `"reasoning": { "enabled": false }` to openai_compatible request bodies.
  * - Temperature 0, 15 s timeout, never throws, never logs or returns the API key.
  * Environment is read on each call, never at import time.
  */
@@ -11,7 +13,7 @@ export interface LlmMessage {
   role: LlmRole;
   content: string;
 }
-export type ModelTier = "fast" | "strong";
+export type ModelTier = "fast" | "strong" | "judge";
 
 export interface ChatArgs {
   system: string;
@@ -19,6 +21,8 @@ export interface ChatArgs {
   model: ModelTier;
   /** Ask the provider for a JSON-only reply. */
   json?: boolean;
+  /** Output token budget; default LLM_MAX_OUTPUT_TOKENS, capped at LLM_MAX_OUTPUT_TOKENS_CAP. */
+  maxOutputTokens?: number;
 }
 
 export type LlmErrorCode = "config" | "timeout" | "network" | "http" | "bad_response";
@@ -33,6 +37,7 @@ export type ChatResult = { ok: true; text: string } | { ok: false; error: LlmErr
 
 export const LLM_TIMEOUT_MS = 15_000;
 export const LLM_MAX_OUTPUT_TOKENS = 1024;
+export const LLM_MAX_OUTPUT_TOKENS_CAP = 4096;
 const GEMINI_BASE = "https://generativelanguage.googleapis.com/v1beta";
 
 type Provider = "gemini" | "openai_compatible";
@@ -41,6 +46,22 @@ interface LlmConfig {
   apiKey: string;
   model: string;
   baseUrl?: string;
+  /** openai_compatible only: send `reasoning: { enabled: false }` (LLM_REASONING=off). */
+  reasoningOff?: boolean;
+}
+
+/** Model id for a tier. MODEL_JUDGE falls back to MODEL_FAST when unset or empty. */
+function modelFor(tier: ModelTier): string | undefined {
+  const env = process.env;
+  if (tier === "strong") return env.MODEL_STRONG?.trim();
+  if (tier === "judge") return env.MODEL_JUDGE?.trim() || env.MODEL_FAST?.trim();
+  return env.MODEL_FAST?.trim();
+}
+
+function outputTokens(args: ChatArgs): number {
+  const n = args.maxOutputTokens;
+  if (n === undefined || !Number.isInteger(n) || n < 1) return LLM_MAX_OUTPUT_TOKENS;
+  return Math.min(n, LLM_MAX_OUTPUT_TOKENS_CAP);
 }
 
 function fail(code: LlmErrorCode, message: string, status?: number): ChatResult {
@@ -55,7 +76,7 @@ function readConfig(tier: ModelTier): { ok: true; config: LlmConfig } | { ok: fa
   }
   const apiKey = env.LLM_API_KEY?.trim();
   if (!apiKey) return { ok: false, result: fail("config", "LLM API key is not configured") };
-  const model = (tier === "strong" ? env.MODEL_STRONG : env.MODEL_FAST)?.trim();
+  const model = modelFor(tier);
   if (!model) return { ok: false, result: fail("config", `Model for tier "${tier}" is not configured`) };
 
   if (provider === "openai_compatible") {
@@ -70,7 +91,11 @@ function readConfig(tier: ModelTier): { ok: true; config: LlmConfig } | { ok: fa
     if (url.protocol !== "https:" && url.protocol !== "http:") {
       return { ok: false, result: fail("config", "LLM base URL is invalid") };
     }
-    return { ok: true, config: { provider, apiKey, model, baseUrl: raw.replace(/\/+$/, "") } };
+    const reasoningOff = env.LLM_REASONING?.trim().toLowerCase() === "off";
+    return {
+      ok: true,
+      config: { provider, apiKey, model, baseUrl: raw.replace(/\/+$/, ""), ...(reasoningOff ? { reasoningOff } : {}) },
+    };
   }
   return { ok: true, config: { provider, apiKey, model } };
 }
@@ -96,7 +121,7 @@ export function buildRequest(config: LlmConfig, args: ChatArgs): BuiltRequest {
         })),
         generationConfig: {
           temperature: 0,
-          maxOutputTokens: LLM_MAX_OUTPUT_TOKENS,
+          maxOutputTokens: outputTokens(args),
           ...(args.json ? { responseMimeType: "application/json" } : {}),
         },
       },
@@ -112,9 +137,10 @@ export function buildRequest(config: LlmConfig, args: ChatArgs): BuiltRequest {
         ...args.messages.map((m) => ({ role: m.role, content: m.content })),
       ],
       temperature: 0,
-      max_tokens: LLM_MAX_OUTPUT_TOKENS,
+      max_tokens: outputTokens(args),
       stream: false,
       ...(args.json ? { response_format: { type: "json_object" } } : {}),
+      ...(config.reasoningOff ? { reasoning: { enabled: false } } : {}),
     },
   };
 }

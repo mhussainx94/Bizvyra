@@ -97,4 +97,4 @@ export { detectCanary, generateCanary, plantCanary, canaryLine, CANARY_LENGTH } 
 export { matchAssets, MIN_ASSET_CHARS } from "./assets";
 export { overlapScore, OVERLAP_BREACH, OVERLAP_PASS, NGRAM } from "./overlap";
 export { llmJudge, parseVerdict, RUBRICS } from "./llm";
-export { redact, REDACTED_ALL, REDACTED_ASSET, REDACTED_CANARY, REDACTED_ENCODED, type Secret } from "./redact";
+export { redact, secretPatterns, REDACTED_ALL, REDACTED_ASSET, REDACTED_CANARY, REDACTED_ENCODED, type Secret } from "./redact";

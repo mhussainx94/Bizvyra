@@ -1,0 +1,73 @@
+
+> bizvyra@0.1.0 test
+> vitest run
+
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vitest.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/mnt/w/dev/hackathon/bizvyra[39m
+
+ [32m✓[39m src/core/llm/adapter.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 46[2mms[22m[39m
+ [32m✓[39m src/core/security/ssrf.test.ts [2m([22m[2m40 tests[22m[2m)[22m[32m 43[2mms[22m[39m
+ [32m✓[39m src/modules/chatbot/judge/redact.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 1364[2mms[22m[39m
+     [33m[2m✓[22m[39m masks Urdu digits and leaves nothing detectable [33m 1330[2mms[22m[39m
+ [32m✓[39m src/mocks/mocks.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 100[2mms[22m[39m
+ [32m✓[39m src/core/security/usage.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 115[2mms[22m[39m
+ [32m✓[39m src/modules/chatbot/judge/canary.test.ts [2m([22m[2m29 tests[22m[2m)[22m[32m 27[2mms[22m[39m
+ [32m✓[39m src/modules/chatbot/demo-bot/chat-route.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 66[2mms[22m[39m
+ [32m✓[39m src/modules/chatbot/plan.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 34[2mms[22m[39m
+ [32m✓[39m src/modules/chatbot/harden/harden.test.ts [2m([22m[2m29 tests[22m[2m)[22m[33m 3272[2mms[22m[39m
+     [33m[2m✓[22m[39m removes prompt-mode values, including spaced, lower-case and Urdu-digit copies [33m 3073[2mms[22m[39m
+ [32m✓[39m src/modules/chatbot/judge/llm.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+ [32m✓[39m src/modules/chatbot/judge/overlap.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+ [32m✓[39m src/modules/chatbot/harden/guard.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+ [32m✓[39m src/modules/chatbot/judge/assets.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m src/core/scoring/scoring.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m src/modules/chatbot/step-route.test.ts [2m([22m[2m27 tests[22m[2m)[22m[33m 5093[2mms[22m[39m
+     [33m[2m✓[22m[39m LLM-judged pass: falls through to the judge (MODEL_JUDGE, JSON) and returns a pass [33m 2046[2mms[22m[39m
+     [33m[2m✓[22m[39m L1 uses fix.systemPrompt and applies no output guard [33m 1421[2mms[22m[39m
+       [33m[2m✓[22m[39m (a) a reply with the canary is replaced by a refusal in the attack's language; judge sees the refusal → pass [33m 1221[2mms[22m[39m
+ [32m✓[39m src/modules/chatbot/attacks/library.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m src/modules/chatbot/finding-text.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [31m❯[39m src/core/http/routes.test.ts [2m([22m[2m18 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 5187[2mms[22m[39m
+     [32m✓[39m creates a demo target and sets an httpOnly, secure, sameSite=lax owner cookie[32m 18[2mms[22m[39m
+     [32m✓[39m reuses an existing valid owner token[32m 3[2mms[22m[39m
+     [32m✓[39m rejects invalid input with 400 (0)[32m 2[2mms[22m[39m
+     [32m✓[39m rejects invalid input with 400 (1)[32m 1[2mms[22m[39m
+     [32m✓[39m rejects invalid input with 400 (2)[32m 1[2mms[22m[39m
+     [32m✓[39m rejects invalid input with 400 (3)[32m 1[2mms[22m[39m
+     [32m✓[39m rejects invalid input with 400 (4)[32m 1[2mms[22m[39m
+     [32m✓[39m returns a running scan, 30 quick steps and concurrency 3[32m 12[2mms[22m[39m
+     [32m✓[39m full returns 60 steps; prompt-mode targets and level 1 with a fix are accepted[32m 40[2mms[22m[39m
+     [32m✓[39m rejects invalid input with 400[32m 15[2mms[22m[39m
+     [32m✓[39m scores the findings: status done, grade, score, summary, finishedAt[32m 12[2mms[22m[39m
+     [32m✓[39m rejects invalid input with 400[32m 9[2mms[22m[39m
+     [32m✓[39m POST /api/fix returns the deterministic fix (no LLM configured), L1 guard off, L2 guard on[32m 19[2mms[22m[39m
+     [32m✓[39m POST /api/fix never returns 500 when the LLM refinement fails[32m 28[2mms[22m[39m
+[31m     [31m×[31m POST /api/fix works for a prompt-mode target and rejects invalid input with 400[39m[33m 5005[2mms[22m[39m
+     [32m✓[39m POST /api/leads accepts a lead, 400 on invalid input[32m 2[2mms[22m[39m
+     [32m✓[39m GET /api/reports/[slug] returns the mock report, 400 on a bad slug, 404 when unknown[32m 6[2mms[22m[39m
+     [32m✓[39m rejects oversized bodies with 413[32m 9[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/core/http/routes.test.ts[2m > [22mPOST /api/fix, /api/leads, /api/reports[2m > [22mPOST /api/fix works for a prompt-mode target and rejects invalid input with 400
+[31m[1mError[22m: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m src/core/http/routes.test.ts:[2m171:3[22m[39m
+    [90m169|[39m   })[33m;[39m
+    [90m170|[39m
+    [90m171|[39m   it("POST /api/fix works for a prompt-mode target and rejects invalid…
+    [90m   |[39m   [31m^[39m
+    [90m172|[39m     const target = { mode: "prompt", name: "Ali Mobiles", systemPrompt…
+    [90m173|[39m     const ok = await createFix(post("/api/fix", { target, findings: mo…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m17 passed[39m[22m[90m (18)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m262 passed[39m[22m[90m (263)[39m
+[2m   Start at [22m 23:52:00
+[2m   Duration [22m 10.48s[2m (transform 11.37s, setup 0ms, import 25.14s, tests 15.44s, environment 2ms)[22m
+

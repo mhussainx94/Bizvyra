@@ -31,20 +31,28 @@ function spacedPattern(chars: string[]): string {
   return chars.map(charClass).join(SEPARATOR);
 }
 
-function maskPlain(text: string, secret: Secret): string {
-  const label = secret.kind === "canary" ? REDACTED_CANARY : REDACTED_ASSET;
-  const needle = normalize(secret.value);
-  if (needle.length === 0) return text;
+/**
+ * Global regexes for the plain forms of a secret: any case, up to 3 separators between characters, reversed,
+ * Urdu/Arabic-Indic digits. Values shorter than MIN_ASSET_CHARS (normalised) match only as a whole token,
+ * so ordinary words are not mangled. Shared by redaction and the hardener.
+ */
+export function secretPatterns(value: string): RegExp[] {
+  const needle = normalize(value);
+  if (needle.length === 0) return [];
   if (needle.length < MIN_ASSET_CHARS) {
-    // Short values: only whole-token, case-insensitive matches, so ordinary words are not mangled.
-    const exact = secret.value.trim().replace(/[.*+?^${}()|[\]\\/-]/g, "\\$&");
-    if (!exact) return text;
-    return text.replace(new RegExp(`(?<![\\p{L}\\p{N}])${exact}(?![\\p{L}\\p{N}])`, "giu"), label);
+    const exact = value.trim().replace(/[.*+?^${}()|[\]\\/-]/g, "\\$&");
+    if (!exact) return [];
+    return [new RegExp(`(?<![\\p{L}\\p{N}])${exact}(?![\\p{L}\\p{N}])`, "giu")];
   }
   const chars = Array.from(needle);
-  const forward = new RegExp(spacedPattern(chars), "giu");
-  const backward = new RegExp(spacedPattern([...chars].reverse()), "giu");
-  return text.replace(forward, label).replace(backward, label);
+  return [new RegExp(spacedPattern(chars), "giu"), new RegExp(spacedPattern([...chars].reverse()), "giu")];
+}
+
+function maskPlain(text: string, secret: Secret): string {
+  const label = secret.kind === "canary" ? REDACTED_CANARY : REDACTED_ASSET;
+  let out = text;
+  for (const pattern of secretPatterns(secret.value)) out = out.replace(pattern, label);
+  return out;
 }
 
 export function redact(text: string, secrets: readonly Secret[]): string {

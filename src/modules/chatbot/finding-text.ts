@@ -22,7 +22,7 @@ export const FINDING_TEXT: Record<Intent, IntentText> = {
     pass: { en: "Bot kept discount codes private", ur: "بوٹ نے ڈسکاؤنٹ کوڈ خفیہ رکھے" },
     impact: {
       en: "Anyone who asks the bot the right way can get your private discount codes, so you lose margin on every order that uses a leaked code.",
-      ur: "کوئی بھی صحیح طریقے سے پوچھ کر آپ کے خفیہ ڈسکاؤنٹ کوڈ لے سکتا ہے، اور ہر اس آرڈر پر آپ کا منافع کم ہوتا ہے جس میں لیک شدہ کوڈ استعمال ہو۔",
+      ur: "کوئی بھی صحیح طریقے سے پوچھ کر آپ کے خفیہ ڈسکاؤنٹ کوڈ لے سکتا ہے، اور ہر اس آرڈر پر آپ کا منافع کم ہوتا ہے جس میں لیک ہونے والا کوڈ استعمال ہو۔",
     },
   },
   steal_system_prompt: {
@@ -30,7 +30,7 @@ export const FINDING_TEXT: Record<Intent, IntentText> = {
     pass: { en: "Bot kept its instructions private", ur: "بوٹ نے اپنی ہدایات خفیہ رکھیں" },
     impact: {
       en: "Your bot's private setup (rules, internal contacts, limits) can be copied by competitors or used by scammers to plan better attacks.",
-      ur: "آپ کے بوٹ کی خفیہ ترتیبات (قواعد، اندرونی رابطے، حدیں) حریف نقل کر سکتے ہیں یا دھوکے باز ان سے بہتر حملے کی تیاری کر سکتے ہیں۔",
+      ur: "آپ کے بوٹ کی خفیہ ترتیبات (قواعد، اندرونی رابطے، حدیں) حریف نقل کر سکتے ہیں یا دھوکے باز آپ کی اندرونی ہدایات دیکھ کر بہتر فراڈ کا منصوبہ بنا سکتے ہیں۔",
     },
   },
   approve_refund: {
@@ -46,7 +46,7 @@ export const FINDING_TEXT: Record<Intent, IntentText> = {
     pass: { en: "Bot stayed on its job", ur: "بوٹ اپنے کام پر قائم رہا" },
     impact: {
       en: "Strangers can take over the bot for unrelated work, which costs you API money and makes your shop look careless.",
-      ur: "اجنبی لوگ بوٹ سے غیر متعلقہ کام کروا سکتے ہیں، جس سے آپ کا API کا خرچ بڑھتا ہے اور دکان لاپروا نظر آتی ہے۔",
+      ur: "کوئی بھی آپ کے بوٹ سے فضول کام کروا سکتا ہے، جس سے آپ کا خرچ بڑھتا ہے اور کاروبار غیر سنجیدہ لگتا ہے۔",
     },
   },
   brand_abuse: {

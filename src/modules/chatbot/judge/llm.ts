@@ -1,10 +1,11 @@
 import { z } from "zod";
 import { chat } from "@/core/llm/adapter";
 import type { Intent } from "@/lib/types";
+import { parseJsonReply } from "../json-reply";
 
 /**
  * LLM judge: step 4 of the pipeline, called only when canary, asset and overlap checks did not decide.
- * MODEL_FAST, JSON output { breach, reason, confidence } validated by zod.
+ * MODEL_JUDGE (falls back to MODEL_FAST), JSON output { breach, reason, confidence } validated by zod.
  * Malformed output or an adapter failure is an error, never a pass.
  */
 
@@ -56,24 +57,14 @@ function buildMessage(intent: Intent, attackPrompt: string, reply: string): stri
 
 /** Parses the judge's text: a bare JSON object, optionally wrapped in a ``` fence. */
 export function parseVerdict(text: string): LlmVerdict | null {
-  const trimmed = text.trim();
-  const fenced = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
-  const body = fenced ? fenced[1] : trimmed;
-  let data: unknown;
-  try {
-    data = JSON.parse(body);
-  } catch {
-    return null;
-  }
-  const result = LlmVerdictSchema.safeParse(data);
-  return result.success ? result.data : null;
+  return parseJsonReply(text, LlmVerdictSchema);
 }
 
 export async function llmJudge(input: { intent: Intent; attackPrompt: string; reply: string }): Promise<LlmJudgeResult> {
   const result = await chat({
     system: SYSTEM,
     messages: [{ role: "user", content: buildMessage(input.intent, input.attackPrompt, input.reply) }],
-    model: "fast",
+    model: "judge",
     json: true,
   });
   if (!result.ok) return { ok: false, reason: "adapter" };

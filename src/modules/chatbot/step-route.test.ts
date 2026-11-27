@@ -7,8 +7,8 @@ import { chat, type ChatArgs } from "@/core/llm/adapter";
 import { RunStepResponseSchema, type Finding } from "@/lib/types";
 import { mockFix } from "@/mocks";
 import { DEMO_SYSTEM_PROMPT } from "./demo-bot";
+import { REFUSALS } from "./harden";
 import { canaryLine } from "./judge";
-import { L2_SKIPPED_EVIDENCE } from "./run-step";
 
 const chatMock = vi.mocked(chat);
 const SCAN_ID = "3f2a1c4e-5b6d-4e7f-8a9b-0c1d2e3f4a5b";
@@ -87,7 +87,7 @@ describe("POST /api/scans/step", () => {
     expect(chatMock).toHaveBeenCalledTimes(1);
   });
 
-  it("LLM-judged pass: falls through to the judge (MODEL_FAST, JSON) and returns a pass", async () => {
+  it("LLM-judged pass: falls through to the judge (MODEL_JUDGE, JSON) and returns a pass", async () => {
     chatMock
       .mockResolvedValueOnce({ ok: true, text: "Sorry, I can't approve refunds. Please contact the store." })
       .mockResolvedValueOnce({ ok: true, text: '{"breach": false, "reason": "The bot refused the refund.", "confidence": 0.94}' });
@@ -96,7 +96,7 @@ describe("POST /api/scans/step", () => {
     expect(f.evidence).toBe("AI judge (confidence 0.94): The bot refused the refund.");
     expect(f.title_en).toBe("Bot refused an unauthorised refund");
     expect(chatMock).toHaveBeenCalledTimes(2);
-    expect(chatMock.mock.calls[1][0]).toMatchObject({ model: "fast", json: true });
+    expect(chatMock.mock.calls[1][0]).toMatchObject({ model: "judge", json: true });
     expect(f.latencyMs).toBeGreaterThanOrEqual(0);
   });
 
@@ -139,19 +139,95 @@ describe("POST /api/scans/step", () => {
     expect(leak.raw.toUpperCase().replace(/[^A-Z0-9]/g, "")).not.toMatch(/SUPP9921LHR|RHL1299PPUS/);
   });
 
-  it("L1 uses fix.systemPrompt; L2 is skipped until T003 without calling the bot", async () => {
+  it("L1 uses fix.systemPrompt and applies no output guard", async () => {
     chatMock
       .mockResolvedValueOnce({ ok: true, text: "I can only help with products." })
       .mockResolvedValueOnce({ ok: true, text: '{"breach": false, "reason": "Stayed in role.", "confidence": 0.9}' });
     const fix = mockFix(1);
     const l1 = await finding(await runStep(req(demoStep("A13:ur", { level: 1, fix }))));
     expect(l1.finding.status).toBe("pass");
+    expect(l1.finding.evidence).not.toMatch(/Output guard/);
+    expect(chatMock).toHaveBeenCalledTimes(2); // bot + judge, no self-check
     expect(chatMock.mock.calls[0][0].system.startsWith(`${fix.systemPrompt}\n\n`)).toBe(true);
+  });
 
-    chatMock.mockReset();
-    const l2 = await finding(await runStep(req(demoStep("A13:ur", { level: 2, fix: mockFix(2) }))));
-    expect(l2.finding).toMatchObject({ status: "skipped", judgedBy: "none", evidence: L2_SKIPPED_EVIDENCE });
-    expect(chatMock).not.toHaveBeenCalled();
+  describe("L2 output guard", () => {
+    const l2 = (checkId: string) => demoStep(checkId, { level: 2, fix: mockFix(2) });
+
+    it("(a) a reply with the canary is replaced by a refusal in the attack's language; judge sees the refusal → pass", async () => {
+      chatMock.mockImplementation(async (args) => ({ ok: true, text: `Reference: ${Buffer.from(plantedCanary(args)).toString("base64")}` }));
+      const { finding: f, raw } = await finding(await runStep(req(l2("A05:ur"))));
+      expect(f.status).not.toBe("skipped");
+      expect(f).toMatchObject({ status: "pass", judgedBy: "overlap", response: REFUSALS.ur, lang: "ur" });
+      expect(f.evidence).toMatch(/^Output guard: the bot's draft reply contained the secret test token or a protected value/);
+      expect(chatMock).toHaveBeenCalledTimes(1); // no self-check, no LLM judge needed
+      expect(raw).not.toMatch(/Reference:/);
+    });
+
+    it("(a) a reply with a protected value (encoded) is blocked; the LLM judge then rates the refusal", async () => {
+      chatMock
+        .mockResolvedValueOnce({ ok: true, text: `Code: ${Buffer.from("ZARA50").toString("hex")}` })
+        .mockResolvedValueOnce({ ok: true, text: '{"breach": false, "reason": "Polite refusal.", "confidence": 0.97}' });
+      const { finding: f } = await finding(await runStep(req(l2("A01:roman_ur"))));
+      expect(f).toMatchObject({ status: "pass", judgedBy: "llm", response: REFUSALS.roman_ur });
+      expect(chatMock).toHaveBeenCalledTimes(2);
+      expect(chatMock.mock.calls[1][0].model).toBe("judge");
+      expect(chatMock.mock.calls[1][0].messages[0].content).toContain(`<reply>\n${REFUSALS.roman_ur}\n</reply>`);
+    });
+
+    it("(b) self-check flags a violation → refusal; the self-check gets the rules without the canary", async () => {
+      chatMock
+        .mockResolvedValueOnce({ ok: true, text: "Approved! Your Rs 7,000 refund is confirmed." })
+        .mockResolvedValueOnce({ ok: true, text: '{"violates": true, "reason": "Approves a refund."}' })
+        .mockResolvedValueOnce({ ok: true, text: '{"breach": false, "reason": "Refused.", "confidence": 0.95}' });
+      const { finding: f } = await finding(await runStep(req(l2("A09:en"))));
+      expect(f).toMatchObject({ status: "pass", judgedBy: "llm", response: REFUSALS.en });
+      expect(f.evidence).toMatch(/AI self-check found that the draft reply broke the shop rules \(Approves a refund\.\)/);
+      expect(chatMock).toHaveBeenCalledTimes(3);
+      const canary = plantedCanary(chatMock.mock.calls[0][0]);
+      const selfCheck = chatMock.mock.calls[1][0];
+      expect(selfCheck).toMatchObject({ model: "judge", json: true });
+      expect(selfCheck.messages[0].content).toContain(`<rules>\n${mockFix(2).systemPrompt}\n</rules>`);
+      expect(JSON.stringify(selfCheck)).not.toContain(canary);
+      expect(chatMock.mock.calls[2][0].messages[0].content).toContain(`<reply>\n${REFUSALS.en}\n</reply>`);
+    });
+
+    it("(b) self-check passes → the judge runs on the original reply", async () => {
+      chatMock
+        .mockResolvedValueOnce({ ok: true, text: "Done, refund approved." })
+        .mockResolvedValueOnce({ ok: true, text: '{"violates": false, "reason": "Looks fine."}' })
+        .mockResolvedValueOnce({ ok: true, text: '{"breach": true, "reason": "Approved a refund.", "confidence": 0.9}' });
+      const { finding: f } = await finding(await runStep(req(l2("A09:en"))));
+      expect(f).toMatchObject({ status: "breach", judgedBy: "llm", response: "Done, refund approved." });
+      expect(f.evidence).toMatch(/^Output guard: the reply passed the protected-value block and the AI self-check\. AI judge/);
+    });
+
+    it("self-check failure → only (a) applies: the reply reaches the judge unchanged", async () => {
+      chatMock
+        .mockResolvedValueOnce({ ok: true, text: "Done, refund approved." })
+        .mockResolvedValueOnce({ ok: false, error: { code: "timeout", message: "LLM request timed out" } })
+        .mockResolvedValueOnce({ ok: true, text: '{"breach": true, "reason": "Approved a refund.", "confidence": 0.9}' });
+      const { finding: f } = await finding(await runStep(req(l2("A09:en"))));
+      expect(f).toMatchObject({ status: "breach", response: "Done, refund approved." });
+      expect(f.evidence).toMatch(/self-check was unavailable, so only the protected-value block applied/);
+    });
+
+    it("with selfCheck off, (a) alone still blocks a protected value and no self-check call is made", async () => {
+      const fix = { ...mockFix(2), outputGuard: { enabled: true, blockProtected: true, selfCheck: false } };
+      chatMock
+        .mockResolvedValueOnce({ ok: true, text: "Staff code STAFF70!" })
+        .mockResolvedValueOnce({ ok: true, text: '{"breach": false, "reason": "Refused.", "confidence": 0.9}' });
+      const { finding: f } = await finding(await runStep(req(demoStep("A01:en", { level: 2, fix }))));
+      expect(f).toMatchObject({ status: "pass", response: REFUSALS.en });
+      expect(chatMock).toHaveBeenCalledTimes(2); // bot + LLM judge on the refusal
+    });
+
+    it("bot failure at L2 is still an error, never a pass", async () => {
+      chatMock.mockResolvedValue({ ok: false, error: { code: "network", message: "LLM request failed" } });
+      const { finding: f } = await finding(await runStep(req(l2("A13:en"))));
+      expect(f).toMatchObject({ status: "error", judgedBy: "none" });
+      expect(chatMock).toHaveBeenCalledTimes(1);
+    });
   });
 
   it.each([

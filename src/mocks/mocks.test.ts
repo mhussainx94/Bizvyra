@@ -75,4 +75,17 @@ describe("mocks (api-contract v2 shapes)", () => {
     ReportViewSchema.parse(mockGetReport(MOCK_SHARE_SLUG));
     expect(mockGetReport("unknown-slug-123")).toBeNull();
   });
+
+  it("L1 and L2 fix fixtures are realistic: hardened prompt without protected values, changes in EN and UR", () => {
+    for (const level of [1, 2] as const) {
+      const fix = ChatbotFixContentSchema.parse(mockFix(level));
+      expect(norm(fix.systemPrompt)).not.toMatch(new RegExp(DEMO_PROTECTED_ASSETS.map(norm).join("|")));
+      expect(fix.systemPrompt).toMatch(/SECURITY RULES/);
+      expect(fix.systemPrompt).toMatch(/^1\. /m);
+      expect(fix.changes_en.length).toBeGreaterThan(3);
+      expect(fix.changes_ur.length).toBe(fix.changes_en.length);
+      for (const c of fix.changes_ur) expect(c).toMatch(/[؀-ۿ]/);
+    }
+    expect(mockFix(2).changes_en.length).toBe(mockFix(1).changes_en.length + 2);
+  });
 });

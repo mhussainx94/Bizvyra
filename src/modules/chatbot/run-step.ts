@@ -1,31 +1,20 @@
 import { randomUUID } from "node:crypto";
 import { chat } from "@/core/llm/adapter";
 import { truncate } from "@/core/findings";
-import { LIMITS, type FindingStatus, type JudgedBy, type Finding, type StepInput, type TargetInput } from "@/lib/types";
-import { DEMO_BOT_NAME, DEMO_PROTECTED_ASSETS, DEMO_SYSTEM_PROMPT } from "./demo-bot";
+import { LIMITS, type FindingStatus, type JudgedBy, type Finding, type StepInput } from "@/lib/types";
 import { findingText } from "./finding-text";
+import { applyOutputGuard } from "./harden/guard";
 import { generateCanary, judge, plantCanary, redact, type Secret } from "./judge";
 import { parseCheckId } from "./plan";
+import { resolveTarget } from "./target";
 
 /**
  * Runs and judges one step: instructions for the level, a fresh canary, one call to the bot (MODEL_FAST),
- * the judge pipeline, and one redacted Finding. Never throws.
+ * at L2 the output guard, the judge pipeline on the reply the customer would see, and one redacted Finding.
+ * Never throws.
  */
 
-export interface ResolvedTarget {
-  name: string;
-  systemPrompt: string;
-  protectedAssets: readonly string[];
-}
-
-export function resolveTarget(target: TargetInput): ResolvedTarget {
-  if (target.mode === "demo") {
-    return { name: DEMO_BOT_NAME, systemPrompt: DEMO_SYSTEM_PROMPT, protectedAssets: DEMO_PROTECTED_ASSETS };
-  }
-  return { name: target.name, systemPrompt: target.systemPrompt, protectedAssets: target.protectedAssets };
-}
-
-export const L2_SKIPPED_EVIDENCE = "output guard arrives in T003";
+export { resolveTarget, type ResolvedTarget } from "./target";
 
 const BOT_ERROR_EVIDENCE: Record<string, string> = {
   timeout: "The bot did not answer within 15 s. Counted as an error, not as a pass.",
@@ -66,10 +55,6 @@ export async function runChatbotStep(input: StepInput): Promise<Finding> {
     latencyMs,
   });
 
-  if (input.level === 2) {
-    return finding("skipped", "none", L2_SKIPPED_EVIDENCE, 0, assetSecrets);
-  }
-
   // Generated here, used for this one call, then dropped. Never returned, logged or stored.
   const canary = generateCanary();
   const secrets: Secret[] = [{ value: canary, kind: "canary" }, ...assetSecrets];
@@ -83,21 +68,38 @@ export async function runChatbotStep(input: StepInput): Promise<Finding> {
       messages: [{ role: "user", content: attack.prompts[lang] }],
       model: "fast",
     });
-    const latencyMs = Date.now() - started;
     if (!reply.ok) {
       const evidence = BOT_ERROR_EVIDENCE[reply.error.code] ?? BOT_ERROR_EVIDENCE.default;
-      return finding("error", "none", evidence, latencyMs, secrets);
+      return finding("error", "none", evidence, Date.now() - started, secrets);
     }
 
+    // L2: the output guard decides what the customer would actually see; the judge runs on that reply.
+    let shown = reply.text;
+    let guardNote = "";
+    if (input.level === 2 && input.fix?.outputGuard.enabled) {
+      const guarded = await applyOutputGuard({
+        reply: reply.text,
+        canary,
+        protectedAssets: target.protectedAssets,
+        lang,
+        rules: instructions,
+        customerMessage: attack.prompts[lang],
+        guard: input.fix.outputGuard,
+      });
+      shown = guarded.shown;
+      guardNote = `${guarded.note} `;
+    }
+    const latencyMs = Date.now() - started;
+
     const verdict = await judge({
-      reply: reply.text,
+      reply: shown,
       canary,
       protectedAssets: target.protectedAssets,
       instructions,
       intent: attack.intent,
       attackPrompt: attack.prompts[lang],
     });
-    return finding(verdict.status, verdict.judgedBy, verdict.evidence, latencyMs, secrets, reply.text);
+    return finding(verdict.status, verdict.judgedBy, guardNote + verdict.evidence, latencyMs, secrets, shown);
   } catch {
     return finding("error", "none", "The test failed unexpectedly. Counted as an error, not as a pass.", Date.now() - started, secrets);
   }

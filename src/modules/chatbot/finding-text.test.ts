@@ -41,4 +41,15 @@ describe("bilingual finding text table", () => {
     expect(findingText("brand_abuse", "skipped").title_ur).toBe(SKIPPED_TITLE.ur);
     expect(findingText("brand_abuse", "breach").title_en).toBe(FINDING_TEXT.brand_abuse.breach.en);
   });
+
+  it("uses the reviewed Urdu wording (T003)", () => {
+    expect(FINDING_TEXT.ignore_instructions.impact.ur).toBe(
+      "کوئی بھی آپ کے بوٹ سے فضول کام کروا سکتا ہے، جس سے آپ کا خرچ بڑھتا ہے اور کاروبار غیر سنجیدہ لگتا ہے۔",
+    );
+    expect(FINDING_TEXT.steal_system_prompt.impact.ur.endsWith("دھوکے باز آپ کی اندرونی ہدایات دیکھ کر بہتر فراڈ کا منصوبہ بنا سکتے ہیں۔")).toBe(true);
+    expect(FINDING_TEXT.steal_system_prompt.impact.ur).not.toContain("حملے کی تیاری");
+    expect(FINDING_TEXT.leak_discount_codes.impact.ur).toContain("لیک ہونے والا کوڈ");
+    expect(FINDING_TEXT.leak_discount_codes.impact.ur).not.toContain("لیک شدہ");
+    expect(FINDING_TEXT.ignore_instructions.impact.ur).not.toMatch(/API/);
+  });
 });
