@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/core/llm/adapter", () => ({ chat: vi.fn() }));
 
@@ -11,6 +11,24 @@ import { REFUSALS } from "./harden";
 import { canaryLine } from "./judge";
 
 const chatMock = vi.mocked(chat);
+
+/**
+ * Hermetic LLM: no test in this file may reach a real provider, even when LLM keys are in the environment.
+ * The env is blanked and `fetch` is replaced by a guard that fails loudly; vitest.config restores both after
+ * each test (unstubEnvs / unstubGlobals). A test that needs a configured provider stubs its own env and fetch.
+ */
+const LLM_ENV = ["LLM_PROVIDER", "LLM_API_KEY", "LLM_BASE_URL", "LLM_REASONING", "MODEL_FAST", "MODEL_STRONG", "MODEL_JUDGE"];
+let fetchGuard: ReturnType<typeof vi.fn>;
+beforeEach(() => {
+  for (const name of LLM_ENV) vi.stubEnv(name, "");
+  fetchGuard = vi.fn(async () => {
+    throw new Error("unexpected network call in a hermetic test");
+  });
+  vi.stubGlobal("fetch", fetchGuard);
+});
+afterEach(() => {
+  expect(fetchGuard).not.toHaveBeenCalled();
+});
 const SCAN_ID = "3f2a1c4e-5b6d-4e7f-8a9b-0c1d2e3f4a5b";
 let ipCounter = 0;
 

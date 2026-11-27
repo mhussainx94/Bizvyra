@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/core/llm/adapter", () => ({ chat: vi.fn() }));
 
@@ -17,6 +17,24 @@ function post(path: string, body: unknown, ip: string): Request {
 /** A fresh IP block per test so in-memory counters never collide. */
 const ipFor = (i: number) => `10.${++block}.0.${i}`;
 const plan = { target: { mode: "demo" }, level: 0, kind: "baseline", size: "quick" };
+
+/**
+ * Hermetic LLM: no test in this file may reach a real provider, even when LLM keys are in the environment.
+ * The env is blanked and `fetch` is replaced by a guard that fails loudly; vitest.config restores both after
+ * each test (unstubEnvs / unstubGlobals). A test that needs a configured provider stubs its own env and fetch.
+ */
+const LLM_ENV = ["LLM_PROVIDER", "LLM_API_KEY", "LLM_BASE_URL", "LLM_REASONING", "MODEL_FAST", "MODEL_STRONG", "MODEL_JUDGE"];
+let fetchGuard: ReturnType<typeof vi.fn>;
+beforeEach(() => {
+  for (const name of LLM_ENV) vi.stubEnv(name, "");
+  fetchGuard = vi.fn(async () => {
+    throw new Error("unexpected network call in a hermetic test");
+  });
+  vi.stubGlobal("fetch", fetchGuard);
+});
+afterEach(() => {
+  expect(fetchGuard).not.toHaveBeenCalled();
+});
 
 describe("BIZVYRA_MODE", () => {
   it("defaults to demo when unset or empty; public only when set (unknown values fail closed)", () => {

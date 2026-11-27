@@ -1,0 +1,65 @@
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vitest.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+ RUN  v4.1.12 /mnt/w/dev/hackathon/bizvyra
+
+ ✓ src/core/security/usage.test.ts > BIZVYRA_MODE > defaults to demo when unset or empty; public only when set (unknown values fail closed) 3ms
+ ✓ src/core/security/usage.test.ts > BIZVYRA_MODE > step limits: demo 120/min, public 60/min 1ms
+ ✓ src/core/security/usage.test.ts > POST /api/scans/step rate limit per IP > demo mode (unset): 120 per minute, then 429; another IP is unaffected 37ms
+ ✓ src/core/security/usage.test.ts > POST /api/scans/step rate limit per IP > public mode: 60 per minute, then 429 with retry-after 14ms
+ ✓ src/core/security/usage.test.ts > POST /api/scans daily cap > public mode: 3 scans per IP per day, then 429 usage_limit; other IPs unaffected 6ms
+ ✓ src/core/security/usage.test.ts > POST /api/scans daily cap > invalid requests do not use up the daily cap 2ms
+ ✓ src/core/security/usage.test.ts > POST /api/scans daily cap > demo mode: no daily cap 2ms
+ ✓ src/core/security/usage.test.ts > POST /api/scans daily cap > the cap resets on the next Pakistan calendar day 1ms
+ ✓ src/core/http/routes.test.ts > POST /api/targets > creates a demo target and sets an httpOnly, secure, sameSite=lax owner cookie 11ms
+ ✓ src/core/http/routes.test.ts > POST /api/targets > reuses an existing valid owner token 2ms
+ ✓ src/core/http/routes.test.ts > POST /api/targets > rejects invalid input with 400 (0) 2ms
+ ✓ src/core/http/routes.test.ts > POST /api/targets > rejects invalid input with 400 (1) 1ms
+ ✓ src/core/http/routes.test.ts > POST /api/targets > rejects invalid input with 400 (2) 1ms
+ ✓ src/core/http/routes.test.ts > POST /api/targets > rejects invalid input with 400 (3) 1ms
+ ✓ src/core/http/routes.test.ts > POST /api/targets > rejects invalid input with 400 (4) 1ms
+ ✓ src/core/http/routes.test.ts > POST /api/scans (plan) > returns a running scan, 30 quick steps and concurrency 3 7ms
+ ✓ src/core/http/routes.test.ts > POST /api/scans (plan) > full returns 60 steps; prompt-mode targets and level 1 with a fix are accepted 22ms
+ ✓ src/core/http/routes.test.ts > POST /api/scans (plan) > rejects invalid input with 400 8ms
+ ✓ src/core/http/routes.test.ts > POST /api/scans/finalize > scores the findings: status done, grade, score, summary, finishedAt 7ms
+ ✓ src/core/http/routes.test.ts > POST /api/scans/finalize > rejects invalid input with 400 6ms
+ ✓ src/core/http/routes.test.ts > POST /api/fix, /api/leads, /api/reports > POST /api/fix returns the deterministic fix (no LLM configured), L1 guard off, L2 guard on 13ms
+ ✓ src/core/http/routes.test.ts > POST /api/fix, /api/leads, /api/reports > POST /api/fix never returns 500 when the LLM refinement fails 20ms
+ ✓ src/core/http/routes.test.ts > POST /api/fix, /api/leads, /api/reports > POST /api/fix works for a prompt-mode target and rejects invalid input with 400 19ms
+ ✓ src/core/http/routes.test.ts > POST /api/fix, /api/leads, /api/reports > POST /api/leads accepts a lead, 400 on invalid input 2ms
+ ✓ src/core/http/routes.test.ts > POST /api/fix, /api/leads, /api/reports > GET /api/reports/[slug] returns the mock report, 400 on a bad slug, 404 when unknown 6ms
+ ✓ src/core/http/routes.test.ts > POST /api/fix, /api/leads, /api/reports > rejects oversized bodies with 413 11ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > canary breach: plants a fresh canary, detects it in the reply, never returns it 60ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > asset breach: demo asset in the reply is detected and redacted 14ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > LLM-judged pass: falls through to the judge (MODEL_JUDGE, JSON) and returns a pass 1103ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > adapter error: the bot call fails → HTTP 200 with status error, judgedBy none 12ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > an adapter that throws still yields HTTP 200 with status error 12ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > LLM judge failure after a reply → status error, judgedBy none 13ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > redaction: prompt-mode assets are masked in response and evidence; response ≤ 1000 chars 39ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > L1 uses fix.systemPrompt and applies no output guard 788ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > L2 output guard > (a) a reply with the canary is replaced by a refusal in the attack's language; judge sees the refusal → pass 803ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > L2 output guard > (a) a reply with a protected value (encoded) is blocked; the LLM judge then rates the refusal 17ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > L2 output guard > (b) self-check flags a violation → refusal; the self-check gets the rules without the canary 19ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > L2 output guard > (b) self-check passes → the judge runs on the original reply 22ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > L2 output guard > self-check failure → only (a) applies: the reply reaches the judge unchanged 16ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > L2 output guard > with selfCheck off, (a) alone still blocks a protected value and no self-check call is made 15ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > L2 output guard > bot failure at L2 is still an error, never a pass 15ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > invalid input (missing target) → 400 without calling the bot 3ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > invalid input (unknown checkId) → 400 without calling the bot 1ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > invalid input (malformed checkId) → 400 without calling the bot 1ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > invalid input (bad scanId) → 400 without calling the bot 1ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > invalid input (level 1 without fix) → 400 without calling the bot 2ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > invalid input (level 0 with fix) → 400 without calling the bot 4ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > invalid input (level 3) → 400 without calling the bot 1ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > invalid input (unknown key) → 400 without calling the bot 0ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > invalid input (unknown key in step) → 400 without calling the bot 0ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > invalid input (prompt target with a 1-char asset) → 400 without calling the bot 1ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > invalid input (prompt target missing assets) → 400 without calling the bot 1ms
+ ✓ src/modules/chatbot/step-route.test.ts > POST /api/scans/step > invalid input (not JSON) → 400 without calling the bot 0ms
+
+ Test Files  3 passed (3)
+      Tests  53 passed (53)
+   Start at  00:02:39
+   Duration  5.78s (transform 4.50s, setup 0ms, import 6.78s, tests 3.17s, environment 0ms)
+

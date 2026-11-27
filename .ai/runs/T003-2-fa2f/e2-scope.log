@@ -1,0 +1,22 @@
+## git status (porcelain)
+ M .ai/STATE.md
+ M .ai/ledger.jsonl
+ M src/core/http/routes.test.ts
+ M src/core/security/usage.test.ts
+ M src/modules/chatbot/step-route.test.ts
+?? .ai/lock
+?? .ai/runs/T003-2-fa2f/
+
+## diff --stat vs HEAD (1eef12b)
+ .ai/STATE.md                           |  8 ++++----
+ .ai/ledger.jsonl                       |  4 ++++
+ src/core/http/routes.test.ts           | 20 +++++++++++++++++++-
+ src/core/security/usage.test.ts        | 20 +++++++++++++++++++-
+ src/modules/chatbot/step-route.test.ts | 20 +++++++++++++++++++-
+ 5 files changed, 65 insertions(+), 7 deletions(-)
+
+## non-test source files changed vs HEAD (expect none)
+(none)
+
+## package files changed (expect none)
+(end)

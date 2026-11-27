@@ -1,0 +1,193 @@
+{
+  "task": "T003",
+  "attempt": 2,
+  "run_id": "T003-2-fa2f",
+  "report": ".ai/reports/T003-2.md",
+  "started": "2026-11-27T19:05:39Z",
+  "finished": "2026-11-27T19:06:45Z",
+  "verdict": "VERIFIED",
+  "failed_checks": [],
+  "owner_reason": null,
+  "commands": [
+    {
+      "command": "npm run typecheck",
+      "exit_code": 0,
+      "timed_out": false
+    },
+    {
+      "command": "npm run lint",
+      "exit_code": 0,
+      "timed_out": false
+    },
+    {
+      "command": "npm test",
+      "exit_code": 0,
+      "timed_out": false
+    },
+    {
+      "command": "NEXT_TELEMETRY_DISABLED=1 npm run build",
+      "exit_code": 0,
+      "timed_out": false
+    }
+  ],
+  "changed_paths": [
+    ".ai/STATE.md",
+    ".ai/ledger.jsonl",
+    ".ai/reports/T003-2.md",
+    ".ai/runs/T003-2-fa2f/e1-hermetic-with-dummy-llm-env.log",
+    ".ai/runs/T003-2-fa2f/e2-scope.log",
+    ".ai/runs/T003-2-fa2f/final-1-typecheck.log",
+    ".ai/runs/T003-2-fa2f/final-2-lint.log",
+    ".ai/runs/T003-2-fa2f/final-3-test.log",
+    ".ai/runs/T003-2-fa2f/final-4-build.log",
+    ".ai/runs/T003-2-fa2f/start-snapshot.json",
+    "src/core/http/routes.test.ts",
+    "src/core/security/usage.test.ts",
+    "src/modules/chatbot/step-route.test.ts"
+  ],
+  "checks": {
+    "verdicts": {
+      "status": "PASS",
+      "passed": true,
+      "verdicts": {
+        "C1": "PASS",
+        "C2": "PASS",
+        "C3": "PASS",
+        "C4": "PASS",
+        "C5": "PASS",
+        "C6": "PASS",
+        "C7": "PASS",
+        "C8": "PASS",
+        "C9": "PASS",
+        "C10": "PASS",
+        "C11": "PASS"
+      },
+      "failed": [],
+      "not_verified": [],
+      "not_verified_accepted": false
+    },
+    "test_commands": {
+      "status": "PASS",
+      "passed": true,
+      "timeout_seconds": 900,
+      "commands": [
+        {
+          "n": 1,
+          "command": "npm run typecheck",
+          "exit_code": 0,
+          "timed_out": false,
+          "seconds": 7.48,
+          "log": ".ai/verify/T003-2-fa2f/cmd-1.log",
+          "passed": true
+        },
+        {
+          "n": 2,
+          "command": "npm run lint",
+          "exit_code": 0,
+          "timed_out": false,
+          "seconds": 19.459,
+          "log": ".ai/verify/T003-2-fa2f/cmd-2.log",
+          "passed": true
+        },
+        {
+          "n": 3,
+          "command": "npm test",
+          "exit_code": 0,
+          "timed_out": false,
+          "seconds": 10.496,
+          "log": ".ai/verify/T003-2-fa2f/cmd-3.log",
+          "passed": true
+        },
+        {
+          "n": 4,
+          "command": "NEXT_TELEMETRY_DISABLED=1 npm run build",
+          "exit_code": 0,
+          "timed_out": false,
+          "seconds": 23.381,
+          "log": ".ai/verify/T003-2-fa2f/cmd-4.log",
+          "passed": true
+        }
+      ]
+    },
+    "scope": {
+      "allowed_files": [
+        "src/core/**",
+        "src/modules/**",
+        "src/app/api/**",
+        "src/lib/**",
+        "src/mocks/**",
+        "eval/**",
+        "next-env.d.ts",
+        ".env.example",
+        "README.md",
+        "AGENTS.md",
+        "docs/api-contract.md",
+        ".ai/reports/**",
+        ".ai/runs/**"
+      ],
+      "not_checkable_globs": [],
+      "limitations": [
+        "git-ignored files are not covered: changes to them are invisible to this check and to the secret scan"
+      ],
+      "snapshot": ".ai/runs/T003-2-fa2f/start-snapshot.json",
+      "status": "PASS",
+      "passed": true,
+      "head_at_start": "1eef12bf5cf7d4f4d6a49b6784c24d0ab72766b8",
+      "head_now": "1eef12bf5cf7d4f4d6a49b6784c24d0ab72766b8",
+      "changed": [
+        ".ai/STATE.md",
+        ".ai/ledger.jsonl",
+        ".ai/reports/T003-2.md",
+        ".ai/runs/T003-2-fa2f/e1-hermetic-with-dummy-llm-env.log",
+        ".ai/runs/T003-2-fa2f/e2-scope.log",
+        ".ai/runs/T003-2-fa2f/final-1-typecheck.log",
+        ".ai/runs/T003-2-fa2f/final-2-lint.log",
+        ".ai/runs/T003-2-fa2f/final-3-test.log",
+        ".ai/runs/T003-2-fa2f/final-4-build.log",
+        ".ai/runs/T003-2-fa2f/start-snapshot.json",
+        "src/core/http/routes.test.ts",
+        "src/core/security/usage.test.ts",
+        "src/modules/chatbot/step-route.test.ts"
+      ],
+      "out_of_scope": []
+    },
+    "secrets": {
+      "status": "PASS",
+      "passed": true,
+      "findings": [],
+      "scanned": [
+        ".ai/STATE.md",
+        ".ai/ledger.jsonl",
+        ".ai/reports/T003-2.md",
+        ".ai/runs/T003-2-fa2f/e1-hermetic-with-dummy-llm-env.log",
+        ".ai/runs/T003-2-fa2f/e2-scope.log",
+        ".ai/runs/T003-2-fa2f/final-1-typecheck.log",
+        ".ai/runs/T003-2-fa2f/final-2-lint.log",
+        ".ai/runs/T003-2-fa2f/final-3-test.log",
+        ".ai/runs/T003-2-fa2f/final-4-build.log",
+        ".ai/runs/T003-2-fa2f/start-snapshot.json",
+        "src/core/http/routes.test.ts",
+        "src/core/security/usage.test.ts",
+        "src/modules/chatbot/step-route.test.ts"
+      ],
+      "skipped": [],
+      "rules": [
+        "aws-access-key",
+        "private-key",
+        "jwt",
+        "sk-token",
+        "github-token",
+        "supabase-service-role-key",
+        "credential-assignment"
+      ]
+    },
+    "contract": {
+      "contract": ".ai/tasks/T003.md",
+      "snapshot": ".ai/runs/T003-2-fa2f/start-snapshot.json",
+      "status": "PASS",
+      "passed": true,
+      "sha256_at_start": "6b24062057d8c313519647faeecfda729edc9c2727468da0005a54f303b2f7b3",
+      "sha256_now": "6b24062057d8c313519647faeecfda729edc9c2727468da0005a54f303b2f7b3"
+    }
+  }
+}

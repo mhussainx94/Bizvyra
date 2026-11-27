@@ -1,0 +1,39 @@
+
+> bizvyra@0.1.0 test
+> vitest run
+
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vitest.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/mnt/w/dev/hackathon/bizvyra[39m
+
+ [32m✓[39m src/modules/chatbot/demo-bot/chat-route.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 58[2mms[22m[39m
+ [32m✓[39m src/modules/chatbot/judge/redact.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 1212[2mms[22m[39m
+     [33m[2m✓[22m[39m masks Urdu digits and leaves nothing detectable [33m 1185[2mms[22m[39m
+ [32m✓[39m src/mocks/mocks.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 103[2mms[22m[39m
+ [32m✓[39m src/core/security/usage.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 99[2mms[22m[39m
+ [32m✓[39m src/core/llm/adapter.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 64[2mms[22m[39m
+ [32m✓[39m src/modules/chatbot/judge/canary.test.ts [2m([22m[2m29 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+ [32m✓[39m src/core/security/ssrf.test.ts [2m([22m[2m40 tests[22m[2m)[22m[32m 58[2mms[22m[39m
+ [32m✓[39m src/core/http/routes.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 265[2mms[22m[39m
+ [32m✓[39m src/modules/chatbot/plan.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 33[2mms[22m[39m
+ [32m✓[39m src/modules/chatbot/judge/llm.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+ [32m✓[39m src/modules/chatbot/harden/harden.test.ts [2m([22m[2m29 tests[22m[2m)[22m[33m 3325[2mms[22m[39m
+     [33m[2m✓[22m[39m removes prompt-mode values, including spaced, lower-case and Urdu-digit copies [33m 3125[2mms[22m[39m
+ [32m✓[39m src/modules/chatbot/judge/overlap.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m src/modules/chatbot/harden/guard.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+ [32m✓[39m src/core/scoring/scoring.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m src/modules/chatbot/judge/assets.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m src/modules/chatbot/step-route.test.ts [2m([22m[2m27 tests[22m[2m)[22m[33m 4788[2mms[22m[39m
+     [33m[2m✓[22m[39m LLM-judged pass: falls through to the judge (MODEL_JUDGE, JSON) and returns a pass [33m 1994[2mms[22m[39m
+     [33m[2m✓[22m[39m L1 uses fix.systemPrompt and applies no output guard [33m 1403[2mms[22m[39m
+       [33m[2m✓[22m[39m (a) a reply with the canary is replaced by a refusal in the attack's language; judge sees the refusal → pass [33m 1044[2mms[22m[39m
+ [32m✓[39m src/modules/chatbot/attacks/library.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m src/modules/chatbot/finding-text.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m18 passed[39m[22m[90m (18)[39m
+[2m      Tests [22m [1m[32m263 passed[39m[22m[90m (263)[39m
+[2m   Start at [22m 00:06:11
+[2m   Duration [22m 8.68s[2m (transform 11.79s, setup 0ms, import 23.97s, tests 10.11s, environment 2ms)[22m
+
