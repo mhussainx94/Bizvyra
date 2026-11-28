@@ -10,7 +10,7 @@ Bizvyra attacks a business's chatbot in English, Urdu and Roman Urdu, proves eve
 
 | | |
 |---|---|
-| Live demo | <!-- LIVE_URL --> |
+| Live demo | https://bizvyra.vercel.app |
 | Video (2 min) | <!-- VIDEO_URL --> |
 | Pitch deck | `docs/Bizvyra-pitch.pdf` <!-- DECK_URL --> |
 
