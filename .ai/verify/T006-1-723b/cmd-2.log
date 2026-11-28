@@ -1,0 +1,23 @@
+
+> bizvyra@0.1.0 lint
+> eslint
+
+
+/mnt/w/dev/hackathon/bizvyra/.ai/runs/T006-1-723b/scripts/client-e2e.test.ts
+   9:17  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   9:25  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  10:16  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  10:24  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  11:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  11:29  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  50:58  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  50:66  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/mnt/w/dev/hackathon/bizvyra/.ai/runs/T006-1-723b/scripts/vitest.e2e.config.mjs
+  1:1  warning  Assign object to a variable before exporting as module default  import/no-anonymous-default-export
+
+/mnt/w/dev/hackathon/bizvyra/.ai/runs/T006-1-723b/scripts/vitest.gen.config.mjs
+  1:1  warning  Assign object to a variable before exporting as module default  import/no-anonymous-default-export
+
+✖ 10 problems (8 errors, 2 warnings)
+

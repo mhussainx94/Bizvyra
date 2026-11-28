@@ -1,0 +1,4 @@
+npm run typecheck	0	18.7s
+npm run lint	0	52.0s
+npm test	0	21.7s
+NEXT_TELEMETRY_DISABLED=1 npm run build	0	64.8s

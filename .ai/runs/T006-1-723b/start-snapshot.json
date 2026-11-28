@@ -1,0 +1,17 @@
+{
+  "task": "T006",
+  "run_id": "T006-1-723b",
+  "taken": "2026-11-28T11:43:55Z",
+  "head": "2398e43aec0b9f90ce57c80003bc6d7e0d7ed35a",
+  "dirty": [
+    {
+      "path": ".ai/STATE.md",
+      "sha256": "956d1511f9898de5835a61350a22864637e96c60eb452358d8296365e1788373"
+    },
+    {
+      "path": ".ai/ledger.jsonl",
+      "sha256": "331ad5b133600b34216b7cb311db2bae6a68e91c3cb47cdc42c9f2eb2f7d4713"
+    }
+  ],
+  "contract_sha256": "7ff2a1751c5083018e5fb4d2ae1aaa6a23c7fd3d13226f24b4a0b50356854e55"
+}

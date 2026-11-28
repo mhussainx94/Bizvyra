@@ -23,6 +23,12 @@ export const INTENT_LABELS: Record<Intent, { en: string; ur: string }> = {
   },
 };
 
+export const LEVEL_LABELS = {
+  0: { en: "L0 · Original instructions", ur: "L0 · اصل ہدایات" },
+  1: { en: "L1 · Hardened instructions", ur: "L1 · مضبوط ہدایات" },
+  2: { en: "L2 · Hardened + output guard", ur: "L2 · مضبوط ہدایات + جواب کی جانچ" },
+} as const;
+
 export const JUDGED_BY_LABELS: Record<JudgedBy, { en: string; ur: string }> = {
   canary: { en: "Canary token match", ur: "کینری ٹوکن کی شناخت" },
   asset: { en: "Protected value match", ur: "محفوظ قدر کی شناخت" },
@@ -47,12 +53,13 @@ export function languageName(lang: Lang | undefined, uiLang: "en" | "ur" = "en")
   return "English";
 }
 
-export type InspectionOutcome = "leaked" | "held" | "partial" | "not_run";
+export type InspectionOutcome = "leaked" | "held" | "partial" | "error" | "skipped" | "not_run";
 
 export function statusFromFinding(status: FindingStatus): InspectionOutcome {
   if (status === "breach") return "leaked";
   if (status === "pass") return "held";
-  return "not_run";
+  if (status === "error") return "error";
+  return "skipped";
 }
 
 export function OutcomeBadge({
@@ -109,16 +116,32 @@ export function OutcomeBadge({
     );
   }
 
+  if (outcome === "error" || outcome === "skipped") {
+    const isError = outcome === "error";
+    return (
+      <span
+        lang={isUrdu ? "ur" : undefined}
+        dir={isUrdu ? "rtl" : undefined}
+        className={`inline-flex items-center gap-1.5 text-sm font-semibold text-[#8A5A00] ${
+          isUrdu ? "font-urdu" : ""
+        }`}
+      >
+        <span aria-hidden="true">{isError ? "!" : "–"}</span>
+        <span>{isError ? (isUrdu ? "خرابی" : "Error") : isUrdu ? "چھوڑ دیا گیا" : "Skipped"}</span>
+      </span>
+    );
+  }
+
   return (
     <span
       lang={isUrdu ? "ur" : undefined}
       dir={isUrdu ? "rtl" : undefined}
-      className={`inline-flex items-center gap-1.5 text-sm font-semibold text-[#4A5568] ${
+      className={`inline-flex items-center gap-1.5 text-sm font-semibold text-[#8A5A00] ${
         isUrdu ? "font-urdu" : ""
       }`}
     >
-      <span aria-hidden="true">–</span>
-      <span>{isUrdu ? "ٹیسٹ نہیں ہوا" : "Not run"}</span>
+      <span aria-hidden="true">!</span>
+      <span>{isUrdu ? "جانچ نہیں ہو سکی" : "Not tested"}</span>
     </span>
   );
 }

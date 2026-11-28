@@ -1,0 +1,9 @@
+
+ RUN  v4.1.12 /tmp/claude-1000/-mnt-w-dev-hackathon-bizvyra/8f4a4084-bb68-4ff5-86bd-17c5dc52cf56/scratchpad/e2e
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  21:32:10
+   Duration  30.80s (transform 887ms, setup 0ms, import 2.76s, tests 25.61s, environment 0ms)
+

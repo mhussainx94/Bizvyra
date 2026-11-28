@@ -1,0 +1,71 @@
+== / HTTP 200 bytes=33695
+  'Team HackForge': 4
+  'Detect. Fix. Protect. Prove.': 6
+  'Scan the demo chatbot': 2
+  'View sample report': 2
+  'Sample run - recorded data': 2
+  'How it works': 2
+  'Re-test': 3
+  'Before and after': 0
+  'Defence level': 0
+  'Mock mode': 0
+  'Cyber Forge': 0
+  lang="ur" count: 0; dir="rtl" count: 0
+  ur without rtl: 0
+== /scan HTTP 200 bytes=11280
+  'Team HackForge': 2
+  'Detect. Fix. Protect. Prove.': 4
+  'Scan the demo chatbot': 0
+  'View sample report': 0
+  'Sample run - recorded data': 0
+  'How it works': 0
+  'Re-test': 0
+  'Before and after': 0
+  'Defence level': 0
+  'Mock mode': 0
+  'Cyber Forge': 0
+  lang="ur" count: 0; dir="rtl" count: 0
+  ur without rtl: 0
+== /scan?mode=prompt HTTP 200 bytes=11280
+  'Team HackForge': 2
+  'Detect. Fix. Protect. Prove.': 4
+  'Scan the demo chatbot': 0
+  'View sample report': 0
+  'Sample run - recorded data': 0
+  'How it works': 0
+  'Re-test': 0
+  'Before and after': 0
+  'Defence level': 0
+  'Mock mode': 0
+  'Cyber Forge': 0
+  lang="ur" count: 0; dir="rtl" count: 0
+  ur without rtl: 0
+== /playground HTTP 200 bytes=16536
+  'Team HackForge': 2
+  'Detect. Fix. Protect. Prove.': 4
+  'Scan the demo chatbot': 0
+  'View sample report': 0
+  'Sample run - recorded data': 0
+  'How it works': 0
+  'Re-test': 0
+  'Before and after': 0
+  'Defence level': 1
+  'Mock mode': 0
+  'Cyber Forge': 0
+  lang="ur" count: 1; dir="rtl" count: 1
+  ur without rtl: 0
+== /report/sample HTTP 200 bytes=123813
+  'Team HackForge': 2
+  'Detect. Fix. Protect. Prove.': 2
+  'Scan the demo chatbot': 0
+  'View sample report': 0
+  'Sample run - recorded data': 1
+  'How it works': 0
+  'Re-test': 0
+  'Before and after': 2
+  'Defence level': 0
+  'Mock mode': 0
+  'Cyber Forge': 0
+  lang="ur" count: 93; dir="rtl" count: 93
+  ur without rtl: 0
+initial /scan chunks checked: 10

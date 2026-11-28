@@ -7,6 +7,7 @@ const NAV_ITEMS = [
   { href: "/", label: "Overview" },
   { href: "/scan", label: "Inspection" },
   { href: "/playground", label: "Playground" },
+  { href: "/report/sample", label: "Sample report" },
 ] as const;
 
 export function Navbar() {

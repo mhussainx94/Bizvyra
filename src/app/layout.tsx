@@ -23,9 +23,9 @@ const notoNastaliqUrdu = Noto_Nastaliq_Urdu({
 });
 
 export const metadata: Metadata = {
-  title: "Bizvyra — Chatbot safety inspections",
+  title: "Bizvyra — Detect. Fix. Protect. Prove.",
   description:
-    "Bizvyra inspects small business AI chatbots in English, Urdu and Roman Urdu and issues an official report.",
+    "Bizvyra tests small business AI chatbots in English, Urdu and Roman Urdu, grades them A-F, writes a fix and re-tests it.",
 };
 
 export default function RootLayout({
@@ -43,8 +43,8 @@ export default function RootLayout({
         <div className="flex-1 flex flex-col">{children}</div>
         <footer className="border-t border-[#D9DCD5] bg-[#F4F5F2]">
           <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-5 py-6 text-sm text-[#4A5568] sm:px-8">
-            <span>Bizvyra by Team Cyber Forge</span>
-            {USE_MOCKS && <span>Sample data</span>}
+            <span>Bizvyra by Team HackForge · Detect. Fix. Protect. Prove.</span>
+            {USE_MOCKS && <span>Mock mode: sample data, not live</span>}
           </div>
         </footer>
       </body>

@@ -1,0 +1,8 @@
+L0: status=done grade=null score=null total=30 breaches=0 passes=0 errors=30 maxInFlight=3 incomplete=true
+L0 sample error evidence: The AI service is not configured on the server. Counted as an error, not as a pass.
+fix L1: guard=false changes_en=10 changes_ur=10 promptChars=4044
+L1: level=1 kind=retest grade=null total=30 errors=30
+fix L2: guard={"enabled":true,"blockProtected":true,"selfCheck":true}
+L2: level=2 kind=retest grade=null total=30 errors=30
+demo chat: {"ok":false,"error":{"kind":"upstream","status":502,"message":"The demo bot is unavailable right now. Please try again."}}
+cancel: {"status":"cancelled","done":1,"total":30} stepRequestsStarted=4

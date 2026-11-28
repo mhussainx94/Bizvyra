@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
-import type { ChatMessage } from "@/lib/types";
-import { demoChat } from "./api-client";
-import { hasUrduScript } from "./ui-badges";
+import type { ChatMessage, Level } from "@/lib/types";
+import { demoChat, USE_MOCKS } from "./api-client";
+import { LEVEL_LABELS, hasUrduScript } from "./ui-badges";
+
+const LEVELS: readonly Level[] = [0, 1, 2];
 
 interface SamplePrompt {
   id: string;
@@ -54,6 +56,7 @@ export function PlaygroundClient() {
   const [input, setInput] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [level, setLevel] = useState<Level>(0);
 
   async function sendMessage(text: string) {
     const trimmed = text.trim();
@@ -65,15 +68,17 @@ export function PlaygroundClient() {
     setInput("");
     setIsSending(true);
 
-    try {
-      const { reply } = await demoChat({ messages: nextMessages.slice(-20) });
-      setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
-    } catch (err) {
-      setErrorMsg(
-        err instanceof Error ? err.message : "Could not reach the demo bot. Please try again."
-      );
-    } finally {
-      setIsSending(false);
+    // The greeting is page text, not a bot reply: the conversation sent to the bot starts with the customer.
+    const history = nextMessages.slice(INITIAL_MESSAGES.length).slice(-20);
+    const res = await demoChat({ messages: history });
+    setIsSending(false);
+    if (res.ok) {
+      setMessages((prev) => [...prev, { role: "assistant", content: res.data.reply }]);
+    } else {
+      // Keep the customer's message on screen so they can retry; show the cause inline.
+      setErrorMsg(res.error.message);
+      setInput(trimmed);
+      setMessages((prev) => prev.slice(0, -1));
     }
   }
 
@@ -93,6 +98,43 @@ export function PlaygroundClient() {
           <p className="mt-3 max-w-[70ch] text-base leading-relaxed text-[#4A5568]">
             This is an unhardened shop chatbot holding VIP discount codes, a manager extension, and a Rs 5,000 refund cap. Try one of the prompts below to see how easily it slips.
           </p>
+          <fieldset className="mt-5">
+            <legend className="text-base font-semibold text-[#18233A]">Defence level</legend>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {LEVELS.map((l) => {
+                const available = l === 0;
+                return (
+                  <label
+                    key={l}
+                    className={`flex min-h-[44px] items-center gap-2 rounded-md border px-3 py-2 text-sm ${
+                      level === l ? "border-[#2B3F8C] bg-[#ECEEE8]" : "border-[#D9DCD5] bg-[#F4F5F2]"
+                    } ${available ? "cursor-pointer" : "cursor-not-allowed opacity-60"}`}
+                  >
+                    <input
+                      type="radio"
+                      name="playground-level"
+                      value={l}
+                      checked={level === l}
+                      disabled={!available || isSending}
+                      onChange={() => setLevel(l)}
+                      className="h-4 w-4 accent-[#2B3F8C]"
+                    />
+                    <span className="font-medium text-[#18233A]">{LEVEL_LABELS[l].en}</span>
+                  </label>
+                );
+              })}
+            </div>
+            <p className="mt-2 text-sm text-[#4A5568]">
+              Chat is live at L0 only for now: the hardened L1 and L2 bots run inside a scan. To see them in action, run
+              an inspection, press &ldquo;Fix my chatbot&rdquo; and re-test.
+            </p>
+            {USE_MOCKS && (
+              <p className="mt-2 text-sm font-semibold text-[#8A5A00]">
+                <span aria-hidden="true">! </span>Mock mode: replies are placeholders, not the real demo bot.
+              </p>
+            )}
+          </fieldset>
+
           <p className="mt-3">
             <Link
               href="/scan?mode=demo"
@@ -144,10 +186,11 @@ export function PlaygroundClient() {
       >
         <div className="flex items-center justify-between border-b border-[#D9DCD5] px-5 py-3.5">
           <h2 className="text-base font-semibold text-[#18233A]">
-            Zara Fabrics Support
+            Zara Fabrics Support <span className="font-normal text-[#4A5568]">· {LEVEL_LABELS[level].en}</span>
           </h2>
           <button
             type="button"
+            disabled={isSending}
             onClick={() => {
               setMessages(INITIAL_MESSAGES);
               setErrorMsg(null);
@@ -205,9 +248,12 @@ export function PlaygroundClient() {
           {errorMsg && (
             <div
               role="alert"
-              className="rounded-md border border-[#B3261E] bg-[#B3261E]/10 px-4 py-3 text-sm text-[#B3261E]"
+              className="rounded-md border border-[#B3261E] bg-[#B3261E]/10 px-4 py-3 text-sm text-[#18233A]"
             >
-              {errorMsg}
+              <span className="font-semibold text-[#B3261E]">
+                <span aria-hidden="true">✕ </span>Not sent.
+              </span>{" "}
+              {errorMsg} Your message is back in the box below.
             </div>
           )}
         </div>
@@ -224,6 +270,7 @@ export function PlaygroundClient() {
               id="playground-input"
               type="text"
               value={input}
+              disabled={isSending}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Write a message in English, Urdu or Roman Urdu"
               maxLength={4000}
