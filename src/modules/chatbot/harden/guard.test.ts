@@ -71,7 +71,7 @@ describe("L2 output guard", () => {
   });
 
   it.each([
-    ["adapter error", { ok: false as const, error: { code: "timeout" as const, message: "LLM request timed out" } }],
+    ["adapter error", { ok: false as const, error: { code: "timeout" as const, kind: "timeout" as const, message: "LLM request timed out" } }],
     ["malformed JSON", { ok: true as const, text: "violates: yes" }],
     ["wrong shape", { ok: true as const, text: '{"violates": "yes", "reason": "x"}' }],
   ])("self-check failure (%s) → only (a) applies, the reply is kept", async (_name, reply) => {

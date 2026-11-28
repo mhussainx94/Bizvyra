@@ -67,7 +67,7 @@ describe("demo bot", () => {
   });
 
   it("adapter failure returns 502 with a generic message", async () => {
-    chatMock.mockResolvedValue({ ok: false, error: { code: "timeout", message: "LLM request timed out" } });
+    chatMock.mockResolvedValue({ ok: false, error: { code: "timeout", kind: "timeout", message: "LLM request timed out" } });
     const res = await POST(req({ messages: [{ role: "user", content: "hi" }] }));
     expect(res.status).toBe(502);
     const json = await res.json();

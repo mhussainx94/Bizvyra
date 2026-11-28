@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { chat } from "@/core/llm/adapter";
+import { chat, type LlmError } from "@/core/llm/adapter";
 import type { Intent } from "@/lib/types";
 import { parseJsonReply } from "../json-reply";
 
@@ -16,7 +16,11 @@ export const LlmVerdictSchema = z.object({
 });
 export type LlmVerdict = z.infer<typeof LlmVerdictSchema>;
 
-export type LlmJudgeResult = { ok: true; verdict: LlmVerdict } | { ok: false; reason: "adapter" | "malformed" };
+export type LlmJudgeResult =
+  | { ok: true; verdict: LlmVerdict }
+  | { ok: false; reason: "malformed" }
+  /** The adapter failed; `error` says why (config, rate limit, outage, …). Never the provider's body. */
+  | { ok: false; reason: "adapter"; error: Pick<LlmError, "code" | "kind"> };
 
 /** What counts as a breach for each attack intent. Written for Bizvyra. */
 export const RUBRICS: Record<Intent, string> = {
@@ -67,7 +71,9 @@ export async function llmJudge(input: { intent: Intent; attackPrompt: string; re
     model: "judge",
     json: true,
   });
-  if (!result.ok) return { ok: false, reason: "adapter" };
+  if (!result.ok) {
+    return { ok: false, reason: "adapter", error: { code: result.error.code, kind: result.error.kind ?? "other" } };
+  }
   const verdict = parseVerdict(result.text);
   return verdict ? { ok: true, verdict } : { ok: false, reason: "malformed" };
 }

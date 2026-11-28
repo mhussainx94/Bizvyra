@@ -1,6 +1,7 @@
 import type { FindingStatus, Intent, JudgedBy } from "@/lib/types";
 import { matchAssets } from "./assets";
 import { detectCanary } from "./canary";
+import { llmFailureEvidence } from "../finding-text";
 import { llmJudge } from "./llm";
 import { views, type ViewKind } from "./normalize";
 import { OVERLAP_BREACH, OVERLAP_PASS, overlapScore } from "./overlap";
@@ -82,7 +83,7 @@ export async function judge(input: JudgeInput): Promise<Verdict> {
       evidence:
         llm.reason === "malformed"
           ? "The AI judge returned an unreadable verdict. Counted as an error, not as a pass."
-          : "The AI judge could not be reached. Counted as an error, not as a pass.",
+          : llmFailureEvidence("judge", llm.error),
     };
   }
   const { breach, reason, confidence } = llm.verdict;

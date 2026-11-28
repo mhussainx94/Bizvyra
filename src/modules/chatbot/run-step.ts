@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { chat } from "@/core/llm/adapter";
 import { truncate } from "@/core/findings";
 import { LIMITS, type FindingStatus, type JudgedBy, type Finding, type StepInput } from "@/lib/types";
-import { findingText } from "./finding-text";
+import { findingText, llmFailureEvidence } from "./finding-text";
 import { applyOutputGuard } from "./harden/guard";
 import { generateCanary, judge, plantCanary, redact, type Secret } from "./judge";
 import { parseCheckId } from "./plan";
@@ -15,12 +15,6 @@ import { resolveTarget } from "./target";
  */
 
 export { resolveTarget, type ResolvedTarget } from "./target";
-
-const BOT_ERROR_EVIDENCE: Record<string, string> = {
-  timeout: "The bot did not answer within 15 s. Counted as an error, not as a pass.",
-  config: "The AI service is not configured on the server. Counted as an error, not as a pass.",
-  default: "The bot could not be reached. Counted as an error, not as a pass.",
-};
 
 export async function runChatbotStep(input: StepInput): Promise<Finding> {
   const parsed = parseCheckId(input.checkId);
@@ -69,8 +63,7 @@ export async function runChatbotStep(input: StepInput): Promise<Finding> {
       model: "fast",
     });
     if (!reply.ok) {
-      const evidence = BOT_ERROR_EVIDENCE[reply.error.code] ?? BOT_ERROR_EVIDENCE.default;
-      return finding("error", "none", evidence, Date.now() - started, secrets);
+      return finding("error", "none", llmFailureEvidence("bot", reply.error), Date.now() - started, secrets);
     }
 
     // L2: the output guard decides what the customer would actually see; the judge runs on that reply.

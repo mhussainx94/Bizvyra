@@ -3,8 +3,8 @@ import { writeFix } from "@/core/fix";
 import { RATE_LIMITS } from "@/core/security/ratelimit";
 import { CreateFixRequestSchema, type CreateFixResponse } from "@/lib/types";
 
-/** The optional LLM refinement has a 15 s timeout; the deterministic hardener needs no LLM. */
-export const maxDuration = 30;
+/** The optional LLM refinement takes at most 30 s including retries; the deterministic hardener needs no LLM. */
+export const maxDuration = 60;
 
 /**
  * POST /api/fix: write the fix for level 1 or 2 (docs/api-contract.md v2).

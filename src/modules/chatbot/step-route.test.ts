@@ -119,11 +119,44 @@ describe("POST /api/scans/step", () => {
   });
 
   it("adapter error: the bot call fails → HTTP 200 with status error, judgedBy none", async () => {
-    chatMock.mockResolvedValue({ ok: false, error: { code: "timeout", message: "LLM request timed out" } });
+    chatMock.mockResolvedValue({ ok: false, error: { code: "timeout", kind: "timeout", message: "LLM request timed out" } });
     const { finding: f } = await finding(await runStep(req(demoStep("A13:en"))));
     expect(f).toMatchObject({ status: "error", judgedBy: "none", title_en: "Test could not be completed" });
     expect(f.response).toBeUndefined();
     expect(f.evidence).toMatch(/15 s/);
+  });
+
+  it.each([
+    ["rate_limited", "http", 429, "The AI provider is rate-limiting requests (too many per minute). Counted as an error, not as a pass."],
+    ["unavailable", "http", 503, "The AI provider was temporarily unavailable, even after retries. Counted as an error, not as a pass."],
+    ["unavailable", "network", undefined, "The AI provider was temporarily unavailable, even after retries. Counted as an error, not as a pass."],
+    ["auth", "http", 401, "The AI provider rejected the server's API key or access. Counted as an error, not as a pass."],
+    ["bad_request", "http", 404, "The AI provider rejected the request (for example, an unknown model name). Counted as an error, not as a pass."],
+    ["timeout", "timeout", undefined, "The bot did not answer within 15 s. Counted as an error, not as a pass."],
+    ["other", "bad_response", undefined, "The bot could not be reached. Counted as an error, not as a pass."],
+    ["other", "config", undefined, "The AI service is not configured on the server. Counted as an error, not as a pass."],
+  ] as const)("bot failure of kind %s (%s) → error finding naming the cause", async (kind, code, status, evidence) => {
+    const error = { code, kind, message: `LLM provider returned an error, key sk-live-SECRET`, ...(status ? { status } : {}) };
+    chatMock.mockResolvedValue({ ok: false, error });
+    const res = await runStep(req(demoStep("A01:en")));
+    expect(res.status).toBe(200);
+    const raw = await res.clone().text();
+    expect(raw).not.toContain("sk-live-SECRET");
+    const { finding: f } = await finding(res);
+    expect(f).toMatchObject({ status: "error", judgedBy: "none", evidence });
+    expect(chatMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("LLM judge failure of kind rate_limited → error finding naming the judge and the cause", async () => {
+    chatMock
+      .mockResolvedValueOnce({ ok: true, text: "Sure, refund approved!" })
+      .mockResolvedValueOnce({ ok: false, error: { code: "http", kind: "rate_limited", message: "x", status: 429 } });
+    const { finding: f } = await finding(await runStep(req(demoStep("A09:en"))));
+    expect(f).toMatchObject({
+      status: "error",
+      judgedBy: "none",
+      evidence: "The AI judge could not give a verdict. The AI provider is rate-limiting requests (too many per minute). Counted as an error, not as a pass.",
+    });
   });
 
   it("an adapter that throws still yields HTTP 200 with status error", async () => {
@@ -223,7 +256,7 @@ describe("POST /api/scans/step", () => {
     it("self-check failure → only (a) applies: the reply reaches the judge unchanged", async () => {
       chatMock
         .mockResolvedValueOnce({ ok: true, text: "Done, refund approved." })
-        .mockResolvedValueOnce({ ok: false, error: { code: "timeout", message: "LLM request timed out" } })
+        .mockResolvedValueOnce({ ok: false, error: { code: "timeout", kind: "timeout", message: "LLM request timed out" } })
         .mockResolvedValueOnce({ ok: true, text: '{"breach": true, "reason": "Approved a refund.", "confidence": 0.9}' });
       const { finding: f } = await finding(await runStep(req(l2("A09:en"))));
       expect(f).toMatchObject({ status: "breach", response: "Done, refund approved." });
@@ -241,7 +274,7 @@ describe("POST /api/scans/step", () => {
     });
 
     it("bot failure at L2 is still an error, never a pass", async () => {
-      chatMock.mockResolvedValue({ ok: false, error: { code: "network", message: "LLM request failed" } });
+      chatMock.mockResolvedValue({ ok: false, error: { code: "network", kind: "unavailable", message: "LLM request failed" } });
       const { finding: f } = await finding(await runStep(req(l2("A13:en"))));
       expect(f).toMatchObject({ status: "error", judgedBy: "none" });
       expect(chatMock).toHaveBeenCalledTimes(1);

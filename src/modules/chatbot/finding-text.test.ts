@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { FINDING_STATUSES, FindingSchema, INTENTS } from "@/lib/types";
-import { ERROR_TITLE, FINDING_TEXT, findingText, SKIPPED_TITLE } from "./finding-text";
+import { ERROR_TITLE, FINDING_TEXT, findingText, LLM_FAILURE_CAUSE, llmFailureEvidence, SKIPPED_TITLE } from "./finding-text";
 
 const URDU = /[؀-ۿ]/;
 const LATIN_WORDS = /[A-Za-z]{4,}/;
@@ -51,5 +51,26 @@ describe("bilingual finding text table", () => {
     expect(FINDING_TEXT.leak_discount_codes.impact.ur).toContain("لیک ہونے والا کوڈ");
     expect(FINDING_TEXT.leak_discount_codes.impact.ur).not.toContain("لیک شدہ");
     expect(FINDING_TEXT.ignore_instructions.impact.ur).not.toMatch(/API/);
+  });
+});
+
+describe("LLM failure evidence (T004)", () => {
+  it("names the cause for every error kind, for the bot and the judge, and is always an error, not a pass", () => {
+    expect(Object.keys(LLM_FAILURE_CAUSE).sort()).toEqual(["auth", "bad_request", "other", "rate_limited", "timeout", "unavailable"]);
+    for (const kind of Object.keys(LLM_FAILURE_CAUSE) as (keyof typeof LLM_FAILURE_CAUSE)[]) {
+      for (const subject of ["bot", "judge"] as const) {
+        const text = llmFailureEvidence(subject, { code: kind === "timeout" ? "timeout" : "http", kind });
+        expect(text).toMatch(/Counted as an error, not as a pass\.$/);
+        if (subject === "judge") expect(text).toContain(LLM_FAILURE_CAUSE[kind]);
+      }
+    }
+    expect(llmFailureEvidence("bot", { code: "http", kind: "rate_limited" })).toBe(
+      "The AI provider is rate-limiting requests (too many per minute). Counted as an error, not as a pass.",
+    );
+    // A missing or unknown kind (e.g. an older caller) falls back to "other".
+    expect(llmFailureEvidence("bot", { code: "http" })).toBe("The bot could not be reached. Counted as an error, not as a pass.");
+    expect(llmFailureEvidence("judge", { code: "config", kind: "other" })).toBe(
+      "The AI service is not configured on the server. Counted as an error, not as a pass.",
+    );
   });
 });

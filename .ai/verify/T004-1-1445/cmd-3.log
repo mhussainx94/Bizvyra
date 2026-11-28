@@ -1,0 +1,83 @@
+
+> bizvyra@0.1.0 test
+> vitest run
+
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vitest.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/mnt/w/dev/hackathon/bizvyra[39m
+
+ [32m✓[39m src/core/llm/adapter.test.ts [2m([22m[2m33 tests[22m[2m)[22m[32m 76[2mms[22m[39m
+ [32m✓[39m src/modules/chatbot/judge/redact.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 2156[2mms[22m[39m
+     [33m[2m✓[22m[39m masks Urdu digits and leaves nothing detectable [33m 2085[2mms[22m[39m
+ [32m✓[39m src/mocks/mocks.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 155[2mms[22m[39m
+ [32m✓[39m src/core/security/usage.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 215[2mms[22m[39m
+ [32m✓[39m src/core/security/ssrf.test.ts [2m([22m[2m40 tests[22m[2m)[22m[32m 124[2mms[22m[39m
+ [32m✓[39m src/modules/chatbot/demo-bot/chat-route.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 173[2mms[22m[39m
+ [32m✓[39m src/core/http/routes.test.ts [2m([22m[2m19 tests[22m[2m)[22m[33m 530[2mms[22m[39m
+ [32m✓[39m src/modules/chatbot/judge/canary.test.ts [2m([22m[2m29 tests[22m[2m)[22m[32m 50[2mms[22m[39m
+ [31m❯[39m src/modules/chatbot/harden/harden.test.ts [2m([22m[2m29 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 6410[2mms[22m[39m
+     [32m✓[39m removes every demo protected value and replaces it with a neutral description[32m 52[2mms[22m[39m
+[31m     [31m×[31m removes prompt-mode values, including spaced, lower-case and Urdu-digit copies[39m[33m 6099[2mms[22m[39m
+     [32m✓[39m drops a line that still holds an encoded copy of a value[32m 2[2mms[22m[39m
+     [32m✓[39m adds numbered security rules covering every intent, written for EN, UR and Roman Urdu[32m 8[2mms[22m[39m
+     [32m✓[39m adds a refusal style in the customer's language with EN, UR and Roman Urdu examples[32m 4[2mms[22m[39m
+     [32m✓[39m lists every change in plain EN and UR, citing the scan's breach counts[32m 11[2mms[22m[39m
+     [32m✓[39m level 1 has the output guard off; level 2 has it fully on with two more changes[32m 6[2mms[22m[39m
+     [32m✓[39m works with a prompt that has no protected values (no removal change)[32m 0[2mms[22m[39m
+     [32m✓[39m without MODEL_STRONG it never calls the LLM and returns the deterministic fix[32m 6[2mms[22m[39m
+     [32m✓[39m success: uses the refined prompt when it keeps every rule and adds no protected value[32m 15[2mms[22m[39m
+     [32m✓[39m accepts fenced JSON and rule whitespace changes[32m 9[2mms[22m[39m
+     [32m✓[39m failure (adapter error) → deterministic prompt unchanged[32m 25[2mms[22m[39m
+     [32m✓[39m failure (timeout) → deterministic prompt unchanged[32m 5[2mms[22m[39m
+     [32m✓[39m failure (not configured) → deterministic prompt unchanged[32m 7[2mms[22m[39m
+     [32m✓[39m failure (invalid JSON) → deterministic prompt unchanged[32m 5[2mms[22m[39m
+     [32m✓[39m failure (truncated JSON) → deterministic prompt unchanged[32m 5[2mms[22m[39m
+     [32m✓[39m failure (wrong shape) → deterministic prompt unchanged[32m 7[2mms[22m[39m
+     [32m✓[39m failure (empty prompt) → deterministic prompt unchanged[32m 5[2mms[22m[39m
+     [32m✓[39m failure (too long) → deterministic prompt unchanged[32m 4[2mms[22m[39m
+     [32m✓[39m failure: an adapter that throws → deterministic prompt unchanged[32m 6[2mms[22m[39m
+     [32m✓[39m asset re-insertion (plain) → deterministic prompt unchanged[32m 6[2mms[22m[39m
+     [32m✓[39m asset re-insertion (lower case and spaced) → deterministic prompt unchanged[32m 5[2mms[22m[39m
+     [32m✓[39m asset re-insertion (reversed) → deterministic prompt unchanged[32m 5[2mms[22m[39m
+     [32m✓[39m asset re-insertion (base64) → deterministic prompt unchanged[32m 9[2mms[22m[39m
+     [32m✓[39m asset re-insertion in prompt mode (short credential) → deterministic prompt unchanged[32m 54[2mms[22m[39m
+     [32m✓[39m dropped rules (one rule removed) → deterministic prompt unchanged[32m 7[2mms[22m[39m
+     [32m✓[39m dropped rules (one rule reworded) → deterministic prompt unchanged[32m 23[2mms[22m[39m
+     [32m✓[39m dropped rules (rule renumbered) → deterministic prompt unchanged[32m 10[2mms[22m[39m
+     [32m✓[39m dropped rules (rules replaced by a summary) → deterministic prompt unchanged[32m 4[2mms[22m[39m
+ [32m✓[39m src/modules/chatbot/plan.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 56[2mms[22m[39m
+ [32m✓[39m src/modules/chatbot/judge/overlap.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32m✓[39m src/modules/chatbot/judge/assets.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m src/modules/chatbot/judge/llm.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+ [32m✓[39m src/modules/chatbot/harden/guard.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m src/modules/chatbot/step-route.test.ts [2m([22m[2m36 tests[22m[2m)[22m[33m 8723[2mms[22m[39m
+     [33m[2m✓[22m[39m LLM-judged pass: falls through to the judge (MODEL_JUDGE, JSON) and returns a pass [33m 4024[2mms[22m[39m
+     [33m[2m✓[22m[39m L1 uses fix.systemPrompt and applies no output guard [33m 2235[2mms[22m[39m
+       [33m[2m✓[22m[39m (a) a reply with the canary is replaced by a refusal in the attack's language; judge sees the refusal → pass [33m 1380[2mms[22m[39m
+ [32m✓[39m src/core/scoring/scoring.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m src/modules/chatbot/finding-text.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m src/modules/chatbot/attacks/library.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/modules/chatbot/harden/harden.test.ts[2m > [22mdeterministic hardener (no LLM)[2m > [22mremoves prompt-mode values, including spaced, lower-case and Urdu-digit copies
+[31m[1mError[22m: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m src/modules/chatbot/harden/harden.test.ts:[2m64:3[22m[39m
+    [90m 62|[39m   })[33m;[39m
+    [90m 63|[39m
+    [90m 64|[39m   it("removes prompt-mode values, including spaced, lower-case and Urd…
+    [90m   |[39m   [31m^[39m
+    [90m 65|[39m     [35mconst[39m target[33m:[39m [33mTargetInput[39m [33m=[39m {
+    [90m 66|[39m       [33m...[39m[33mSHOP[39m[33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m17 passed[39m[22m[90m (18)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m294 passed[39m[22m[90m (295)[39m
+[2m   Start at [22m 15:44:28
+[2m   Duration [22m 17.72s[2m (transform 22.72s, setup 0ms, import 50.08s, tests 18.76s, environment 3ms)[22m
+

@@ -183,9 +183,9 @@ describe("hardenChatbot: LLM refinement with MODEL_STRONG (adapter mocked)", () 
   });
 
   it.each([
-    ["adapter error", { ok: false as const, error: { code: "http" as const, message: "LLM provider returned an error", status: 500 } }],
-    ["timeout", { ok: false as const, error: { code: "timeout" as const, message: "LLM request timed out" } }],
-    ["not configured", { ok: false as const, error: { code: "config" as const, message: "x" } }],
+    ["adapter error", { ok: false as const, error: { code: "http" as const, kind: "unavailable" as const, message: "LLM provider returned an error", status: 500 } }],
+    ["timeout", { ok: false as const, error: { code: "timeout" as const, kind: "timeout" as const, message: "LLM request timed out" } }],
+    ["not configured", { ok: false as const, error: { code: "config" as const, kind: "other" as const, message: "x" } }],
     ["invalid JSON", { ok: true as const, text: "Here is a better prompt: be safe." }],
     ["truncated JSON", { ok: true as const, text: '{"systemPrompt": "You are' }],
     ["wrong shape", { ok: true as const, text: JSON.stringify({ prompt: "x" }) }],

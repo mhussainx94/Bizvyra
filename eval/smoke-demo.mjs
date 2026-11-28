@@ -1,14 +1,18 @@
 #!/usr/bin/env node
 /**
  * Bizvyra smoke test: quick scans of the demo bot against a running server, per defence level.
- * L0: plan → every step (3 at a time) → finalize. L1/L2: POST /api/fix with the L0 findings, then the same scan
+ * L0: plan → every step (`concurrency` at a time) → finalize. L1/L2: POST /api/fix with the L0 findings, then the same scan
  * at that level with the returned fix. Prints one summary table and writes the full results to
  * eval/results/<timestamp>.json.
  *
  * Usage:  npm run dev   (in another terminal, with the LLM env vars set in .env.local)
  *         node eval/smoke-demo.mjs                      # L0 only (default)
  *         node eval/smoke-demo.mjs --levels 0,1,2       # L0, then fix + re-scan at L1 and L2
+ *         node eval/smoke-demo.mjs --concurrency 1      # override the server's concurrency (SCAN_CONCURRENCY)
  *         BASE_URL=https://your-deployment.example node eval/smoke-demo.mjs --levels 0,1,2
+ *
+ * Steps run `concurrency` at a time: the value POST /api/scans returns (SCAN_CONCURRENCY, default 3), unless
+ * --concurrency N (integer 1–10) overrides it for this run.
  *
  * Plain Node 18+ (global fetch), no dependencies. Each step calls the LLM: one quick scan is 30 bot calls plus up to
  * 30 judge calls; L2 adds up to 30 self-check calls; each fix may make one MODEL_STRONG call.
@@ -31,6 +35,21 @@ function parseLevels(argv) {
     throw new Error(`--levels must be a comma-separated list of 0, 1 and 2 (got "${raw}")`);
   }
   return [...new Set([0, ...levels])].sort();
+}
+
+/** --concurrency N or --concurrency=N (integer 1–10); null when absent, so the server's value is used. */
+function parseConcurrency(argv) {
+  let raw = null;
+  for (let i = 0; i < argv.length; i++) {
+    if (argv[i] === "--concurrency") raw = argv[i + 1] ?? "";
+    else if (argv[i].startsWith("--concurrency=")) raw = argv[i].slice("--concurrency=".length);
+  }
+  if (raw === null) return null;
+  const n = Number(raw);
+  if (!/^\d+$/.test(raw.trim()) || n < 1 || n > 10) {
+    throw new Error(`--concurrency must be an integer from 1 to 10 (got "${raw}")`);
+  }
+  return n;
 }
 
 async function post(path, body) {
@@ -66,11 +85,15 @@ async function pool(items, limit, worker) {
 
 const pct = (asr) => (asr === null || asr === undefined ? "n/a" : `${(asr * 100).toFixed(0)}%`);
 
-async function scanLevel(level, fix) {
+async function scanLevel(level, fix, concurrencyOverride) {
   console.log(`\n== L${level} quick scan ==`);
   const plan = { target, level, kind: level === 0 ? "baseline" : "retest", size: "quick", ...(fix ? { fix } : {}) };
-  const { scan, steps, concurrency } = await post("/api/scans", plan);
-  console.log(`Planned scan ${scan.id}: ${steps.length} steps, concurrency ${concurrency}`);
+  const { scan, steps, concurrency: planned } = await post("/api/scans", plan);
+  const concurrency = concurrencyOverride ?? planned;
+  console.log(
+    `Planned scan ${scan.id}: ${steps.length} steps, concurrency ${concurrency}` +
+      (concurrencyOverride === null ? "" : ` (--concurrency; server suggested ${planned})`),
+  );
 
   let done = 0;
   const findings = await pool(steps, concurrency, async (step) => {
@@ -110,15 +133,16 @@ function printTable(results) {
 
 async function main() {
   const levels = parseLevels(process.argv.slice(2));
+  const concurrencyOverride = parseConcurrency(process.argv.slice(2));
   const startedAt = new Date();
   console.log(`Bizvyra smoke test: demo bot at ${BASE_URL}, levels ${levels.map((l) => `L${l}`).join(", ")}`);
 
-  const baseline = await scanLevel(0, undefined);
+  const baseline = await scanLevel(0, undefined, concurrencyOverride);
   const results = [{ level: 0, ...baseline }];
   for (const level of levels.filter((l) => l > 0)) {
     const { fix } = await post("/api/fix", { target, findings: baseline.findings, level });
     console.log(`\nFix for L${level}: ${fix.changes_en.length} changes, output guard ${fix.outputGuard.enabled ? "on" : "off"}`);
-    results.push({ level, fix, ...(await scanLevel(level, fix)) });
+    results.push({ level, fix, ...(await scanLevel(level, fix, concurrencyOverride)) });
   }
 
   printTable(results);

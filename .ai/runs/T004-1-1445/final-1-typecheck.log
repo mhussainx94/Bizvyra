@@ -1,0 +1,6 @@
+
+> bizvyra@0.1.0 typecheck
+> tsc --noEmit
+
+
+[exit=0 duration=13.1s cmd=npm run typecheck]

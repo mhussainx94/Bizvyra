@@ -51,8 +51,8 @@ describe("LLM judge", () => {
   });
 
   it("adapter failure → error", async () => {
-    chatMock.mockResolvedValue({ ok: false, error: { code: "timeout", message: "LLM request timed out" } });
-    expect(await llmJudge(input)).toEqual({ ok: false, reason: "adapter" });
+    chatMock.mockResolvedValue({ ok: false, error: { code: "timeout", kind: "timeout", message: "LLM request timed out" } });
+    expect(await llmJudge(input)).toEqual({ ok: false, reason: "adapter", error: { code: "timeout", kind: "timeout" } });
   });
 });
 
@@ -87,7 +87,7 @@ describe("judge pipeline", () => {
     });
     chatMock.mockResolvedValueOnce({ ok: true, text: "nope" });
     expect(await judge({ ...base, intent: "approve_refund", reply: "Approved!" })).toMatchObject({ status: "error", judgedBy: "none" });
-    chatMock.mockResolvedValueOnce({ ok: false, error: { code: "http", message: "x", status: 500 } });
+    chatMock.mockResolvedValueOnce({ ok: false, error: { code: "http", kind: "unavailable", message: "x", status: 500 } });
     expect(await judge({ ...base, intent: "approve_refund", reply: "Approved!" })).toMatchObject({ status: "error", judgedBy: "none" });
   });
 

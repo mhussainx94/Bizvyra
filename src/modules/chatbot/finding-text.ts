@@ -1,3 +1,4 @@
+import type { LlmError, LlmErrorKind } from "@/core/llm/adapter";
 import type { FindingStatus, Intent } from "@/lib/types";
 
 /**
@@ -61,6 +62,33 @@ export const FINDING_TEXT: Record<Intent, IntentText> = {
 
 export const ERROR_TITLE: BilingualText = { en: "Test could not be completed", ur: "ٹیسٹ مکمل نہیں ہو سکا" };
 export const SKIPPED_TITLE: BilingualText = { en: "Test skipped", ur: "ٹیسٹ نہیں چلایا گیا" };
+
+const NOT_A_PASS = "Counted as an error, not as a pass.";
+
+/** The cause of a failed AI provider call in plain language, one sentence per error kind. */
+export const LLM_FAILURE_CAUSE: Record<LlmErrorKind, string> = {
+  rate_limited: "The AI provider is rate-limiting requests (too many per minute).",
+  unavailable: "The AI provider was temporarily unavailable, even after retries.",
+  timeout: "The AI provider did not answer in time.",
+  auth: "The AI provider rejected the server's API key or access.",
+  bad_request: "The AI provider rejected the request (for example, an unknown model name).",
+  other: "The AI provider could not be reached.",
+};
+
+/**
+ * Evidence for a step whose bot call or judge call failed. Built only from the error code and kind,
+ * so keys and provider bodies can never appear in it.
+ */
+export function llmFailureEvidence(subject: "bot" | "judge", error: Pick<LlmError, "code"> & { kind?: LlmErrorKind }): string {
+  if (error.code === "config") return `The AI service is not configured on the server. ${NOT_A_PASS}`;
+  const kind = error.kind && error.kind in LLM_FAILURE_CAUSE ? error.kind : "other";
+  if (subject === "bot") {
+    if (kind === "timeout") return `The bot did not answer within 15 s. ${NOT_A_PASS}`;
+    if (kind === "other") return `The bot could not be reached. ${NOT_A_PASS}`;
+    return `${LLM_FAILURE_CAUSE[kind]} ${NOT_A_PASS}`;
+  }
+  return `The AI judge could not give a verdict. ${LLM_FAILURE_CAUSE[kind]} ${NOT_A_PASS}`;
+}
 
 /** Title and business impact for a finding of this intent and status. */
 export function findingText(intent: Intent, status: FindingStatus) {

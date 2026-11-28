@@ -1,0 +1,141 @@
+## git status (read-only)
+ M .ai/STATE.md
+ M .ai/ledger.jsonl
+ M .env.example
+ M README.md
+ M docs/api-contract.md
+ M eval/smoke-demo.mjs
+ M src/app/api/fix/route.ts
+ M src/app/api/scans/step/route.ts
+ M src/core/http/routes.test.ts
+ M src/core/llm/adapter.test.ts
+ M src/core/llm/adapter.ts
+ M src/core/orchestrator/index.ts
+ M src/modules/chatbot/demo-bot/chat-route.test.ts
+ M src/modules/chatbot/finding-text.test.ts
+ M src/modules/chatbot/finding-text.ts
+ M src/modules/chatbot/harden/guard.test.ts
+ M src/modules/chatbot/harden/harden.test.ts
+ M src/modules/chatbot/judge/index.ts
+ M src/modules/chatbot/judge/llm.test.ts
+ M src/modules/chatbot/judge/llm.ts
+ M src/modules/chatbot/run-step.ts
+ M src/modules/chatbot/step-route.test.ts
+?? .ai/lock
+?? .ai/runs/T004-1-1445/
+?? .ai/tasks/T004.md
+
+## changed tracked files vs HEAD
+ .ai/STATE.md                                    |   7 +-
+ .ai/ledger.jsonl                                |   4 +
+ .env.example                                    |  10 +-
+ README.md                                       |  12 +-
+ docs/api-contract.md                            |  27 +-
+ eval/smoke-demo.mjs                             |  36 ++-
+ src/app/api/fix/route.ts                        |   4 +-
+ src/app/api/scans/step/route.ts                 |   7 +-
+ src/core/http/routes.test.ts                    |  57 ++++-
+ src/core/llm/adapter.test.ts                    | 312 +++++++++++++++++++++++-
+ src/core/llm/adapter.ts                         | 154 +++++++++---
+ src/core/orchestrator/index.ts                  |  13 +-
+ src/modules/chatbot/demo-bot/chat-route.test.ts |   2 +-
+ src/modules/chatbot/finding-text.test.ts        |  23 +-
+ src/modules/chatbot/finding-text.ts             |  28 +++
+ src/modules/chatbot/harden/guard.test.ts        |   2 +-
+ src/modules/chatbot/harden/harden.test.ts       |   6 +-
+ src/modules/chatbot/judge/index.ts              |   3 +-
+ src/modules/chatbot/judge/llm.test.ts           |   6 +-
+ src/modules/chatbot/judge/llm.ts                |  12 +-
+ src/modules/chatbot/run-step.ts                 |  11 +-
+ src/modules/chatbot/step-route.test.ts          |  39 ++-
+ 22 files changed, 673 insertions(+), 102 deletions(-)
+
+## scope check against allowed_files
+ACC-OWNED .ai/STATE.md (written by acc, not by the agent)
+ACC-OWNED .ai/ledger.jsonl (written by acc, not by the agent)
+IN-SCOPE  .env.example
+IN-SCOPE  README.md
+IN-SCOPE  docs/api-contract.md
+IN-SCOPE  eval/smoke-demo.mjs
+IN-SCOPE  src/app/api/fix/route.ts
+IN-SCOPE  src/app/api/scans/step/route.ts
+IN-SCOPE  src/core/http/routes.test.ts
+IN-SCOPE  src/core/llm/adapter.test.ts
+IN-SCOPE  src/core/llm/adapter.ts
+IN-SCOPE  src/core/orchestrator/index.ts
+IN-SCOPE  src/modules/chatbot/demo-bot/chat-route.test.ts
+IN-SCOPE  src/modules/chatbot/finding-text.test.ts
+IN-SCOPE  src/modules/chatbot/finding-text.ts
+IN-SCOPE  src/modules/chatbot/harden/guard.test.ts
+IN-SCOPE  src/modules/chatbot/harden/harden.test.ts
+IN-SCOPE  src/modules/chatbot/judge/index.ts
+IN-SCOPE  src/modules/chatbot/judge/llm.test.ts
+IN-SCOPE  src/modules/chatbot/judge/llm.ts
+IN-SCOPE  src/modules/chatbot/run-step.ts
+IN-SCOPE  src/modules/chatbot/step-route.test.ts
+
+## untracked files
+.ai/lock
+.ai/runs/T004-1-1445/e1-vitest-verbose.log
+.ai/runs/T004-1-1445/e2-evidence.log
+.ai/runs/T004-1-1445/final-1-typecheck.log
+.ai/runs/T004-1-1445/final-2-lint.log
+.ai/runs/T004-1-1445/final-3-test.log
+.ai/runs/T004-1-1445/final-4-build.log
+.ai/runs/T004-1-1445/start-snapshot.json
+.ai/tasks/T004.md
+
+## restricted files unchanged (empty diff = unchanged)
+13
+eval/results tracked changes:
+2026-11-27T18-21-37-855Z.json
+.env* status (names only, contents not opened):
+ M .env.example
+!! .env.local
+
+## package.json / lockfile unchanged (no new deps)
+0
+
+## node --check eval/smoke-demo.mjs
+OK
+
+## parseConcurrency extracted from eval/smoke-demo.mjs (script itself not run)
+[] -> null
+["--concurrency","1"] -> 1
+["--concurrency=5"] -> 5
+["--concurrency","10"] -> 10
+["--concurrency","0"] -> throws: --concurrency must be an integer from 1 to 10 (got "0")
+["--concurrency","x"] -> throws: --concurrency must be an integer from 1 to 10 (got "x")
+["--concurrency"] -> throws: --concurrency must be an integer from 1 to 10 (got "")
+["--concurrency","11"] -> throws: --concurrency must be an integer from 1 to 10 (got "11")
+
+## smoke script uses the returned concurrency
+4: * L0: plan → every step (`concurrency` at a time) → finalize. L1/L2: POST /api/fix with the L0 findings, then the same scan
+11: *         node eval/smoke-demo.mjs --concurrency 1      # override the server's concurrency (SCAN_CONCURRENCY)
+14: * Steps run `concurrency` at a time: the value POST /api/scans returns (SCAN_CONCURRENCY, default 3), unless
+15: * --concurrency N (integer 1–10) overrides it for this run.
+40:/** --concurrency N or --concurrency=N (integer 1–10); null when absent, so the server's value is used. */
+44:    if (argv[i] === "--concurrency") raw = argv[i + 1] ?? "";
+45:    else if (argv[i].startsWith("--concurrency=")) raw = argv[i].slice("--concurrency=".length);
+50:    throw new Error(`--concurrency must be an integer from 1 to 10 (got "${raw}")`);
+88:async function scanLevel(level, fix, concurrencyOverride) {
+91:  const { scan, steps, concurrency: planned } = await post("/api/scans", plan);
+92:  const concurrency = concurrencyOverride ?? planned;
+94:    `Planned scan ${scan.id}: ${steps.length} steps, concurrency ${concurrency}` +
+95:      (concurrencyOverride === null ? "" : ` (--concurrency; server suggested ${planned})`),
+99:  const findings = await pool(steps, concurrency, async (step) => {
+136:  const concurrencyOverride = parseConcurrency(process.argv.slice(2));
+140:  const baseline = await scanLevel(0, undefined, concurrencyOverride);
+145:    results.push({ level, fix, ...(await scanLevel(level, fix, concurrencyOverride)) });
+
+## no fetch to real provider in tests: every adapter test stubs fetch
+30
+exit=0
+
+## precise restricted-file check (lines of diff; 0 = unchanged)
+src/modules/chatbot/demo-bot/index.ts: 0
+src/modules/chatbot/attacks/library.json: 0
+src/mocks: 0
+src/modules/chatbot/demo-bot/ files changed:
+src/modules/chatbot/demo-bot/chat-route.test.ts
+UI folders changed: 0

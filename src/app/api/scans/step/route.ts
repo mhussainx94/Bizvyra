@@ -3,8 +3,11 @@ import { runScanStep } from "@/core/orchestrator";
 import { stepRateLimit } from "@/core/security/usage";
 import { RunStepRequestSchema, type RunStepResponse } from "@/lib/types";
 
-/** The bot call and the LLM judge each have a 15 s timeout. */
-export const maxDuration = 60;
+/**
+ * Each LLM call (bot, L2 self-check, judge) takes at most 30 s including rate-limit retries (15 s per attempt),
+ * so one step needs at most 90 s.
+ */
+export const maxDuration = 120;
 
 /**
  * POST /api/scans/step: run and judge one step (docs/api-contract.md v2).

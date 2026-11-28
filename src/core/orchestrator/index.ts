@@ -16,7 +16,18 @@ import type {
  * The browser holds the target, the steps and the findings; nothing is stored here.
  */
 
+/** Default steps in flight per scan; SCAN_CONCURRENCY (integer 1–5) overrides it. */
 export const STEP_CONCURRENCY = 3;
+export const SCAN_CONCURRENCY_MIN = 1;
+export const SCAN_CONCURRENCY_MAX = 5;
+
+/** SCAN_CONCURRENCY read on each call: an integer 1–5, otherwise (unset, blank, invalid) the default 3. */
+export function scanConcurrency(raw: string | undefined = process.env.SCAN_CONCURRENCY): number {
+  const value = raw?.trim() ?? "";
+  if (!/^\d+$/.test(value)) return STEP_CONCURRENCY;
+  const n = Number(value);
+  return n >= SCAN_CONCURRENCY_MIN && n <= SCAN_CONCURRENCY_MAX ? n : STEP_CONCURRENCY;
+}
 
 /** TargetInput (v2) describes a chatbot; more modules add their own target inputs. */
 const TARGET_MODULE: ModuleId = "chatbot";
@@ -43,7 +54,7 @@ export function planScan(input: CreateScanRequest, now: Date = new Date()): Crea
     finishedAt: null,
   };
   const steps = mod.plan({ target: input.target, level: input.level, size: input.size });
-  return { scan, steps, concurrency: STEP_CONCURRENCY };
+  return { scan, steps, concurrency: scanConcurrency() };
 }
 
 export type StepOutcome = { ok: true; finding: Finding } | { ok: false; reason: "unknown_check" };

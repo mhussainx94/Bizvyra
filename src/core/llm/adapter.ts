@@ -3,8 +3,12 @@
  * - Provider from LLM_PROVIDER: "gemini" (Gemini REST) or "openai_compatible" (LLM_BASE_URL, e.g. NVIDIA NIM).
  * - Model tier "fast" | "strong" | "judge" resolved from MODEL_FAST / MODEL_STRONG / MODEL_JUDGE
  *   (MODEL_JUDGE is optional and falls back to MODEL_FAST).
- * - LLM_REASONING=off (optional) adds `"reasoning": { "enabled": false }` to openai_compatible request bodies.
- * - Temperature 0, 15 s timeout, never throws, never logs or returns the API key.
+ * - LLM_REASONING=off (optional) adds `"reasoning": { "enabled": false }` to openai_compatible request bodies and
+ *   `generationConfig.thinkingConfig.thinkingBudget = 0` to Gemini request bodies.
+ * - Temperature 0, 15 s timeout per attempt, never throws, never logs or returns the API key.
+ * - Retries HTTP 429/500/502/503/504 and network failures before a response: up to 3 retries with exponential
+ *   backoff and jitter (about 1 s, 2 s, 4 s), honouring Retry-After (seconds or HTTP date), each wait capped at 10 s,
+ *   all attempts within a 30 s total budget. Never retries other statuses (e.g. 400, 401, 403, 404) or timeouts.
  * Environment is read on each call, never at import time.
  */
 
@@ -26,8 +30,11 @@ export interface ChatArgs {
 }
 
 export type LlmErrorCode = "config" | "timeout" | "network" | "http" | "bad_response";
+/** The cause in plain terms, for finding evidence. */
+export type LlmErrorKind = "rate_limited" | "unavailable" | "timeout" | "auth" | "bad_request" | "other";
 export interface LlmError {
   code: LlmErrorCode;
+  kind: LlmErrorKind;
   /** Safe, generic message. Never contains the key, the prompt or the provider's body. */
   message: string;
   status?: number;
@@ -38,6 +45,17 @@ export type ChatResult = { ok: true; text: string } | { ok: false; error: LlmErr
 export const LLM_TIMEOUT_MS = 15_000;
 export const LLM_MAX_OUTPUT_TOKENS = 1024;
 export const LLM_MAX_OUTPUT_TOKENS_CAP = 4096;
+/** Retries after the first attempt. */
+export const LLM_MAX_RETRIES = 3;
+/** Backoff before retry n (0-based) is LLM_RETRY_BASE_MS × 2^n, with ±25% jitter. */
+export const LLM_RETRY_BASE_MS = 1_000;
+/** Longest single wait between attempts, including a Retry-After value. */
+export const LLM_RETRY_MAX_WAIT_MS = 10_000;
+/** All attempts and waits of one call together. */
+export const LLM_TOTAL_BUDGET_MS = 30_000;
+/** A retry is only started when at least this much of the total budget is left after the wait. */
+export const LLM_MIN_ATTEMPT_MS = 2_000;
+const RETRY_STATUSES = new Set([429, 500, 502, 503, 504]);
 const GEMINI_BASE = "https://generativelanguage.googleapis.com/v1beta";
 
 type Provider = "gemini" | "openai_compatible";
@@ -46,7 +64,7 @@ interface LlmConfig {
   apiKey: string;
   model: string;
   baseUrl?: string;
-  /** openai_compatible only: send `reasoning: { enabled: false }` (LLM_REASONING=off). */
+  /** LLM_REASONING=off: openai_compatible sends `reasoning: { enabled: false }`, Gemini a thinking budget of 0. */
   reasoningOff?: boolean;
 }
 
@@ -64,8 +82,21 @@ function outputTokens(args: ChatArgs): number {
   return Math.min(n, LLM_MAX_OUTPUT_TOKENS_CAP);
 }
 
+/** Kind for each failure: status for HTTP errors, otherwise the code. */
+export function errorKind(code: LlmErrorCode, status?: number): LlmErrorKind {
+  if (code === "timeout") return "timeout";
+  if (code === "network") return "unavailable";
+  if (code !== "http" || status === undefined) return "other";
+  if (status === 429) return "rate_limited";
+  if (status === 401 || status === 403) return "auth";
+  if (RETRY_STATUSES.has(status) || status >= 500) return "unavailable";
+  if (status >= 400) return "bad_request";
+  return "other";
+}
+
 function fail(code: LlmErrorCode, message: string, status?: number): ChatResult {
-  return { ok: false, error: status === undefined ? { code, message } : { code, message, status } };
+  const kind = errorKind(code, status);
+  return { ok: false, error: status === undefined ? { code, kind, message } : { code, kind, message, status } };
 }
 
 function readConfig(tier: ModelTier): { ok: true; config: LlmConfig } | { ok: false; result: ChatResult } {
@@ -78,6 +109,7 @@ function readConfig(tier: ModelTier): { ok: true; config: LlmConfig } | { ok: fa
   if (!apiKey) return { ok: false, result: fail("config", "LLM API key is not configured") };
   const model = modelFor(tier);
   if (!model) return { ok: false, result: fail("config", `Model for tier "${tier}" is not configured`) };
+  const reasoningOff = env.LLM_REASONING?.trim().toLowerCase() === "off";
 
   if (provider === "openai_compatible") {
     const raw = env.LLM_BASE_URL?.trim();
@@ -91,13 +123,12 @@ function readConfig(tier: ModelTier): { ok: true; config: LlmConfig } | { ok: fa
     if (url.protocol !== "https:" && url.protocol !== "http:") {
       return { ok: false, result: fail("config", "LLM base URL is invalid") };
     }
-    const reasoningOff = env.LLM_REASONING?.trim().toLowerCase() === "off";
     return {
       ok: true,
       config: { provider, apiKey, model, baseUrl: raw.replace(/\/+$/, ""), ...(reasoningOff ? { reasoningOff } : {}) },
     };
   }
-  return { ok: true, config: { provider, apiKey, model } };
+  return { ok: true, config: { provider, apiKey, model, ...(reasoningOff ? { reasoningOff } : {}) } };
 }
 
 interface BuiltRequest {
@@ -123,6 +154,7 @@ export function buildRequest(config: LlmConfig, args: ChatArgs): BuiltRequest {
           temperature: 0,
           maxOutputTokens: outputTokens(args),
           ...(args.json ? { responseMimeType: "application/json" } : {}),
+          ...(config.reasoningOff ? { thinkingConfig: { thinkingBudget: 0 } } : {}),
         },
       },
     };
@@ -163,6 +195,72 @@ function extractText(provider: Provider, data: unknown): string | null {
   return typeof content === "string" && content.length > 0 ? content : null;
 }
 
+/**
+ * Wait before the next attempt in ms: Retry-After when present and valid (delta seconds or HTTP date),
+ * otherwise exponential backoff with ±25% jitter; never more than LLM_RETRY_MAX_WAIT_MS.
+ */
+export function retryDelayMs(retry: number, retryAfter: string | null, now: number = Date.now()): number {
+  let ms: number | null = null;
+  const value = retryAfter?.trim();
+  if (value) {
+    if (/^\d+(\.\d+)?$/.test(value)) ms = Number(value) * 1000;
+    else if (/^[A-Za-z]{3}/.test(value)) {
+      // HTTP dates (IMF-fixdate, RFC 850, asctime) start with a day name; Date.parse alone would accept "-5".
+      const at = Date.parse(value);
+      if (!Number.isNaN(at)) ms = Math.max(0, at - now);
+    }
+  }
+  if (ms === null) ms = LLM_RETRY_BASE_MS * 2 ** retry * (0.75 + Math.random() * 0.5);
+  return Math.min(Math.round(ms), LLM_RETRY_MAX_WAIT_MS);
+}
+
+const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+
+type Attempt = { done: ChatResult } | { retry: ChatResult; retryAfter: string | null };
+
+/** One HTTP attempt with its own timeout (15 s, or less when the total budget is nearly spent). */
+async function attempt(config: LlmConfig, req: BuiltRequest, timeoutMs: number): Promise<Attempt> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    let res: Response;
+    try {
+      res = await fetch(req.url, {
+        method: "POST",
+        headers: req.headers,
+        body: JSON.stringify(req.body),
+        signal: controller.signal,
+        cache: "no-store",
+      });
+    } catch {
+      return controller.signal.aborted
+        ? { done: fail("timeout", "LLM request timed out") }
+        : { retry: fail("network", "LLM request failed"), retryAfter: null };
+    }
+    if (!res.ok) {
+      // Body is not read or returned: it may echo request details. Cancel it to free the connection.
+      void res.body?.cancel().catch(() => {});
+      const failure = fail("http", "LLM provider returned an error", res.status);
+      return RETRY_STATUSES.has(res.status) ? { retry: failure, retryAfter: res.headers.get("retry-after") } : { done: failure };
+    }
+    let data: unknown;
+    try {
+      data = await res.json();
+    } catch {
+      return {
+        done: controller.signal.aborted
+          ? fail("timeout", "LLM request timed out")
+          : fail("bad_response", "LLM provider returned an unreadable response"),
+      };
+    }
+    const text = extractText(config.provider, data);
+    if (text === null) return { done: fail("bad_response", "LLM provider returned no text") };
+    return { done: { ok: true, text } };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 export async function chat(args: ChatArgs): Promise<ChatResult> {
   try {
     const cfg = readConfig(args.model);
@@ -170,40 +268,16 @@ export async function chat(args: ChatArgs): Promise<ChatResult> {
     const { config } = cfg;
     const req = buildRequest(config, args);
 
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), LLM_TIMEOUT_MS);
-    try {
-      let res: Response;
-      try {
-        res = await fetch(req.url, {
-          method: "POST",
-          headers: req.headers,
-          body: JSON.stringify(req.body),
-          signal: controller.signal,
-          cache: "no-store",
-        });
-      } catch {
-        return controller.signal.aborted
-          ? fail("timeout", "LLM request timed out")
-          : fail("network", "LLM request failed");
-      }
-      if (!res.ok) {
-        // Body is not read or returned: it may echo request details.
-        return fail("http", "LLM provider returned an error", res.status);
-      }
-      let data: unknown;
-      try {
-        data = await res.json();
-      } catch {
-        return controller.signal.aborted
-          ? fail("timeout", "LLM request timed out")
-          : fail("bad_response", "LLM provider returned an unreadable response");
-      }
-      const text = extractText(config.provider, data);
-      if (text === null) return fail("bad_response", "LLM provider returned no text");
-      return { ok: true, text };
-    } finally {
-      clearTimeout(timer);
+    const deadline = Date.now() + LLM_TOTAL_BUDGET_MS;
+    for (let retry = 0; ; retry++) {
+      const remaining = deadline - Date.now();
+      const outcome = await attempt(config, req, Math.min(LLM_TIMEOUT_MS, remaining));
+      if ("done" in outcome) return outcome.done;
+      if (retry >= LLM_MAX_RETRIES) return outcome.retry;
+      const wait = retryDelayMs(retry, outcome.retryAfter);
+      // Give up when too little of the budget would be left for another attempt after the wait.
+      if (Date.now() + wait + LLM_MIN_ATTEMPT_MS > deadline) return outcome.retry;
+      await sleep(wait);
     }
   } catch {
     return fail("network", "LLM request failed");

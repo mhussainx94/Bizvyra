@@ -33,3 +33,10 @@
 {"ts":"2026-11-27T19:04:58Z","task":"T003","from":"IN_PROGRESS","to":"REVIEW","run_id":"T003-2-fa2f","actor":"claude-code","note":"T003-2 report written"}
 {"ts":"2026-11-27T19:05:39Z","task":"T003","from":"REVIEW","to":"VERIFYING","run_id":"T003-2-fa2f","actor":"verifier","note":"verifying attempt 2"}
 {"ts":"2026-11-27T19:06:45Z","task":"T003","from":"VERIFYING","to":"VERIFIED","run_id":"T003-2-fa2f","actor":"verifier","note":"all checks passed"}
+{"ts":"2026-11-27T19:08:34Z","task":"T004","from":"PENDING","to":"ASSIGNED","run_id":null,"actor":"acc","note":"assigned"}
+{"ts":"2026-11-27T19:08:34Z","task":"T004","from":"ASSIGNED","to":"AWAITING_APPROVAL","run_id":null,"actor":"acc","note":"level 3 requires approval"}
+{"ts":"2026-11-27T19:08:34Z","task":"T004","from":"AWAITING_APPROVAL","to":"AWAITING_APPROVAL","run_id":null,"actor":"human","note":"approved","event":"approve"}
+{"ts":"2026-11-27T19:08:35Z","task":"T004","from":"AWAITING_APPROVAL","to":"IN_PROGRESS","run_id":"T004-1-1445","actor":"human","note":"started attempt 1"}
+{"ts":"2026-11-27T19:21:46Z","task":"T004","from":"IN_PROGRESS","to":"REVIEW","run_id":"T004-1-1445","actor":"claude-code","note":"T004-1 report written"}
+{"ts":"2026-11-28T10:43:14Z","task":"T004","from":"REVIEW","to":"VERIFYING","run_id":"T004-1-1445","actor":"verifier","note":"verifying attempt 1"}
+{"ts":"2026-11-28T10:45:29Z","task":"T004","from":"VERIFYING","to":"FAILED","run_id":"T004-1-1445","actor":"verifier","note":"failed checks: test_commands"}

@@ -61,7 +61,7 @@ UI (src/app/(pages), src/components)
 - **SSRF guard** (for future endpoint mode): resolves DNS and blocks private, loopback, link-local, CGNAT and metadata ranges for IPv4 and IPv6 (including IPv4-mapped IPv6); re-checks every redirect; at most 3 redirects; 8 s timeout.
 - **Minimal storage:** the scan routes store nothing. Every finding's prompt, response (≤ 1000 characters) and evidence are redacted of the canary and every protected value (plain, separated, reversed and encoded forms) before they leave the server.
 - **Database:** Supabase Postgres accessed server-side only with the service role key; row level security on every table, no anonymous policies.
-- **LLM calls:** one adapter, temperature 0, 15 s timeout, typed errors that never reach the client and never include the API key.
+- **LLM calls:** one adapter, temperature 0, 15 s timeout per attempt, retries with backoff on rate limits and outages (30 s per call at most), typed errors that never reach the client and never include the API key.
 - **Secrets:** never in code, logs, commits, prompts or reports. `.env.local` is never committed; see `.env.example`.
 
 ## Tech stack
@@ -96,7 +96,11 @@ LLM settings in `.env.local` (see `.env.example`):
 - `MODEL_FAST` (required for scans): the demo bot and the bot under test.
 - `MODEL_JUDGE` (optional): the LLM judge and the L2 self-check; falls back to `MODEL_FAST`.
 - `MODEL_STRONG` (optional): polishes the hardened prompt; without it the deterministic hardener is used.
-- `LLM_REASONING=off` (optional, `openai_compatible` only): adds `"reasoning": { "enabled": false }` to each request body, for reasoning models that are slow or spend the token budget on thinking. Unset leaves request bodies unchanged.
+- `LLM_REASONING=off` (optional): switches off the model's thinking step, for reasoning models that are slow or spend the token budget on thinking. `openai_compatible` request bodies get `"reasoning": { "enabled": false }`; Gemini request bodies get `generationConfig.thinkingConfig.thinkingBudget = 0` (Flash models; Pro models cannot switch thinking off). Unset leaves request bodies unchanged.
+- `SCAN_CONCURRENCY` (optional, integer 1–5, default 3): how many scan steps the browser runs at the same time (the `concurrency` value of `POST /api/scans`). Invalid values use 3.
+- **Retries:** every LLM call is retried when the provider answers HTTP 429, 500, 502, 503 or 504, or the network fails before a response. It retries up to 3 times with backoff and jitter (about 1 s, 2 s, 4 s), honours `Retry-After` (seconds or an HTTP date), waits at most 10 s each time, and gives up after 30 s in total. HTTP 400, 401, 403 and 404 and timeouts are not retried. A call that still fails becomes an `error` finding that names the cause (for example "The AI provider is rate-limiting requests (too many per minute)"). An error never counts as a pass.
+
+**Free-tier keys.** Free and low-tier keys (for example Gemini's free tier) allow only a few requests per minute. Set `SCAN_CONCURRENCY=1` and `LLM_REASONING=off` in `.env.local`. A scan is then slower, but it finishes with real results instead of rate-limit errors.
 
 Smoke test (calls the real LLM: one quick scan is 30 bot calls plus up to 30 judge calls; L2 adds up to 30 self-check calls). With the dev server running and the LLM variables set in `.env.local`:
 
@@ -106,7 +110,9 @@ node eval/smoke-demo.mjs --levels 0,1,2                   # L0, then /api/fix an
 BASE_URL=https://your-deployment.example node eval/smoke-demo.mjs --levels 0,1,2
 ```
 
-It scans the demo bot at L0 (quick, 30 steps, three at a time). With `--levels`, it calls `/api/fix` for L1 and L2 using the L0 findings and scans each level with the returned fix. It prints one table (level, grade, score, breaches, passes, errors, ASR by language) and writes the full results to `eval/results/<timestamp>.json`.
+Add `--concurrency N` (1–10) to override the server's `SCAN_CONCURRENCY` for one run, for example `node eval/smoke-demo.mjs --concurrency 1`.
+
+It scans the demo bot at L0 (quick, 30 steps, `concurrency` at a time, 3 by default). With `--levels`, it calls `/api/fix` for L1 and L2 using the L0 findings and scans each level with the returned fix. It prints one table (level, grade, score, breaches, passes, errors, ASR by language) and writes the full results to `eval/results/<timestamp>.json`.
 
 ## Disclosures
 

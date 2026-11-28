@@ -37,6 +37,7 @@ const LLM_ENV = ["LLM_PROVIDER", "LLM_API_KEY", "LLM_BASE_URL", "LLM_REASONING",
 let fetchGuard: ReturnType<typeof vi.fn>;
 beforeEach(() => {
   for (const name of LLM_ENV) vi.stubEnv(name, "");
+  vi.stubEnv("SCAN_CONCURRENCY", "");
   fetchGuard = vi.fn(async () => {
     throw new Error("unexpected network call in a hermetic test");
   });
@@ -88,6 +89,34 @@ describe("POST /api/targets", () => {
 const PLAN = { target: { mode: "demo" }, level: 0, kind: "baseline", size: "quick" };
 
 describe("POST /api/scans (plan)", () => {
+  it("SCAN_CONCURRENCY (integer 1-5) sets the returned concurrency; invalid values fall back to 3", async () => {
+    const concurrencyFor = async (value: string | undefined) => {
+      if (value === undefined) delete process.env.SCAN_CONCURRENCY;
+      else vi.stubEnv("SCAN_CONCURRENCY", value);
+      const res = await createScan(post("/api/scans", PLAN));
+      expect(res.status).toBe(201);
+      return CreateScanResponseSchema.parse(await res.json()).concurrency;
+    };
+    for (const [value, expected] of [
+      ["1", 1],
+      ["2", 2],
+      ["5", 5],
+      [" 4 ", 4],
+      [undefined, 3],
+      ["", 3],
+      ["0", 3],
+      ["6", 3],
+      ["10", 3],
+      ["-1", 3],
+      ["2.5", 3],
+      ["1e0", 3],
+      ["abc", 3],
+      ["3x", 3],
+    ] as const) {
+      expect([value, await concurrencyFor(value)]).toEqual([value, expected]);
+    }
+  });
+
   it("returns a running scan, 30 quick steps and concurrency 3", async () => {
     const res = await createScan(post("/api/scans", PLAN));
     expect(res.status).toBe(201);
@@ -174,15 +203,25 @@ describe("POST /api/fix, /api/leads, /api/reports", () => {
     vi.stubEnv("LLM_API_KEY", "k");
     vi.stubEnv("LLM_BASE_URL", "https://llm.example.test/v1");
     vi.stubEnv("MODEL_STRONG", "strong-model-1");
-    for (const fetchImpl of [
-      async () => new Response("err", { status: 500 }),
-      async () => Promise.reject(new Error("network down")),
-      async () => Response.json({ choices: [{ message: { content: "not json" } }] }),
-    ]) {
-      vi.stubGlobal("fetch", vi.fn(fetchImpl));
-      const res = await createFix(post("/api/fix", { target: { mode: "demo" }, findings: mockFindings(0), level: 1 }));
-      expect(res.status).toBe(200);
-      expect(CreateFixResponseSchema.parse(await res.json()).fix).toEqual(mockFix(1));
+    // Fake timers: the adapter's retry backoff (T004) runs without real waiting.
+    vi.useFakeTimers();
+    try {
+      for (const [fetchImpl, calls] of [
+        [async () => new Response("err", { status: 500 }), 4], // retried 3 times, then the fallback
+        [async () => Promise.reject(new Error("network down")), 4],
+        [async () => Response.json({ choices: [{ message: { content: "not json" } }] }), 1],
+      ] as const) {
+        const fetchMock = vi.fn(fetchImpl);
+        vi.stubGlobal("fetch", fetchMock);
+        const pending = createFix(post("/api/fix", { target: { mode: "demo" }, findings: mockFindings(0), level: 1 }));
+        await vi.runAllTimersAsync();
+        const res = await pending;
+        expect(res.status).toBe(200);
+        expect(CreateFixResponseSchema.parse(await res.json()).fix).toEqual(mockFix(1));
+        expect(fetchMock).toHaveBeenCalledTimes(calls);
+      }
+    } finally {
+      vi.useRealTimers();
     }
   });
 

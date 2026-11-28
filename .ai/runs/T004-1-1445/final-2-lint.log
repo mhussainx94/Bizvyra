@@ -1,0 +1,6 @@
+
+> bizvyra@0.1.0 lint
+> eslint
+
+
+[exit=0 duration=31.8s cmd=npm run lint]
