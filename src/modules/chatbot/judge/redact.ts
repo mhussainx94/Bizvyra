@@ -35,17 +35,20 @@ function spacedPattern(chars: string[]): string {
  * Global regexes for the plain forms of a secret: any case, up to 3 separators between characters, reversed,
  * Urdu/Arabic-Indic digits. Values shorter than MIN_ASSET_CHARS (normalised) match only as a whole token,
  * so ordinary words are not mangled. Shared by redaction and the hardener.
+ * Uses the `v` flag: same matches as `u` for these patterns, but V8 compiles a `u`-mode regex with many
+ * case-insensitive `[^\p{L}\p{N}]` classes very slowly (~0.5 s each on first use).
  */
 export function secretPatterns(value: string): RegExp[] {
   const needle = normalize(value);
   if (needle.length === 0) return [];
   if (needle.length < MIN_ASSET_CHARS) {
-    const exact = value.trim().replace(/[.*+?^${}()|[\]\\/-]/g, "\\$&");
+    // Outside a class, `\-` is an invalid escape in u/v mode, so "-" is left as is.
+    const exact = value.trim().replace(/[.*+?^${}()|[\]\\/]/g, "\\$&");
     if (!exact) return [];
-    return [new RegExp(`(?<![\\p{L}\\p{N}])${exact}(?![\\p{L}\\p{N}])`, "giu")];
+    return [new RegExp(`(?<![\\p{L}\\p{N}])${exact}(?![\\p{L}\\p{N}])`, "giv")];
   }
   const chars = Array.from(needle);
-  return [new RegExp(spacedPattern(chars), "giu"), new RegExp(spacedPattern([...chars].reverse()), "giu")];
+  return [new RegExp(spacedPattern(chars), "giv"), new RegExp(spacedPattern([...chars].reverse()), "giv")];
 }
 
 function maskPlain(text: string, secret: Secret): string {

@@ -1,0 +1,17 @@
+{
+  "task": "T004",
+  "run_id": "T004-2-adec",
+  "taken": "2026-11-28T10:48:32Z",
+  "head": "148909f69a848e2ff8e6252f03d02baefcf648bc",
+  "dirty": [
+    {
+      "path": ".ai/STATE.md",
+      "sha256": "802037d6d60a02dcaca6b934475b81a69a14418a18531854d24c93ad0141368b"
+    },
+    {
+      "path": ".ai/ledger.jsonl",
+      "sha256": "113eecfb1da545f17cce1a8c8e6edb2350437708ccdc6ef4aa8329a79e3b0dba"
+    }
+  ],
+  "contract_sha256": "002d645d08802e80e784aa0bd9b57df5f3ee8e9804fa4003175e1db57b61f337"
+}

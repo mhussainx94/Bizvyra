@@ -84,6 +84,13 @@ describe("deterministic hardener (no LLM)", () => {
     expect(containsProtected(res.text, ["ZARA50"])).toBe(false);
   });
 
+  it("removes a short value containing a dash without a regex error", () => {
+    const res = stripProtected("Locker A-1 is private.\nReply politely.", ["A-1"]);
+    expect(res.removed).toBe(1);
+    expect(res.text).toBe(`Locker ${NEUTRAL_DESCRIPTION.other} is private.\nReply politely.`);
+    expect(containsProtected(res.text, ["A-1"])).toBe(false);
+  });
+
   it("adds numbered security rules covering every intent, written for EN, UR and Roman Urdu", () => {
     const { fix, rules } = deterministic(DEMO);
     expect(rules).toHaveLength(SECURITY_RULES.length);

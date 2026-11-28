@@ -1,0 +1,42 @@
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vitest.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+ RUN  v4.1.12 /mnt/w/dev/hackathon/bizvyra
+
+ ✓ src/modules/chatbot/harden/harden.test.ts > deterministic hardener (no LLM) > removes every demo protected value and replaces it with a neutral description 18ms
+ ✓ src/modules/chatbot/harden/harden.test.ts > deterministic hardener (no LLM) > removes prompt-mode values, including spaced, lower-case and Urdu-digit copies 18ms
+ ✓ src/modules/chatbot/harden/harden.test.ts > deterministic hardener (no LLM) > drops a line that still holds an encoded copy of a value 0ms
+ ✓ src/modules/chatbot/harden/harden.test.ts > deterministic hardener (no LLM) > removes a short value containing a dash without a regex error 1ms
+ ✓ src/modules/chatbot/harden/harden.test.ts > deterministic hardener (no LLM) > adds numbered security rules covering every intent, written for EN, UR and Roman Urdu 2ms
+ ✓ src/modules/chatbot/harden/harden.test.ts > deterministic hardener (no LLM) > adds a refusal style in the customer's language with EN, UR and Roman Urdu examples 2ms
+ ✓ src/modules/chatbot/harden/harden.test.ts > deterministic hardener (no LLM) > lists every change in plain EN and UR, citing the scan's breach counts 4ms
+ ✓ src/modules/chatbot/harden/harden.test.ts > deterministic hardener (no LLM) > level 1 has the output guard off; level 2 has it fully on with two more changes 4ms
+ ✓ src/modules/chatbot/harden/harden.test.ts > deterministic hardener (no LLM) > works with a prompt that has no protected values (no removal change) 1ms
+ ✓ src/modules/chatbot/harden/harden.test.ts > hardenChatbot: LLM refinement with MODEL_STRONG (adapter mocked) > without MODEL_STRONG it never calls the LLM and returns the deterministic fix 2ms
+ ✓ src/modules/chatbot/harden/harden.test.ts > hardenChatbot: LLM refinement with MODEL_STRONG (adapter mocked) > success: uses the refined prompt when it keeps every rule and adds no protected value 6ms
+ ✓ src/modules/chatbot/harden/harden.test.ts > hardenChatbot: LLM refinement with MODEL_STRONG (adapter mocked) > accepts fenced JSON and rule whitespace changes 2ms
+ ✓ src/modules/chatbot/harden/harden.test.ts > hardenChatbot: LLM refinement with MODEL_STRONG (adapter mocked) > failure (adapter error) → deterministic prompt unchanged 1ms
+ ✓ src/modules/chatbot/harden/harden.test.ts > hardenChatbot: LLM refinement with MODEL_STRONG (adapter mocked) > failure (timeout) → deterministic prompt unchanged 3ms
+ ✓ src/modules/chatbot/harden/harden.test.ts > hardenChatbot: LLM refinement with MODEL_STRONG (adapter mocked) > failure (not configured) → deterministic prompt unchanged 1ms
+ ✓ src/modules/chatbot/harden/harden.test.ts > hardenChatbot: LLM refinement with MODEL_STRONG (adapter mocked) > failure (invalid JSON) → deterministic prompt unchanged 1ms
+ ✓ src/modules/chatbot/harden/harden.test.ts > hardenChatbot: LLM refinement with MODEL_STRONG (adapter mocked) > failure (truncated JSON) → deterministic prompt unchanged 1ms
+ ✓ src/modules/chatbot/harden/harden.test.ts > hardenChatbot: LLM refinement with MODEL_STRONG (adapter mocked) > failure (wrong shape) → deterministic prompt unchanged 2ms
+ ✓ src/modules/chatbot/harden/harden.test.ts > hardenChatbot: LLM refinement with MODEL_STRONG (adapter mocked) > failure (empty prompt) → deterministic prompt unchanged 1ms
+ ✓ src/modules/chatbot/harden/harden.test.ts > hardenChatbot: LLM refinement with MODEL_STRONG (adapter mocked) > failure (too long) → deterministic prompt unchanged 2ms
+ ✓ src/modules/chatbot/harden/harden.test.ts > hardenChatbot: LLM refinement with MODEL_STRONG (adapter mocked) > failure: an adapter that throws → deterministic prompt unchanged 1ms
+ ✓ src/modules/chatbot/harden/harden.test.ts > hardenChatbot: LLM refinement with MODEL_STRONG (adapter mocked) > asset re-insertion (plain) → deterministic prompt unchanged 1ms
+ ✓ src/modules/chatbot/harden/harden.test.ts > hardenChatbot: LLM refinement with MODEL_STRONG (adapter mocked) > asset re-insertion (lower case and spaced) → deterministic prompt unchanged 2ms
+ ✓ src/modules/chatbot/harden/harden.test.ts > hardenChatbot: LLM refinement with MODEL_STRONG (adapter mocked) > asset re-insertion (reversed) → deterministic prompt unchanged 2ms
+ ✓ src/modules/chatbot/harden/harden.test.ts > hardenChatbot: LLM refinement with MODEL_STRONG (adapter mocked) > asset re-insertion (base64) → deterministic prompt unchanged 2ms
+ ✓ src/modules/chatbot/harden/harden.test.ts > hardenChatbot: LLM refinement with MODEL_STRONG (adapter mocked) > asset re-insertion in prompt mode (short credential) → deterministic prompt unchanged 9ms
+ ✓ src/modules/chatbot/harden/harden.test.ts > hardenChatbot: LLM refinement with MODEL_STRONG (adapter mocked) > dropped rules (one rule removed) → deterministic prompt unchanged 2ms
+ ✓ src/modules/chatbot/harden/harden.test.ts > hardenChatbot: LLM refinement with MODEL_STRONG (adapter mocked) > dropped rules (one rule reworded) → deterministic prompt unchanged 3ms
+ ✓ src/modules/chatbot/harden/harden.test.ts > hardenChatbot: LLM refinement with MODEL_STRONG (adapter mocked) > dropped rules (rule renumbered) → deterministic prompt unchanged 4ms
+ ✓ src/modules/chatbot/harden/harden.test.ts > hardenChatbot: LLM refinement with MODEL_STRONG (adapter mocked) > dropped rules (rules replaced by a summary) → deterministic prompt unchanged 2ms
+
+ Test Files  1 passed (1)
+      Tests  30 passed (30)
+   Start at  15:56:48
+   Duration  5.09s (transform 2.04s, setup 0ms, import 3.29s, tests 106ms, environment 0ms)
+

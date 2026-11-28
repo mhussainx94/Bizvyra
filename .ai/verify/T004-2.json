@@ -1,0 +1,192 @@
+{
+  "task": "T004",
+  "attempt": 2,
+  "run_id": "T004-2-adec",
+  "report": ".ai/reports/T004-2.md",
+  "started": "2026-11-28T11:01:42Z",
+  "finished": "2026-11-28T11:03:18Z",
+  "verdict": "VERIFIED",
+  "failed_checks": [],
+  "owner_reason": null,
+  "commands": [
+    {
+      "command": "npm run typecheck",
+      "exit_code": 0,
+      "timed_out": false
+    },
+    {
+      "command": "npm run lint",
+      "exit_code": 0,
+      "timed_out": false
+    },
+    {
+      "command": "npm test",
+      "exit_code": 0,
+      "timed_out": false
+    },
+    {
+      "command": "NEXT_TELEMETRY_DISABLED=1 npm run build",
+      "exit_code": 0,
+      "timed_out": false
+    }
+  ],
+  "changed_paths": [
+    ".ai/STATE.md",
+    ".ai/ledger.jsonl",
+    ".ai/reports/T004-2.md",
+    ".ai/runs/T004-2-adec/cmd-1-typecheck.log",
+    ".ai/runs/T004-2-adec/cmd-2-lint.log",
+    ".ai/runs/T004-2-adec/cmd-3-test.log",
+    ".ai/runs/T004-2-adec/cmd-4-build.log",
+    ".ai/runs/T004-2-adec/e1-vitest-verbose.log",
+    ".ai/runs/T004-2-adec/e2-vitest-full-verbose.log",
+    ".ai/runs/T004-2-adec/e3-flag-equivalence.log",
+    ".ai/runs/T004-2-adec/e3-flag-equivalence.mjs",
+    ".ai/runs/T004-2-adec/start-snapshot.json",
+    "src/modules/chatbot/harden/harden.test.ts",
+    "src/modules/chatbot/harden/protect.ts",
+    "src/modules/chatbot/judge/redact.ts"
+  ],
+  "checks": {
+    "verdicts": {
+      "status": "PASS",
+      "passed": true,
+      "verdicts": {
+        "C1": "PASS",
+        "C2": "PASS",
+        "C3": "PASS",
+        "C4": "PASS",
+        "C5": "PASS",
+        "C6": "PASS",
+        "C7": "PASS"
+      },
+      "failed": [],
+      "not_verified": [],
+      "not_verified_accepted": false
+    },
+    "test_commands": {
+      "status": "PASS",
+      "passed": true,
+      "timeout_seconds": 900,
+      "commands": [
+        {
+          "n": 1,
+          "command": "npm run typecheck",
+          "exit_code": 0,
+          "timed_out": false,
+          "seconds": 10.394,
+          "log": ".ai/verify/T004-2-adec/cmd-1.log",
+          "passed": true
+        },
+        {
+          "n": 2,
+          "command": "npm run lint",
+          "exit_code": 0,
+          "timed_out": false,
+          "seconds": 28.977,
+          "log": ".ai/verify/T004-2-adec/cmd-2.log",
+          "passed": true
+        },
+        {
+          "n": 3,
+          "command": "npm test",
+          "exit_code": 0,
+          "timed_out": false,
+          "seconds": 13.858,
+          "log": ".ai/verify/T004-2-adec/cmd-3.log",
+          "passed": true
+        },
+        {
+          "n": 4,
+          "command": "NEXT_TELEMETRY_DISABLED=1 npm run build",
+          "exit_code": 0,
+          "timed_out": false,
+          "seconds": 37.307,
+          "log": ".ai/verify/T004-2-adec/cmd-4.log",
+          "passed": true
+        }
+      ]
+    },
+    "scope": {
+      "allowed_files": [
+        "src/core/**",
+        "src/modules/**",
+        "src/app/api/**",
+        "src/lib/**",
+        "eval/**",
+        ".env.example",
+        "README.md",
+        "docs/api-contract.md",
+        ".ai/reports/**",
+        ".ai/runs/**"
+      ],
+      "not_checkable_globs": [],
+      "limitations": [
+        "git-ignored files are not covered: changes to them are invisible to this check and to the secret scan"
+      ],
+      "snapshot": ".ai/runs/T004-2-adec/start-snapshot.json",
+      "status": "PASS",
+      "passed": true,
+      "head_at_start": "148909f69a848e2ff8e6252f03d02baefcf648bc",
+      "head_now": "148909f69a848e2ff8e6252f03d02baefcf648bc",
+      "changed": [
+        ".ai/STATE.md",
+        ".ai/ledger.jsonl",
+        ".ai/reports/T004-2.md",
+        ".ai/runs/T004-2-adec/cmd-1-typecheck.log",
+        ".ai/runs/T004-2-adec/cmd-2-lint.log",
+        ".ai/runs/T004-2-adec/cmd-3-test.log",
+        ".ai/runs/T004-2-adec/cmd-4-build.log",
+        ".ai/runs/T004-2-adec/e1-vitest-verbose.log",
+        ".ai/runs/T004-2-adec/e2-vitest-full-verbose.log",
+        ".ai/runs/T004-2-adec/e3-flag-equivalence.log",
+        ".ai/runs/T004-2-adec/e3-flag-equivalence.mjs",
+        ".ai/runs/T004-2-adec/start-snapshot.json",
+        "src/modules/chatbot/harden/harden.test.ts",
+        "src/modules/chatbot/harden/protect.ts",
+        "src/modules/chatbot/judge/redact.ts"
+      ],
+      "out_of_scope": []
+    },
+    "secrets": {
+      "status": "PASS",
+      "passed": true,
+      "findings": [],
+      "scanned": [
+        ".ai/STATE.md",
+        ".ai/ledger.jsonl",
+        ".ai/reports/T004-2.md",
+        ".ai/runs/T004-2-adec/cmd-1-typecheck.log",
+        ".ai/runs/T004-2-adec/cmd-2-lint.log",
+        ".ai/runs/T004-2-adec/cmd-3-test.log",
+        ".ai/runs/T004-2-adec/cmd-4-build.log",
+        ".ai/runs/T004-2-adec/e1-vitest-verbose.log",
+        ".ai/runs/T004-2-adec/e2-vitest-full-verbose.log",
+        ".ai/runs/T004-2-adec/e3-flag-equivalence.log",
+        ".ai/runs/T004-2-adec/e3-flag-equivalence.mjs",
+        ".ai/runs/T004-2-adec/start-snapshot.json",
+        "src/modules/chatbot/harden/harden.test.ts",
+        "src/modules/chatbot/harden/protect.ts",
+        "src/modules/chatbot/judge/redact.ts"
+      ],
+      "skipped": [],
+      "rules": [
+        "aws-access-key",
+        "private-key",
+        "jwt",
+        "sk-token",
+        "github-token",
+        "supabase-service-role-key",
+        "credential-assignment"
+      ]
+    },
+    "contract": {
+      "contract": ".ai/tasks/T004.md",
+      "snapshot": ".ai/runs/T004-2-adec/start-snapshot.json",
+      "status": "PASS",
+      "passed": true,
+      "sha256_at_start": "002d645d08802e80e784aa0bd9b57df5f3ee8e9804fa4003175e1db57b61f337",
+      "sha256_now": "002d645d08802e80e784aa0bd9b57df5f3ee8e9804fa4003175e1db57b61f337"
+    }
+  }
+}
