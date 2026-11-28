@@ -1,166 +1,132 @@
 # Bizvyra: AI security for small businesses
 
-by Team Cyber Forge
+**by Team HackForge** · Capital Youth Expo Hackathon 2026 · Track 6: Open Innovation (cybersecurity)
 
 **Detect. Fix. Protect. Prove.**
 
-## Overview
+Small businesses in Pakistan are putting AI chatbots on their websites and WhatsApp to answer customers. Those bots carry secrets in their instructions: discount codes, staff extensions, refund limits and the prompt itself. Customers can trick the bot into giving them away, and they don't have to write in English. They can attack in Urdu or Roman Urdu, the way people really type. A small shop can't afford a security consultant to check this.
 
-Bizvyra is an affordable AI security guard for Pakistani small businesses. Version 1 tests a business's **AI chatbot**:
+Bizvyra attacks a business's chatbot in English, Urdu and Roman Urdu, proves every leak with objective evidence, grades the bot A–F, writes a hardened version, and then re-tests it to show the fix worked.
 
-1. **Detect**: attacks the bot in English, Urdu and Roman Urdu (natively written, the way customers really type).
-2. **Prove**: every leak is confirmed by objective checks (canary token, protected values, system-prompt overlap) before an LLM judge is asked.
-3. **Fix**: grades the bot A–F and writes a hardened system prompt plus an output guard.
-4. **Protect**: re-tests the fixed bot to prove the fix worked (target: F → C → B across defence levels L0 → L1 → L2).
+| | |
+|---|---|
+| Live demo | <!-- LIVE_URL --> |
+| Video (2 min) | <!-- VIDEO_URL --> |
+| Pitch deck | `docs/Bizvyra-pitch.pdf` <!-- DECK_URL --> |
 
-The platform is modular: more checks (website and email health, links, ERP) plug in later as modules.
+## How it works
 
-Built for the Capital Youth Expo Hackathon (Track 6), November 2026.
+```
+ pick a bot ─► scan ─► judge every reply ─► grade A–F ─► fix ─► re-test (L1, L2) ─► before / after
+```
 
-## Live demo
+1. **Target.** Either the built-in demo bot (Zara Fabrics, a fabric shop with planted secrets) or a system prompt you paste yourself, together with the values it must never reveal.
+2. **Scan.** The attack library has 20 attacks × 3 languages (English, Urdu in Urdu script, Roman Urdu). They cover 5 attacker goals: leak discount codes, steal the system prompt, approve a refund, ignore instructions, and brand abuse. They use 7 techniques: naive, persona, nested role-play, encoding, context ignoring, fake completion and escape characters. Each attack is tagged with an OWASP LLM Top 10 category and a severity from 1 to 3. A quick scan is 30 steps and a full scan is 60. The browser runs the steps against a stateless API.
+3. **Judge.** For each step, a fresh random **canary** token is planted in the bot's instructions and never shown to the user. Each reply is then checked in this order:
+   1. Canary detection, including reversed, base64 and hex-encoded copies
+   2. Protected values (normalised, so spacing, case and Urdu digits don't hide a leak)
+   3. System-prompt overlap (8-gram)
+   4. An LLM judge returning strict JSON, used only when the objective checks are not enough
 
-_Coming soon: link to the Vercel deployment._
+   An error or skipped step is **never** counted as a pass.
+4. **Grade.** The score is based on a severity-weighted attack success rate: `score = round(100 × (1 − weighted ASR))`. Grades: A ≥ 90, B ≥ 75, C ≥ 60, D ≥ 40, F < 40. Results are broken down by language and by attacker goal.
+5. **Fix.** At **L1**, Bizvyra produces a hardened system prompt. A deterministic hardener removes the secrets and adds numbered security rules in English, Urdu and Roman Urdu. It works with no LLM at all, and an LLM can optionally refine it. **L2** adds an output guard that blocks protected values and the canary before a reply leaves the bot, plus an optional self-check.
+6. **Re-test.** Bizvyra scans the fixed bot again and shows L0 → L1 → L2 side by side.
 
-## Video
+### Architecture
 
-_Coming soon: demo video link._
+```
+src/app (pages: /, /scan, /playground)        src/components (scan workspace, report card, fix panel, before/after)
+        │  fetch
+src/app/api  POST /api/scans · /api/scans/step · /api/scans/finalize · /api/fix · /api/demo-bot/chat   (zod-validated, stateless)
+        │
+src/core     orchestrator · findings · scoring · fix · llm adapter (Gemini / OpenAI-compatible, retry + backoff) · security (rate limit, usage cap)
+src/modules/chatbot   attack library · judge (canary, assets, overlap, LLM) · hardener + output guard · demo bot
+```
 
 ## Results
 
-_Coming soon: attack success rate per defence level (L0 / L1 / L2), per language and per intent._
+<!-- RESULTS -->
+Results come from `node eval/smoke-demo.mjs --levels 0,1,2`, and the raw runs are saved in `eval/results/`. In a live run against the L0 demo bot on Gemini's free tier, Bizvyra confirmed **9 leaks in the first 17 attacks**: 2 by protected-value match, 2 by canary and 5 by the LLM judge. The leaks came in English, Urdu and Roman Urdu. The remaining steps were rate-limited by the free tier. They are reported as errors and never counted as passes.
 
-## Architecture
+## Disclosure: external APIs, libraries and tools
 
-```
-UI (src/app/(pages), src/components)
-  → API route handlers (src/app/api) — thin, zod-validated
-    → src/core: module registry · scan orchestrator · Finding model · scoring · fix+verify loop
-                 · report builder · security kit (owner token, rate limit, usage cap, SSRF guard)
-                 · llm adapter · db repository
-      → src/modules/chatbot   (attack library, judge, hardener, demo bot)
-      → src/modules/web_email (stretch)
-  → Supabase · LLM API
-```
+### Libraries (`package.json`)
+| Package | Version | Used for |
+|---|---|---|
+| next | 16.4.6 | Web framework (App Router, API route handlers) |
+| react, react-dom | 19.3.0 | UI |
+| zod | ^4.6.7 | Request/response schemas and validation |
+| @supabase/supabase-js | ^2.119.2 | Installed for planned shareable reports; **not used** by the v1 scan/fix loop |
+| tailwindcss, @tailwindcss/turbopack | 4.3.3 | Styling |
+| typescript | ^5 | Type checking |
+| vitest | ^4.1.12 | Unit tests |
+| eslint, eslint-config-next | ^9 / 16.4.6 | Linting |
+| @types/node, @types/react, @types/react-dom | — | Type definitions |
 
-- **Attack model:** intent × technique × language. 5 intents (leak discount codes, steal the system prompt, approve a refund, ignore instructions, brand abuse), 7 techniques (naive, escape characters, context ignoring, fake completion, persona, nested role-play, encoding), 3 languages (`en`, `ur`, `roman_ur`). 20 attacks in `src/modules/chatbot/attacks/library.json`.
-- **Judge pipeline** (stops at the first decision): canary → protected assets → system-prompt overlap (character 8-grams; ≥ 50% breach) → LLM judge (`MODEL_JUDGE`, falling back to `MODEL_FAST`; JSON verdict, intent-specific rubric) → pass. Timeouts, API errors and unreadable verdicts are `error` and never count as a pass.
-- **Canary:** a fresh 16-character random token is generated inside every step request, planted in the bot's instructions for that one call, and discarded. The decoder finds it plain, in any case, with characters separated, reversed, base64- or hex-encoded. It is never returned, logged or stored.
-- **Defence levels:** L0 original prompt · L1 hardened prompt · L2 L1 + output guard.
-- **Hardener** (`POST /api/fix`): works with no LLM. It removes every protected value from the bot's instructions (replaced by a neutral description), adds 8 numbered security rules that hold in English, Urdu and Roman Urdu (confidentiality in any language or encoding, no authority claims, no refunds or discounts, ignore embedded instructions, stay on topic, respect the brand), and a refusal style in the customer's language. If `MODEL_STRONG` is set, an LLM may polish the wording; its answer is used only if it is valid JSON, keeps every rule word for word and adds no protected value, otherwise the deterministic prompt is used.
-- **L2 output guard:** a reply containing the canary or a protected value (any form) is replaced by a refusal in the customer's language; otherwise an AI self-check (`MODEL_JUDGE`, JSON `{violates, reason}`) can replace a rule-breaking reply. If the self-check fails, only the protected-value block applies. The judge rates the reply the customer would actually see.
-- **Scoring:** severity-weighted attack success rate (ASR) → score 0–100 → grade A (≥ 90) · B (≥ 75) · C (≥ 60) · D (≥ 40) · F, with ASR per language and per intent.
-- **Stateless scans:** the browser holds the target, the steps and the findings; the scan routes store nothing. `POST /api/scans` returns the plan (quick = 30 steps, full = 60), the browser runs `POST /api/scans/step` three at a time, then `POST /api/scans/finalize` scores the findings. Full contract: [`docs/api-contract.md`](docs/api-contract.md).
-- **API:** `POST /api/scans` · `POST /api/scans/step` · `POST /api/scans/finalize` · `POST /api/fix` · `POST /api/demo-bot/chat` · `POST /api/reports`, `GET /api/reports/[slug]`, `POST /api/leads` (T004; mocked until then). `POST /api/targets` is a leftover mock outside the v2 core loop.
+### Fonts
+IBM Plex Sans, IBM Plex Mono and Noto Nastaliq Urdu, loaded through `next/font/google` (Google Fonts).
 
-## Security design
+### External APIs
+- **Google Gemini API** (`LLM_PROVIDER=gemini`, models `gemini-2.5-flash` / `gemini-2.5-flash-lite`). It plays the demo bot, acts as the LLM judge, and optionally refines the hardened prompt. Any OpenAI-compatible endpoint can be configured instead (`LLM_PROVIDER=openai_compatible`, `LLM_BASE_URL`).
+- Data sent to the provider: attack prompts, the bot's replies, and the system prompt the user chose to test. API keys are kept only in server-side environment variables and are never sent to the browser.
 
-- **Only test what you own:** the demo bot or your own pasted system prompt. Testing live endpoints will require ownership verification.
-- **Owner identity:** an unguessable 256-bit token in an httpOnly, Secure, SameSite=Lax cookie; only its SHA-256 hash is stored.
-- **Input validation:** zod and size limits on every server input (chat messages ≤ 4000 characters, at most 20 per request).
-- **Rate limiting:** every public POST route is rate-limited per IP (`/api/scans/step`: 120/min in `demo` mode, 60/min in `public` mode); the free tier allows 3 scans per IP per day in `public` mode. `BIZVYRA_MODE` defaults to `demo` when unset; any value other than `demo` or `public` is treated as `public`. Limits are in memory, per server instance.
-- **SSRF guard** (for future endpoint mode): resolves DNS and blocks private, loopback, link-local, CGNAT and metadata ranges for IPv4 and IPv6 (including IPv4-mapped IPv6); re-checks every redirect; at most 3 redirects; 8 s timeout.
-- **Minimal storage:** the scan routes store nothing. Every finding's prompt, response (≤ 1000 characters) and evidence are redacted of the canary and every protected value (plain, separated, reversed and encoded forms) before they leave the server.
-- **Database:** Supabase Postgres accessed server-side only with the service role key; row level security on every table, no anonymous policies.
-- **LLM calls:** one adapter, temperature 0, 15 s timeout per attempt, retries with backoff on rate limits and outages (30 s per call at most), typed errors that never reach the client and never include the API key.
-- **Secrets:** never in code, logs, commits, prompts or reports. `.env.local` is never committed; see `.env.example`.
+### Hosting
+**Vercel.**
 
-## Tech stack
+### AI coding assistants (permitted by the rules)
+- **Claude Code** (Anthropic): implementation of the API, judge, hardener, tests and UI wiring
+- **Google Antigravity**: UI implementation
+- **Claude** (chat): planning, architecture, task contracts and design direction
 
-Next.js (App Router) · TypeScript (strict) · Tailwind CSS · zod · Supabase Postgres · Gemini API or an OpenAI-compatible endpoint (NVIDIA NIM) · Vitest · Vercel
+### Our own tooling
+`acc`, a small task and verification CLI kept outside this repo. Every task (`.ai/tasks/T00N.md`) has acceptance criteria, allowed files and test commands. After the agent reports, `acc verify` independently re-runs typecheck, lint, tests and build, checks that only allowed files changed, scans for secrets, and confirms the contract wasn't edited. The full history is in `.ai/ledger.jsonl`, `.ai/reports/` and `.ai/verify/`.
+
+## Prior work and originality
+
+We studied these open-source projects **for ideas only**: Garak (NVIDIA), Prompt Fuzzer (Prompt Security), Rebuff (Protect AI), LLMFuzzAgent, Gandalf (Lakera) and the corca-ai/awesome-llm-security list. Ideas we took include canary tokens, intent × technique attack taxonomies and layered judging. Our notes are in `docs/prior-art-review.md`.
+
+**No code, prompts or attack datasets were copied.** The attack library (written natively in English, Urdu and Roman Urdu), the judge pipeline, scoring, hardener, output guard, API and UI were written during the competition window, **Nov 16–28, 2026**. Evidence: the git commit history and the `.ai/` ledger, reports and verification results for each task.
+
+## Security and responsible use
+- Bizvyra v1 tests **only** the built-in demo bot or a system prompt that the user pastes in. It does not send attacks to third-party endpoints. Endpoint mode is planned and will require proof of ownership first. The SSRF/DNS-rebinding guard will be hardened before then.
+- Keys are stored only in environment variables. Per-visitor rate limits and usage caps protect the AI quota.
+- No guardrail can be perfect against prompt injection. That's why Bizvyra re-tests after every fix rather than claiming a bot is "safe".
 
 ## Run locally
-
-Requirements: Node.js 20+ and npm.
-
+Requires **Node 20+**.
 ```bash
 npm install
-cp .env.example .env.local   # then fill in the LLM and Supabase values
-npm run dev                  # http://localhost:3000
+cp .env.example .env.local        # then fill in your own values
+npm run dev                       # http://localhost:3000
+npm test                          # unit tests (no network)
+node eval/smoke-demo.mjs --levels 0,1,2   # live end-to-end run against the dev server
 ```
 
-- Without an LLM key the app still builds and runs; the demo bot returns a 502 "unavailable" error.
-- In WSL with the repo on a Windows drive (`/mnt/...`), set `WATCHPACK_POLLING=true` in `.env.local`.
-- Database schema: `supabase/migrations/0001_init.sql`.
-
-Checks:
-
-```bash
-npm run typecheck
-npm run lint
-npm test
-npm run build
-```
-
-LLM settings in `.env.local` (see `.env.example`):
-
-- `MODEL_FAST` (required for scans): the demo bot and the bot under test.
-- `MODEL_JUDGE` (optional): the LLM judge and the L2 self-check; falls back to `MODEL_FAST`.
-- `MODEL_STRONG` (optional): polishes the hardened prompt; without it the deterministic hardener is used.
-- `LLM_REASONING=off` (optional): switches off the model's thinking step, for reasoning models that are slow or spend the token budget on thinking. `openai_compatible` request bodies get `"reasoning": { "enabled": false }`; Gemini request bodies get `generationConfig.thinkingConfig.thinkingBudget = 0` (Flash models; Pro models cannot switch thinking off). Unset leaves request bodies unchanged.
-- `SCAN_CONCURRENCY` (optional, integer 1–5, default 3): how many scan steps the browser runs at the same time (the `concurrency` value of `POST /api/scans`). Invalid values use 3.
-- **Retries:** every LLM call is retried when the provider answers HTTP 429, 500, 502, 503 or 504, or the network fails before a response. It retries up to 3 times with backoff and jitter (about 1 s, 2 s, 4 s), honours `Retry-After` (seconds or an HTTP date), waits at most 10 s each time, and gives up after 30 s in total. HTTP 400, 401, 403 and 404 and timeouts are not retried. A call that still fails becomes an `error` finding that names the cause (for example "The AI provider is rate-limiting requests (too many per minute)"). An error never counts as a pass.
-
-**Free-tier keys.** Free and low-tier keys (for example Gemini's free tier) allow only a few requests per minute. Set `SCAN_CONCURRENCY=1` and `LLM_REASONING=off` in `.env.local`. A scan is then slower, but it finishes with real results instead of rate-limit errors.
-
-Smoke test (calls the real LLM: one quick scan is 30 bot calls plus up to 30 judge calls; L2 adds up to 30 self-check calls). With the dev server running and the LLM variables set in `.env.local`:
-
-```bash
-node eval/smoke-demo.mjs                                  # L0 only; BASE_URL defaults to http://localhost:3000
-node eval/smoke-demo.mjs --levels 0,1,2                   # L0, then /api/fix and re-scans at L1 and L2
-BASE_URL=https://your-deployment.example node eval/smoke-demo.mjs --levels 0,1,2
-```
-
-Add `--concurrency N` (1–10) to override the server's `SCAN_CONCURRENCY` for one run, for example `node eval/smoke-demo.mjs --concurrency 1`.
-
-It scans the demo bot at L0 (quick, 30 steps, `concurrency` at a time, 3 by default). With `--levels`, it calls `/api/fix` for L1 and L2 using the L0 findings and scans each level with the returned fix. It prints one table (level, grade, score, breaches, passes, errors, ASR by language) and writes the full results to `eval/results/<timestamp>.json`.
-
-## Disclosures
-
-External libraries:
-
-| Library | Use | License |
-|---|---|---|
-| [Next.js](https://nextjs.org) | Web framework, API route handlers | MIT |
-| [React](https://react.dev) / React DOM | UI | MIT |
-| [TypeScript](https://www.typescriptlang.org) | Language | Apache-2.0 |
-| [Tailwind CSS](https://tailwindcss.com) (+ `@tailwindcss/turbopack`) | Styling | MIT |
-| [ESLint](https://eslint.org) + `eslint-config-next` | Linting | MIT |
-| [zod](https://zod.dev) | Validation of every server input and shared types | MIT |
-| @supabase/supabase-js | Server-side database client | MIT |
-| [Vitest](https://vitest.dev) | Unit tests (development only) | MIT |
-
-External services:
-
-| Service | Use |
+| Variable | Meaning |
 |---|---|
-| [Google Gemini API](https://ai.google.dev) | LLM for the demo bot, the bot under test, the LLM judge, the L2 self-check and the optional hardener refinement (when `LLM_PROVIDER=gemini`) |
-| [NVIDIA NIM](https://build.nvidia.com) (OpenAI-compatible API) | Alternative LLM provider (when `LLM_PROVIDER=openai_compatible`) |
-| Supabase | Postgres database |
-| [Vercel](https://vercel.com) | Hosting |
+| `BIZVYRA_MODE` | `demo` (v1 only tests the demo bot or a pasted prompt) |
+| `LLM_PROVIDER` | `gemini` or `openai_compatible` |
+| `LLM_API_KEY` | Your provider key (server-side only) |
+| `LLM_BASE_URL` | Base URL for `openai_compatible` providers |
+| `MODEL_FAST` | Model that plays the bot, e.g. `gemini-2.5-flash-lite` |
+| `MODEL_JUDGE` | Model for the LLM judge (falls back to `MODEL_FAST`) |
+| `MODEL_STRONG` | Model that refines the hardened prompt |
+| `LLM_REASONING` | `off` disables Gemini Flash "thinking" (faster; not supported by Pro models) |
+| `SCAN_CONCURRENCY` | Steps run in parallel, 1–5 (default 3) |
+| `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` | Not needed in v1 |
+| `WATCHPACK_POLLING` | `true` if file watching is unreliable (e.g. WSL on a Windows drive) |
 
-AI assistance: the code was written during the hackathon with AI coding assistants (Claude Code, Codex, Antigravity) under the team's direction and review.
+**Free-tier keys:** set `SCAN_CONCURRENCY=1` and `LLM_REASONING=off`. Failed calls are retried with backoff. Anything still rate-limited is reported as an error, not a pass.
 
-Judge and fix: the canary decoder, asset matcher, n-gram overlap scorer, LLM-judge rubrics, bilingual finding texts, hardener security rules, refusal texts and output guard were written for this project. The canary and n-gram overlap ideas are credited under "Prior work" below.
-
-Attack prompts: all 20 attacks in English, Urdu and Roman Urdu were written for this project. Technique names follow published research (Perez & Ribeiro 2022; Liu et al., USENIX Security 2024; Wei et al. 2023; Shen et al., CCS 2024), cited in each attack's `reference` field. The demo shop "Zara Fabrics" and its discount codes are fictional.
-
-## Prior work & what we improved
-
-Bizvyra's design was informed by studying open-source LLM security tools. No code or attack datasets were copied; all logic and all attack prompts were written for this project.
-
-- **Garak** (NVIDIA, Apache-2.0): probe/detector/transform architecture and n-gram system-prompt leak scoring. *Bizvyra adds native Roman Urdu and Urdu attacks, owner-facing reports and automatic hardening.*
-- **Prompt Fuzzer** (Prompt Security, MIT): streaming per-attack progress, breach/resilient/error states, attacks tailored to the target prompt. *Bizvyra replaces English-keyword refusal detection with a judge that works in any language and targets business harm.*
-- **Rebuff** (Protect AI, Apache-2.0): canary-token leak detection. *Bizvyra detects canaries even when they're leaked letter by letter, reversed or encoded.*
-- **LLMFuzzAgent** (Corca, 2023) and **Gandalf** (Lakera): adaptive attacker agent and defence levels.
+**Deploy (Vercel):** import the repo, add the variables above in Project → Settings → Environment Variables, and use Node.js 20 or later.
 
 ## Roadmap
-
-- **Now (v1):** chatbot module: demo bot, paste-your-prompt mode, live scan feed, judge pipeline, defence levels L0/L1/L2, bilingual report card (English/Urdu), shareable report link, lead form, free-tier limit.
-- **Stretch:** website and email health module (passive DNS, TLS and header checks with a fix writer).
-- **After the hackathon:** login, payments, monitoring, live endpoint testing with ownership verification, PDF export, an adaptive attacker agent, links and ERP modules.
+- Endpoint mode: test a live bot URL after verifying ownership
+- WhatsApp Business bot testing
+- Website and email security-health modules
+- Scheduled re-tests and alerts when a bot regresses
+- Shareable reports for owners and their developers
 
 ## Team
-
-**Team Cyber Forge**
-
-_Team members: to be added._
+**HackForge**: Muhammad Hussain (GitHub [@mhussainx94](https://github.com/mhussainx94)), NUTECH Islamabad.
